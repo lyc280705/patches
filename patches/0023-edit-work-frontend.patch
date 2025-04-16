@@ -1,0 +1,439 @@
+From 9d914c4545f8f261e96246c37010b1eea8bbf9b3 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 17:35:44 +0800
+Subject: [PATCH 23/85] =?UTF-8?q?edit-=E4=BF=AE=E6=94=B9=E5=90=8D=E7=A7=B0?=
+ =?UTF-8?q?work->frontend?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ {work => frontend}/.editorconfig                    |   0
+ {work => frontend}/.gitattributes                   |   0
+ {work => frontend}/.gitignore                       |   0
+ {work => frontend}/.prettierrc.json                 |   0
+ {work => frontend}/.vscode/extensions.json          |   0
+ {work => frontend}/README.md                        |   0
+ {work => frontend}/env.d.ts                         |   0
+ {work => frontend}/eslint.config.ts                 |   0
+ {work => frontend}/index.html                       |   0
+ {work => frontend}/package-lock.json                |   0
+ {work => frontend}/package.json                     |   0
+ {work => frontend}/public/favicon.png               | Bin
+ {work => frontend}/src/App.vue                      |   0
+ {work => frontend}/src/api/dify.js                  |   0
+ {work => frontend}/src/assets/logo.svg              |   0
+ .../src/components/__tests__/HelloWorld.spec.ts     |   0
+ .../src/components/main-layout/index.vue            |   0
+ .../src/components/not-permission-page/index.vue    |   0
+ {work => frontend}/src/constant/route.ts            |   0
+ {work => frontend}/src/env.d.ts                     |   0
+ {work => frontend}/src/imgs/bot.png                 | Bin
+ {work => frontend}/src/imgs/call.png                | Bin
+ {work => frontend}/src/imgs/delete.png              | Bin
+ {work => frontend}/src/imgs/dia.png                 | Bin
+ {work => frontend}/src/imgs/four.png                | Bin
+ {work => frontend}/src/imgs/hw.png                  | Bin
+ {work => frontend}/src/imgs/hw2.png                 | Bin
+ {work => frontend}/src/imgs/hw3.png                 | Bin
+ {work => frontend}/src/imgs/hw4.png                 | Bin
+ {work => frontend}/src/imgs/lately.png              | Bin
+ {work => frontend}/src/imgs/line.png                | Bin
+ {work => frontend}/src/imgs/login.png               | Bin
+ {work => frontend}/src/imgs/loginout.png            | Bin
+ {work => frontend}/src/imgs/logo.png                | Bin
+ {work => frontend}/src/imgs/math.png                | Bin
+ {work => frontend}/src/imgs/pen.png                 | Bin
+ {work => frontend}/src/imgs/person.png              | Bin
+ {work => frontend}/src/imgs/register.png            | Bin
+ {work => frontend}/src/imgs/reset.png               | Bin
+ {work => frontend}/src/imgs/search.png              | Bin
+ {work => frontend}/src/imgs/send.png                | Bin
+ {work => frontend}/src/imgs/set.png                 | Bin
+ {work => frontend}/src/imgs/user.png                | Bin
+ {work => frontend}/src/main.ts                      |   0
+ {work => frontend}/src/routes/home.ts               |   0
+ {work => frontend}/src/routes/index.ts              |   0
+ {work => frontend}/src/routes/login.ts              |   0
+ {work => frontend}/src/routes/register.ts           |   0
+ {work => frontend}/src/routes/reset.ts              |   0
+ {work => frontend}/src/stores/counter.ts            |   0
+ {work => frontend}/src/type/common.ts               |   0
+ {work => frontend}/src/views/HomeView.vue           |   0
+ {work => frontend}/src/views/QMathify.vue           |   0
+ {work => frontend}/src/views/ai.vue                 |   0
+ {work => frontend}/src/views/home.vue               |   0
+ {work => frontend}/src/views/login.vue              |   0
+ {work => frontend}/src/views/register.vue           |   0
+ {work => frontend}/src/views/reset.vue              |   0
+ {work => frontend}/style.css                        |   0
+ {work => frontend}/tailwind.config.js               |   0
+ {work => frontend}/tsconfig.app.json                |   0
+ {work => frontend}/tsconfig.json                    |   0
+ {work => frontend}/tsconfig.node.json               |   0
+ {work => frontend}/tsconfig.vitest.json             |   0
+ {work => frontend}/vite.config.ts                   |   0
+ {work => frontend}/vitest.config.ts                 |   0
+ work/.vite/deps/_metadata.json                      |   8 ++++++++
+ work/.vite/deps/package.json                        |   3 +++
+ 68 files changed, 11 insertions(+)
+ rename {work => frontend}/.editorconfig (100%)
+ rename {work => frontend}/.gitattributes (100%)
+ rename {work => frontend}/.gitignore (100%)
+ rename {work => frontend}/.prettierrc.json (100%)
+ rename {work => frontend}/.vscode/extensions.json (100%)
+ rename {work => frontend}/README.md (100%)
+ rename {work => frontend}/env.d.ts (100%)
+ rename {work => frontend}/eslint.config.ts (100%)
+ rename {work => frontend}/index.html (100%)
+ rename {work => frontend}/package-lock.json (100%)
+ rename {work => frontend}/package.json (100%)
+ rename {work => frontend}/public/favicon.png (100%)
+ rename {work => frontend}/src/App.vue (100%)
+ rename {work => frontend}/src/api/dify.js (100%)
+ rename {work => frontend}/src/assets/logo.svg (100%)
+ rename {work => frontend}/src/components/__tests__/HelloWorld.spec.ts (100%)
+ rename {work => frontend}/src/components/main-layout/index.vue (100%)
+ rename {work => frontend}/src/components/not-permission-page/index.vue (100%)
+ rename {work => frontend}/src/constant/route.ts (100%)
+ rename {work => frontend}/src/env.d.ts (100%)
+ rename {work => frontend}/src/imgs/bot.png (100%)
+ rename {work => frontend}/src/imgs/call.png (100%)
+ rename {work => frontend}/src/imgs/delete.png (100%)
+ rename {work => frontend}/src/imgs/dia.png (100%)
+ rename {work => frontend}/src/imgs/four.png (100%)
+ rename {work => frontend}/src/imgs/hw.png (100%)
+ rename {work => frontend}/src/imgs/hw2.png (100%)
+ rename {work => frontend}/src/imgs/hw3.png (100%)
+ rename {work => frontend}/src/imgs/hw4.png (100%)
+ rename {work => frontend}/src/imgs/lately.png (100%)
+ rename {work => frontend}/src/imgs/line.png (100%)
+ rename {work => frontend}/src/imgs/login.png (100%)
+ rename {work => frontend}/src/imgs/loginout.png (100%)
+ rename {work => frontend}/src/imgs/logo.png (100%)
+ rename {work => frontend}/src/imgs/math.png (100%)
+ rename {work => frontend}/src/imgs/pen.png (100%)
+ rename {work => frontend}/src/imgs/person.png (100%)
+ rename {work => frontend}/src/imgs/register.png (100%)
+ rename {work => frontend}/src/imgs/reset.png (100%)
+ rename {work => frontend}/src/imgs/search.png (100%)
+ rename {work => frontend}/src/imgs/send.png (100%)
+ rename {work => frontend}/src/imgs/set.png (100%)
+ rename {work => frontend}/src/imgs/user.png (100%)
+ rename {work => frontend}/src/main.ts (100%)
+ rename {work => frontend}/src/routes/home.ts (100%)
+ rename {work => frontend}/src/routes/index.ts (100%)
+ rename {work => frontend}/src/routes/login.ts (100%)
+ rename {work => frontend}/src/routes/register.ts (100%)
+ rename {work => frontend}/src/routes/reset.ts (100%)
+ rename {work => frontend}/src/stores/counter.ts (100%)
+ rename {work => frontend}/src/type/common.ts (100%)
+ rename {work => frontend}/src/views/HomeView.vue (100%)
+ rename {work => frontend}/src/views/QMathify.vue (100%)
+ rename {work => frontend}/src/views/ai.vue (100%)
+ rename {work => frontend}/src/views/home.vue (100%)
+ rename {work => frontend}/src/views/login.vue (100%)
+ rename {work => frontend}/src/views/register.vue (100%)
+ rename {work => frontend}/src/views/reset.vue (100%)
+ rename {work => frontend}/style.css (100%)
+ rename {work => frontend}/tailwind.config.js (100%)
+ rename {work => frontend}/tsconfig.app.json (100%)
+ rename {work => frontend}/tsconfig.json (100%)
+ rename {work => frontend}/tsconfig.node.json (100%)
+ rename {work => frontend}/tsconfig.vitest.json (100%)
+ rename {work => frontend}/vite.config.ts (100%)
+ rename {work => frontend}/vitest.config.ts (100%)
+ create mode 100644 work/.vite/deps/_metadata.json
+ create mode 100644 work/.vite/deps/package.json
+
+diff --git a/work/.editorconfig b/frontend/.editorconfig
+similarity index 100%
+rename from work/.editorconfig
+rename to frontend/.editorconfig
+diff --git a/work/.gitattributes b/frontend/.gitattributes
+similarity index 100%
+rename from work/.gitattributes
+rename to frontend/.gitattributes
+diff --git a/work/.gitignore b/frontend/.gitignore
+similarity index 100%
+rename from work/.gitignore
+rename to frontend/.gitignore
+diff --git a/work/.prettierrc.json b/frontend/.prettierrc.json
+similarity index 100%
+rename from work/.prettierrc.json
+rename to frontend/.prettierrc.json
+diff --git a/work/.vscode/extensions.json b/frontend/.vscode/extensions.json
+similarity index 100%
+rename from work/.vscode/extensions.json
+rename to frontend/.vscode/extensions.json
+diff --git a/work/README.md b/frontend/README.md
+similarity index 100%
+rename from work/README.md
+rename to frontend/README.md
+diff --git a/work/env.d.ts b/frontend/env.d.ts
+similarity index 100%
+rename from work/env.d.ts
+rename to frontend/env.d.ts
+diff --git a/work/eslint.config.ts b/frontend/eslint.config.ts
+similarity index 100%
+rename from work/eslint.config.ts
+rename to frontend/eslint.config.ts
+diff --git a/work/index.html b/frontend/index.html
+similarity index 100%
+rename from work/index.html
+rename to frontend/index.html
+diff --git a/work/package-lock.json b/frontend/package-lock.json
+similarity index 100%
+rename from work/package-lock.json
+rename to frontend/package-lock.json
+diff --git a/work/package.json b/frontend/package.json
+similarity index 100%
+rename from work/package.json
+rename to frontend/package.json
+diff --git a/work/public/favicon.png b/frontend/public/favicon.png
+similarity index 100%
+rename from work/public/favicon.png
+rename to frontend/public/favicon.png
+diff --git a/work/src/App.vue b/frontend/src/App.vue
+similarity index 100%
+rename from work/src/App.vue
+rename to frontend/src/App.vue
+diff --git a/work/src/api/dify.js b/frontend/src/api/dify.js
+similarity index 100%
+rename from work/src/api/dify.js
+rename to frontend/src/api/dify.js
+diff --git a/work/src/assets/logo.svg b/frontend/src/assets/logo.svg
+similarity index 100%
+rename from work/src/assets/logo.svg
+rename to frontend/src/assets/logo.svg
+diff --git a/work/src/components/__tests__/HelloWorld.spec.ts b/frontend/src/components/__tests__/HelloWorld.spec.ts
+similarity index 100%
+rename from work/src/components/__tests__/HelloWorld.spec.ts
+rename to frontend/src/components/__tests__/HelloWorld.spec.ts
+diff --git a/work/src/components/main-layout/index.vue b/frontend/src/components/main-layout/index.vue
+similarity index 100%
+rename from work/src/components/main-layout/index.vue
+rename to frontend/src/components/main-layout/index.vue
+diff --git a/work/src/components/not-permission-page/index.vue b/frontend/src/components/not-permission-page/index.vue
+similarity index 100%
+rename from work/src/components/not-permission-page/index.vue
+rename to frontend/src/components/not-permission-page/index.vue
+diff --git a/work/src/constant/route.ts b/frontend/src/constant/route.ts
+similarity index 100%
+rename from work/src/constant/route.ts
+rename to frontend/src/constant/route.ts
+diff --git a/work/src/env.d.ts b/frontend/src/env.d.ts
+similarity index 100%
+rename from work/src/env.d.ts
+rename to frontend/src/env.d.ts
+diff --git a/work/src/imgs/bot.png b/frontend/src/imgs/bot.png
+similarity index 100%
+rename from work/src/imgs/bot.png
+rename to frontend/src/imgs/bot.png
+diff --git a/work/src/imgs/call.png b/frontend/src/imgs/call.png
+similarity index 100%
+rename from work/src/imgs/call.png
+rename to frontend/src/imgs/call.png
+diff --git a/work/src/imgs/delete.png b/frontend/src/imgs/delete.png
+similarity index 100%
+rename from work/src/imgs/delete.png
+rename to frontend/src/imgs/delete.png
+diff --git a/work/src/imgs/dia.png b/frontend/src/imgs/dia.png
+similarity index 100%
+rename from work/src/imgs/dia.png
+rename to frontend/src/imgs/dia.png
+diff --git a/work/src/imgs/four.png b/frontend/src/imgs/four.png
+similarity index 100%
+rename from work/src/imgs/four.png
+rename to frontend/src/imgs/four.png
+diff --git a/work/src/imgs/hw.png b/frontend/src/imgs/hw.png
+similarity index 100%
+rename from work/src/imgs/hw.png
+rename to frontend/src/imgs/hw.png
+diff --git a/work/src/imgs/hw2.png b/frontend/src/imgs/hw2.png
+similarity index 100%
+rename from work/src/imgs/hw2.png
+rename to frontend/src/imgs/hw2.png
+diff --git a/work/src/imgs/hw3.png b/frontend/src/imgs/hw3.png
+similarity index 100%
+rename from work/src/imgs/hw3.png
+rename to frontend/src/imgs/hw3.png
+diff --git a/work/src/imgs/hw4.png b/frontend/src/imgs/hw4.png
+similarity index 100%
+rename from work/src/imgs/hw4.png
+rename to frontend/src/imgs/hw4.png
+diff --git a/work/src/imgs/lately.png b/frontend/src/imgs/lately.png
+similarity index 100%
+rename from work/src/imgs/lately.png
+rename to frontend/src/imgs/lately.png
+diff --git a/work/src/imgs/line.png b/frontend/src/imgs/line.png
+similarity index 100%
+rename from work/src/imgs/line.png
+rename to frontend/src/imgs/line.png
+diff --git a/work/src/imgs/login.png b/frontend/src/imgs/login.png
+similarity index 100%
+rename from work/src/imgs/login.png
+rename to frontend/src/imgs/login.png
+diff --git a/work/src/imgs/loginout.png b/frontend/src/imgs/loginout.png
+similarity index 100%
+rename from work/src/imgs/loginout.png
+rename to frontend/src/imgs/loginout.png
+diff --git a/work/src/imgs/logo.png b/frontend/src/imgs/logo.png
+similarity index 100%
+rename from work/src/imgs/logo.png
+rename to frontend/src/imgs/logo.png
+diff --git a/work/src/imgs/math.png b/frontend/src/imgs/math.png
+similarity index 100%
+rename from work/src/imgs/math.png
+rename to frontend/src/imgs/math.png
+diff --git a/work/src/imgs/pen.png b/frontend/src/imgs/pen.png
+similarity index 100%
+rename from work/src/imgs/pen.png
+rename to frontend/src/imgs/pen.png
+diff --git a/work/src/imgs/person.png b/frontend/src/imgs/person.png
+similarity index 100%
+rename from work/src/imgs/person.png
+rename to frontend/src/imgs/person.png
+diff --git a/work/src/imgs/register.png b/frontend/src/imgs/register.png
+similarity index 100%
+rename from work/src/imgs/register.png
+rename to frontend/src/imgs/register.png
+diff --git a/work/src/imgs/reset.png b/frontend/src/imgs/reset.png
+similarity index 100%
+rename from work/src/imgs/reset.png
+rename to frontend/src/imgs/reset.png
+diff --git a/work/src/imgs/search.png b/frontend/src/imgs/search.png
+similarity index 100%
+rename from work/src/imgs/search.png
+rename to frontend/src/imgs/search.png
+diff --git a/work/src/imgs/send.png b/frontend/src/imgs/send.png
+similarity index 100%
+rename from work/src/imgs/send.png
+rename to frontend/src/imgs/send.png
+diff --git a/work/src/imgs/set.png b/frontend/src/imgs/set.png
+similarity index 100%
+rename from work/src/imgs/set.png
+rename to frontend/src/imgs/set.png
+diff --git a/work/src/imgs/user.png b/frontend/src/imgs/user.png
+similarity index 100%
+rename from work/src/imgs/user.png
+rename to frontend/src/imgs/user.png
+diff --git a/work/src/main.ts b/frontend/src/main.ts
+similarity index 100%
+rename from work/src/main.ts
+rename to frontend/src/main.ts
+diff --git a/work/src/routes/home.ts b/frontend/src/routes/home.ts
+similarity index 100%
+rename from work/src/routes/home.ts
+rename to frontend/src/routes/home.ts
+diff --git a/work/src/routes/index.ts b/frontend/src/routes/index.ts
+similarity index 100%
+rename from work/src/routes/index.ts
+rename to frontend/src/routes/index.ts
+diff --git a/work/src/routes/login.ts b/frontend/src/routes/login.ts
+similarity index 100%
+rename from work/src/routes/login.ts
+rename to frontend/src/routes/login.ts
+diff --git a/work/src/routes/register.ts b/frontend/src/routes/register.ts
+similarity index 100%
+rename from work/src/routes/register.ts
+rename to frontend/src/routes/register.ts
+diff --git a/work/src/routes/reset.ts b/frontend/src/routes/reset.ts
+similarity index 100%
+rename from work/src/routes/reset.ts
+rename to frontend/src/routes/reset.ts
+diff --git a/work/src/stores/counter.ts b/frontend/src/stores/counter.ts
+similarity index 100%
+rename from work/src/stores/counter.ts
+rename to frontend/src/stores/counter.ts
+diff --git a/work/src/type/common.ts b/frontend/src/type/common.ts
+similarity index 100%
+rename from work/src/type/common.ts
+rename to frontend/src/type/common.ts
+diff --git a/work/src/views/HomeView.vue b/frontend/src/views/HomeView.vue
+similarity index 100%
+rename from work/src/views/HomeView.vue
+rename to frontend/src/views/HomeView.vue
+diff --git a/work/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+similarity index 100%
+rename from work/src/views/QMathify.vue
+rename to frontend/src/views/QMathify.vue
+diff --git a/work/src/views/ai.vue b/frontend/src/views/ai.vue
+similarity index 100%
+rename from work/src/views/ai.vue
+rename to frontend/src/views/ai.vue
+diff --git a/work/src/views/home.vue b/frontend/src/views/home.vue
+similarity index 100%
+rename from work/src/views/home.vue
+rename to frontend/src/views/home.vue
+diff --git a/work/src/views/login.vue b/frontend/src/views/login.vue
+similarity index 100%
+rename from work/src/views/login.vue
+rename to frontend/src/views/login.vue
+diff --git a/work/src/views/register.vue b/frontend/src/views/register.vue
+similarity index 100%
+rename from work/src/views/register.vue
+rename to frontend/src/views/register.vue
+diff --git a/work/src/views/reset.vue b/frontend/src/views/reset.vue
+similarity index 100%
+rename from work/src/views/reset.vue
+rename to frontend/src/views/reset.vue
+diff --git a/work/style.css b/frontend/style.css
+similarity index 100%
+rename from work/style.css
+rename to frontend/style.css
+diff --git a/work/tailwind.config.js b/frontend/tailwind.config.js
+similarity index 100%
+rename from work/tailwind.config.js
+rename to frontend/tailwind.config.js
+diff --git a/work/tsconfig.app.json b/frontend/tsconfig.app.json
+similarity index 100%
+rename from work/tsconfig.app.json
+rename to frontend/tsconfig.app.json
+diff --git a/work/tsconfig.json b/frontend/tsconfig.json
+similarity index 100%
+rename from work/tsconfig.json
+rename to frontend/tsconfig.json
+diff --git a/work/tsconfig.node.json b/frontend/tsconfig.node.json
+similarity index 100%
+rename from work/tsconfig.node.json
+rename to frontend/tsconfig.node.json
+diff --git a/work/tsconfig.vitest.json b/frontend/tsconfig.vitest.json
+similarity index 100%
+rename from work/tsconfig.vitest.json
+rename to frontend/tsconfig.vitest.json
+diff --git a/work/vite.config.ts b/frontend/vite.config.ts
+similarity index 100%
+rename from work/vite.config.ts
+rename to frontend/vite.config.ts
+diff --git a/work/vitest.config.ts b/frontend/vitest.config.ts
+similarity index 100%
+rename from work/vitest.config.ts
+rename to frontend/vitest.config.ts
+diff --git a/work/.vite/deps/_metadata.json b/work/.vite/deps/_metadata.json
+new file mode 100644
+index 0000000..b5b3fe4
+--- /dev/null
++++ b/work/.vite/deps/_metadata.json
+@@ -0,0 +1,8 @@
++{
++  "hash": "1a83babb",
++  "configHash": "24d71e46",
++  "lockfileHash": "e3b0c442",
++  "browserHash": "0bb7f843",
++  "optimized": {},
++  "chunks": {}
++}
+\ No newline at end of file
+diff --git a/work/.vite/deps/package.json b/work/.vite/deps/package.json
+new file mode 100644
+index 0000000..3dbc1ca
+--- /dev/null
++++ b/work/.vite/deps/package.json
+@@ -0,0 +1,3 @@
++{
++  "type": "module"
++}
+-- 
+2.39.5 (Apple Git-154)
+

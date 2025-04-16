@@ -1,0 +1,28 @@
+From 673f821c97ad091332dd25ea5b7c01d7b4218a3f Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 18:04:59 +0800
+Subject: [PATCH 15/85] =?UTF-8?q?edit-=E4=BF=AE=E6=94=B9=E6=96=87=E5=AD=97?=
+ =?UTF-8?q?=E5=AE=BD=E5=BA=A6?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index cab5c30..a090e97 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -1040,6 +1040,7 @@ defineExpose({
+ .katex-display {
+   overflow-x: auto;
+   overflow-y: hidden;
++  max-width: 100%;
+   padding: 0.5em 0;
+   margin: 0.5em 0;
+ }
+-- 
+2.39.5 (Apple Git-154)
+

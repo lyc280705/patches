@@ -1,0 +1,260 @@
+From bcf25b0a2ae3e636e2f1173e3795504a888c2d03 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 1 Apr 2025 14:21:21 +0800
+Subject: [PATCH 76/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E8=8B=A5=E5=B9=B2?=
+ =?UTF-8?q?=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue       | 28 ++++++++++++++++++++++++++--
+ frontend/src/views/home.vue     | 21 +++++++++++++++++----
+ frontend/src/views/login.vue    |  1 +
+ frontend/src/views/point02.vue  | 28 +++++++++++++++++++++++++++-
+ frontend/src/views/point03.vue  | 28 +++++++++++++++++++++++++++-
+ frontend/src/views/register.vue |  1 +
+ frontend/src/views/reset.vue    |  1 +
+ 7 files changed, 100 insertions(+), 8 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 1b87375..4fe340a 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -223,7 +223,7 @@
+           
+           <!-- 右侧发送按钮 -->
+           <div class="right-tools">
+-            <button v-if="!isGenerating" @click="sendMessage" class="send-button">
++            <button v-if="!isGenerating" @click="sendMessage" class="send-button" :disabled="!canSendMessage" :class="{'send-button-disabled': !canSendMessage}">
+               <img alt="" src="@/imgs/send.png" class="send" />
+             </button>
+             <button v-else @click="stopResponding" class="stop-button">
+@@ -296,7 +296,14 @@ const md = new MarkdownIt({
+     strict: false
+   }
+ });
+-
++const canSendMessage = computed(() => {
++  // 如果有文本输入，则可以发送
++  if (inputMessage.value.trim()) {
++    return true;
++  }
++  
++  return false;
++});
+ const isSidebarOpen = ref(false); // 假设这个变量在父组件中定义并传递给子组件
+ 
+ // 监听 isSidebarOpen 的变化
+@@ -1945,6 +1952,23 @@ textarea:focus {
+   transform: translateY(0);
+ }
+ 
++.send-button-disabled {
++  opacity: 0.5;
++  cursor: not-allowed;
++  background: linear-gradient(
++    90deg,
++    rgba(170, 239, 242, 0.6) 0.92%,
++    rgba(136, 191, 242, 0.6) 33.49%,
++    rgba(162, 169, 252, 0.6) 74.36%,
++    rgba(151, 107, 255, 0.6) 100%
++  );
++}
++
++.send-button-disabled:hover {
++  opacity: 0.5;
++  transform: none;
++}
++
+ .send {
+   width: 1.25rem;
+   height: 1.25rem;
+diff --git a/frontend/src/views/home.vue b/frontend/src/views/home.vue
+index dab95d5..81d5e3b 100644
+--- a/frontend/src/views/home.vue
++++ b/frontend/src/views/home.vue
+@@ -88,7 +88,7 @@
+         <img src="@/imgs/logo.png" alt="Logo" class="footer-logo-icon" />
+         <img src="@/imgs/qmathify.png" alt="Qmathify" class="footer-logo-text" />
+       </div>
+-      <p>© 2025 Qmathify - 版权所有</p>
++      <p>© 2025 QMathify - 版权所有</p>
+     </footer>
+   </div>
+ </template>
+@@ -1103,13 +1103,26 @@ export default defineComponent({
+   }
+   
+   .hero-section {
+-    padding-top: 6rem;
+-    padding-bottom: 2rem;
++    padding-top: 10rem;
++    padding-bottom: 6rem;
+     min-height: auto;
+   }
+   
++  .hero-content.centered {
++    max-width: 800px;
++    margin: 0 auto;
++    text-align: center;
++    display: flex;
++    flex-direction: column;
++    align-items: center;
++    justify-content: center;
++    gap: 1rem; /* 添加合理的内部元素间距 */
++  }
++
+   .hero-title-image {
+-    max-width: 180px;
++    max-width: 250px;
++    margin-top: 1rem;
++    margin-bottom: 1rem;
+   }
+   
+   .hero-message-title {
+diff --git a/frontend/src/views/login.vue b/frontend/src/views/login.vue
+index 9d749f1..cb9948b 100644
+--- a/frontend/src/views/login.vue
++++ b/frontend/src/views/login.vue
+@@ -285,6 +285,7 @@ const handleLogin = async () => {
+   
+   .form-container {
+     gap: 15px;
++    max-width: 235px;
+   }
+   
+   .options-row {
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 90f72d4..838f480 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -218,7 +218,7 @@
+           
+           <!-- 右侧发送按钮 -->
+           <div class="right-tools">
+-            <button v-if="!isGenerating" @click="sendMessage" class="send-button">
++            <button v-if="!isGenerating" @click="sendMessage" class="send-button" :disabled="!canSendMessage" :class="{'send-button-disabled': !canSendMessage}">
+               <img alt="" src="@/imgs/send.png" class="send" />
+             </button>
+             <button v-else @click="stopResponding" class="stop-button">
+@@ -292,6 +292,15 @@ const md = new MarkdownIt({
+   }
+ });
+ 
++const canSendMessage = computed(() => {
++  // 如果有文本输入，则可以发送
++  if (inputMessage.value.trim()) {
++    return true;
++  }
++  
++  return false;
++});
++
+ const isSidebarOpen = ref(false); // 假设这个变量在父组件中定义并传递给子组件
+ 
+ // 监听 isSidebarOpen 的变化
+@@ -1900,6 +1909,23 @@ textarea:focus {
+   transform: translateY(0);
+ }
+ 
++.send-button-disabled {
++  opacity: 0.5;
++  cursor: not-allowed;
++  background: linear-gradient(
++    90deg,
++    rgba(170, 239, 242, 0.6) 0.92%,
++    rgba(136, 191, 242, 0.6) 33.49%,
++    rgba(162, 169, 252, 0.6) 74.36%,
++    rgba(151, 107, 255, 0.6) 100%
++  );
++}
++
++.send-button-disabled:hover {
++  opacity: 0.5;
++  transform: none;
++}
++
+ .send {
+   width: 1.25rem;
+   height: 1.25rem;
+diff --git a/frontend/src/views/point03.vue b/frontend/src/views/point03.vue
+index 3a92d2c..5391c53 100644
+--- a/frontend/src/views/point03.vue
++++ b/frontend/src/views/point03.vue
+@@ -224,7 +224,7 @@
+           
+           <!-- 右侧发送按钮 -->
+           <div class="right-tools">
+-            <button v-if="!isGenerating" @click="sendMessage" class="send-button">
++            <button v-if="!isGenerating" @click="sendMessage" class="send-button" :disabled="!canSendMessage" :class="{'send-button-disabled': !canSendMessage}">
+               <img alt="" src="@/imgs/send.png" class="send" />
+             </button>
+             <button v-else @click="stopResponding" class="stop-button">
+@@ -298,6 +298,15 @@ const md = new MarkdownIt({
+   }
+ });
+ 
++const canSendMessage = computed(() => {
++  // 如果有文本输入，则可以发送
++  if (inputMessage.value.trim()) {
++    return true;
++  }
++  
++  return false;
++});
++
+ const isSidebarOpen = ref(false); // 假设这个变量在父组件中定义并传递给子组件
+ 
+ // 监听 isSidebarOpen 的变化
+@@ -1955,6 +1964,23 @@ textarea:focus {
+   transform: translateY(0);
+ }
+ 
++.send-button-disabled {
++  opacity: 0.5;
++  cursor: not-allowed;
++  background: linear-gradient(
++    90deg,
++    rgba(170, 239, 242, 0.6) 0.92%,
++    rgba(136, 191, 242, 0.6) 33.49%,
++    rgba(162, 169, 252, 0.6) 74.36%,
++    rgba(151, 107, 255, 0.6) 100%
++  );
++}
++
++.send-button-disabled:hover {
++  opacity: 0.5;
++  transform: none;
++}
++
+ .send {
+   width: 1.25rem;
+   height: 1.25rem;
+diff --git a/frontend/src/views/register.vue b/frontend/src/views/register.vue
+index b9b4675..d808a1d 100644
+--- a/frontend/src/views/register.vue
++++ b/frontend/src/views/register.vue
+@@ -340,6 +340,7 @@ const handleRegister = async () => {
+   
+   .form-container {
+     gap: 15px;
++    max-width: 235px;
+   }
+   
+   .verification-row {
+diff --git a/frontend/src/views/reset.vue b/frontend/src/views/reset.vue
+index aa4d6c2..00b26d9 100644
+--- a/frontend/src/views/reset.vue
++++ b/frontend/src/views/reset.vue
+@@ -349,6 +349,7 @@ const handleResetPassword = async () => {
+   
+   .form-container {
+     gap: 15px;
++    max-width: 235px;
+   }
+   
+   .verification-row {
+-- 
+2.39.5 (Apple Git-154)
+

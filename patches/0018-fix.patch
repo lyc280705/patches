@@ -1,0 +1,689 @@
+From 9dce72667bdc0f6f6f79fb5cd6c4cf20d78e2de3 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 00:48:34 +0800
+Subject: [PATCH 18/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=96=87=E6=A1=A3?=
+ =?UTF-8?q?=E6=98=BE=E7=A4=BA?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 513 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 344 insertions(+), 169 deletions(-)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index 5f7ae18..19c3dfb 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -82,10 +82,16 @@
+           </div>
+         </div>
+         <!-- 文件上传标识 - 只在没有实际文件预览时显示 -->
+-        <div v-if="message.fileId && message.fileType === 'document' && !message.files && !message.content.includes(message.fileName)" class="file-upload-indicator">
+-          <el-icon><Document /></el-icon>
+-          <span>{{ message.fileName || '已上传文件' }}</span>
++                <!-- 文件上传标识 - 统一使用isFileOnly标记识别文件消息 -->
++        <div v-if="message.isFileOnly && message.fileType === 'document'" class="file-upload-indicator">
++          <div class="file-link">
++            <el-icon><Document /></el-icon>
++            <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
++              {{ message.fileName || '查看文件' }}
++            </a>
++          </div>
+         </div>
++        
+         <!-- 显示文件附件 -->
+         <div v-if="message.files && message.files.length > 0" class="message-files">
+           <div v-for="(file, fileIndex) in message.files" :key="fileIndex" class="message-file">
+@@ -104,7 +110,7 @@
+             </div>
+           </div>
+         </div>
+-        <div v-if="message.fileUrl && !message.imageUrl && !message.isImageOnly" class="file-link">
++        <div v-if="message.fileUrl && !message.imageUrl && !message.isImageOnly && !message.isFileOnly" class="file-link">
+           <el-icon><Document /></el-icon>
+           <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
+             {{ message.fileName || '查看文件' }}
+@@ -217,7 +223,7 @@
+ <script setup>
+ import { ref, onMounted, watch, nextTick } from 'vue';
+ import { ElMessage } from "element-plus";
+-import { Picture, FolderOpened, ChatDotRound, CopyDocument, Refresh, CircleCheck, CircleClose, VideoPause, InfoFilled ,ArrowRight} from '@element-plus/icons-vue';
++import { Picture, FolderOpened, ChatDotRound, CopyDocument, Refresh, CircleCheck, CircleClose, VideoPause, InfoFilled ,ArrowRight, Document} from '@element-plus/icons-vue';
+ import {
+   sendChatMessage,
+   getConversationHistory,
+@@ -325,95 +331,95 @@ const copyMessage = (text) => {
+       alert('复制失败，请手动复制。');
+     });
+ };
+-// 重新生成 AI 回答
+-const regenerateResponse = async (index) => {
+-  const message = messageList.value[index];
+-  if (message.type === 'ai') {
+-    // 查找上一个用户消息作为重新生成的输入
+-    let userMessage = '';
+-    for (let i = index - 1; i >= 0; i--) {
+-      if (messageList.value[i].type === 'user') {
+-        userMessage = messageList.value[i].content;
+-        break;
+-      }
+-    }
+-
+-    if (userMessage) {
+-      // 将AI响应改为"思考中"状态
+-      messageList.value[index] = {
+-        type: 'thinking',
+-        thinkingContent: `重新思考中...`,
+-        content: '',
+-      };
+-
+-      try {
+-        // 调用API重新生成回答，注意参数匹配
+-        await sendChatMessage(
+-          userMessage,
+-          currentDialogId.value,
+-          // 消息流式回调 - 修改参数格式
+-          (text, tid) => {
+-            if (messageList.value[index].type === 'thinking') {
+-              messageList.value[index] = {
+-                type: 'ai',
+-                content: text
+-              };
+-            } else {
+-              messageList.value[index].content = text;
+-            }
++// // 重新生成 AI 回答
++// const regenerateResponse = async (index) => {
++//   const message = messageList.value[index];
++//   if (message.type === 'ai') {
++//     // 查找上一个用户消息作为重新生成的输入
++//     let userMessage = '';
++//     for (let i = index - 1; i >= 0; i--) {
++//       if (messageList.value[i].type === 'user') {
++//         userMessage = messageList.value[i].content;
++//         break;
++//       }
++//     }
++
++//     if (userMessage) {
++//       // 将AI响应改为"思考中"状态
++//       messageList.value[index] = {
++//         type: 'thinking',
++//         thinkingContent: `重新思考中...`,
++//         content: '',
++//       };
++
++//       try {
++//         // 调用API重新生成回答，注意参数匹配
++//         await sendChatMessage(
++//           userMessage,
++//           currentDialogId.value,
++//           // 消息流式回调 - 修改参数格式
++//           (text, tid) => {
++//             if (messageList.value[index].type === 'thinking') {
++//               messageList.value[index] = {
++//                 type: 'ai',
++//                 content: text
++//               };
++//             } else {
++//               messageList.value[index].content = text;
++//             }
+             
+-            // 更新任务ID
+-            if (tid && !currentTaskId.value) {
+-              currentTaskId.value = tid;
+-            }
+-          },
+-          // 完成回调 - 修改参数格式
+-          (fullAnswer, msgId, convId) => {
+-            if (messageList.value[index].type === 'thinking') {
+-              messageList.value[index] = {
+-                type: 'ai',
+-                content: fullAnswer,
+-                messageId: msgId
+-              };
+-            } else {
+-              messageList.value[index].content = fullAnswer;
+-              messageList.value[index].messageId = msgId;
+-            }
++//             // 更新任务ID
++//             if (tid && !currentTaskId.value) {
++//               currentTaskId.value = tid;
++//             }
++//           },
++//           // 完成回调 - 修改参数格式
++//           (fullAnswer, msgId, convId) => {
++//             if (messageList.value[index].type === 'thinking') {
++//               messageList.value[index] = {
++//                 type: 'ai',
++//                 content: fullAnswer,
++//                 messageId: msgId
++//               };
++//             } else {
++//               messageList.value[index].content = fullAnswer;
++//               messageList.value[index].messageId = msgId;
++//             }
+             
+-            // 结束生成状态
+-            isGenerating.value = false;
+-            currentTaskId.value = null;
+-          },
+-          // 错误回调
+-          (error) => {
+-            messageList.value[index] = {
+-              type: 'ai',
+-              content: `重新生成回答失败: ${error.message}`
+-            };
+-            ElMessage.error(`重新生成回答失败: ${error.message}`);
++//             // 结束生成状态
++//             isGenerating.value = false;
++//             currentTaskId.value = null;
++//           },
++//           // 错误回调
++//           (error) => {
++//             messageList.value[index] = {
++//               type: 'ai',
++//               content: `重新生成回答失败: ${error.message}`
++//             };
++//             ElMessage.error(`重新生成回答失败: ${error.message}`);
+             
+-            // 重置状态
+-            isGenerating.value = false;
+-            currentTaskId.value = null;
+-          }
+-        );
+-      } catch (error) {
+-        console.error('重新生成回答失败:', error);
+-        messageList.value[index] = {
+-          type: 'ai',
+-          content: '重新生成回答失败，请稍后再试。'
+-        };
+-        ElMessage.error(`重新生成回答失败: ${error.message}`);
++//             // 重置状态
++//             isGenerating.value = false;
++//             currentTaskId.value = null;
++//           }
++//         );
++//       } catch (error) {
++//         console.error('重新生成回答失败:', error);
++//         messageList.value[index] = {
++//           type: 'ai',
++//           content: '重新生成回答失败，请稍后再试。'
++//         };
++//         ElMessage.error(`重新生成回答失败: ${error.message}`);
+         
+-        // 重置状态
+-        isGenerating.value = false;
+-        currentTaskId.value = null;
+-      }
+-    } else {
+-      ElMessage.warning('找不到对应的用户问题，无法重新生成回答');
+-    }
+-  }
+-};
++//         // 重置状态
++//         isGenerating.value = false;
++//         currentTaskId.value = null;
++//       }
++//     } else {
++//       ElMessage.warning('找不到对应的用户问题，无法重新生成回答');
++//     }
++//   }
++// };
+ const likeMessage = async (index) => {
+   const message = messageList.value[index];
+   if (message.type === 'ai' && message.messageId) {
+@@ -425,10 +431,7 @@ const likeMessage = async (index) => {
+     }
+   }
+ };
+-// 添加到script部分
+-const openImageInNewTab = (url) => {
+-  window.open(url, '_blank');
+-};
++
+ const dislikeMessage = async (index) => {
+   const message = messageList.value[index];
+   if (message.type === 'ai' && message.messageId) {
+@@ -440,6 +443,10 @@ const dislikeMessage = async (index) => {
+     }
+   }
+ };
++// 添加到script部分
++const openImageInNewTab = (url) => {
++  window.open(url, '_blank');
++};
+ const saveDialogToLocal = () => {
+   const dialog = {
+     id: currentDialogId.value || Date.now().toString(),
+@@ -449,7 +456,6 @@ const saveDialogToLocal = () => {
+   localStorage.setItem(`dialog-${dialog.id}`, JSON.stringify(dialog));
+   currentDialogId.value = dialog.id;
+ };
+-// ...existing code...
+ const loadDialogFromLocal = async (id) => {
+   try {
+     console.log("加载对话:", id);
+@@ -529,41 +535,40 @@ const loadDialogFromLocal = async (id) => {
+             imageUrlCache.value[file.id] = fileUrl;
+           });
+           
+-          // 2. 添加用户文本消息（如果有）
+-          if (msg.query && msg.query.trim() !== '') {
+-            // 只处理文档文件（非图片）
+-            const documentFiles = allFiles.filter(file => 
+-              file.belongs_to !== 'assistant' && file.type !== 'image'
+-            );
++          // 2. 处理文档文件（非图片，现在单独显示）
++          const documentFiles = allFiles.filter(file => 
++            file.belongs_to !== 'assistant' && file.type !== 'image'
++          );
++          
++          // 为每个文档文件创建单独的消息
++          documentFiles.forEach(file => {
++            let fileUrl = file.url;
++            if (fileUrl && fileUrl.startsWith('/')) {
++              fileUrl = `http://47.99.158.58${fileUrl}`;
++            }
+             
+-            const userTextMessage = {
++            messageList.value.push({
++              type: 'user',
++              content: '',
++              fileId: file.id,
++              fileSent: true,
++              fileType: 'document',
++              fileName: file.name || '文档文件',
++              fileUrl: fileUrl,
++              isFileOnly: true
++            });
++          });
++          
++          // 3. 添加用户文本消息（如果有，现在作为独立消息）
++          if (msg.query && msg.query.trim() !== '') {
++            messageList.value.push({
+               type: 'user',
+               content: msg.query,
+               messageId: msg.id + '_user'
+-            };
+-            
+-            if (documentFiles.length > 0) {
+-              userTextMessage.fileId = documentFiles[0].id;
+-              userTextMessage.fileSent = true;
+-              userTextMessage.fileType = 'document';
+-              userTextMessage.files = documentFiles.map(file => {
+-                let fileUrl = file.url;
+-                if (fileUrl && fileUrl.startsWith('/')) {
+-                  fileUrl = `http://47.99.158.58${fileUrl}`;
+-                }
+-                return {
+-                  id: file.id,
+-                  type: file.type,
+-                  url: fileUrl,
+-                  belongs_to: file.belongs_to
+-                };
+-              });
+-            }
+-            
+-            messageList.value.push(userTextMessage);
++            });
+           }
+           
+-          // 3. 处理AI回复
++          // 4. 处理AI回复
+           if (msg.answer) {
+             const aiMessage = {
+               type: 'ai',
+@@ -625,7 +630,6 @@ const loadDialogFromLocal = async (id) => {
+     return false;
+   }
+ };
+-// ...existing code...
+ const deleteDialogFromLocal = (id) => {
+   localStorage.removeItem(`dialog-${id}`);
+ };
+@@ -654,33 +658,35 @@ const scrollToBottom = () => {
+ // 添加到sendMessage函数中，在构建payload前
+ const sendMessage = async () => {
+   const trimmedMessage = inputMessage.value.trim();
+-  if (trimmedMessage) {
+-    // 查找所有未发送的文件上传消息
+-    const fileUploads = messageList.value.filter(
+-      msg => msg.type === 'user' && msg.fileId && !msg.fileSent
+-    );
++  
++  // 查找所有未发送的文件上传消息
++  const fileUploads = messageList.value.filter(
++    msg => msg.type === 'user' && msg.fileId && !msg.fileSent
++  );
++  
++  let files = null;
++  if (fileUploads.length > 0) {
++    // 构建多文件数组
++    files = fileUploads.map(upload => ({
++      type: upload.fileType === 'image' ? 'image' : 'document',
++      transfer_method: "local_file",
++      upload_file_id: upload.fileId
++    }));
+     
+-    let files = null;
+-    if (fileUploads.length > 0) {
+-      // 构建多文件数组
+-      files = fileUploads.map(upload => ({
+-        type: upload.fileType === 'image' ? 'image' : 'document',
+-        transfer_method: "local_file",
+-        upload_file_id: upload.fileId
+-      }));
+-      
+-      console.log("发送文件参数:", files);
+-      
+-      // 标记所有文件已被发送
+-      fileUploads.forEach(msg => {
+-        const index = messageList.value.indexOf(msg);
+-        if (index !== -1) {
+-          messageList.value[index].fileSent = true;
+-        }
+-      });
+-    }
++    console.log("发送文件参数:", files);
+     
+-    // 添加用户消息到列表
++    // 标记所有文件已被发送
++    fileUploads.forEach(msg => {
++      const index = messageList.value.indexOf(msg);
++      if (index !== -1) {
++        messageList.value[index].fileSent = true;
++      }
++    });
++  }
++  
++  // 只有当文本消息不为空时才添加文本消息
++  if (trimmedMessage) {
++    // 添加用户文本消息到列表
+     messageList.value.push({
+       type: 'user',
+       content: trimmedMessage
+@@ -706,12 +712,14 @@ const sendMessage = async () => {
+         files: files
+       });
+       
+-      // 调用API发送消息，直接传递文件ID数组作为第6个参数
++      // 调用API发送消息
+       await sendChatMessage(
+         trimmedMessage,
+         currentDialogId.value,
++        // 流式回调处理...
++        // 其余代码保持不变
+         (text, tid) => {
+-          // 更新任务ID用于停止生成
++          // 现有代码不变
+           if (tid && !currentTaskId.value) {
+             currentTaskId.value = tid;
+           }
+@@ -739,8 +747,9 @@ const sendMessage = async () => {
+           }
+           scrollToBottom();
+         },
++        // 其余回调函数保持不变...
+         (fullAnswer, msgId, convId) => {
+-          // 回答结束时
++          // 现有代码保持不变
+           isGenerating.value = false;
+           currentTaskId.value = null;
+           
+@@ -813,10 +822,9 @@ const sendMessage = async () => {
+             });
+           }
+         },
+-        files, // 传递文件ID数组作为第6个参数
+-                // 在sendMessage函数中修改元数据回调
++        files,
+         (metadata, msgId) => {
+-          // 添加调试输出
++          // 元数据回调代码保持不变
+           console.log("处理元数据:", metadata);
+           
+           // 确保有引用资源
+@@ -866,6 +874,161 @@ const sendMessage = async () => {
+         });
+       }
+     }
++  } else if (files) {
++    // 如果只有文件上传但没有文本，也触发API请求
++    // 添加AI思考中状态
++    messageList.value.push({
++      type: 'thinking',
++      content: '思考中...'
++    });
++    scrollToBottom();
++    
++    // 设置生成状态为true
++    isGenerating.value = true;
++    
++    try {
++      // 调用API发送消息，使用空文本
++      await sendChatMessage(
++        "", // 空文本
++        currentDialogId.value,
++        // 与上面相同的回调函数
++        // 省略相同代码...
++        (text, tid) => {
++          // 现有代码不变
++          if (tid && !currentTaskId.value) {
++            currentTaskId.value = tid;
++          }
++          
++          // 移除思考中状态或更新现有AI回复
++          const thinkingMsgIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (thinkingMsgIndex !== -1) {
++            // 替换思考中消息为AI回复
++            messageList.value.splice(thinkingMsgIndex, 1, {
++              type: 'ai',
++              content: text
++            });
++          } else {
++            // 查找并更新现有AI回复
++            const aiMsg = messageList.value[messageList.value.length - 1];
++            if (aiMsg && aiMsg.type === 'ai') {
++              aiMsg.content = text;
++            } else {
++              // 如果没有找到现有消息，添加新的
++              messageList.value.push({
++                type: 'ai',
++                content: text
++              });
++            }
++          }
++          scrollToBottom();
++        },
++        (fullAnswer, msgId, convId) => {
++          // 与上面相同的回调
++          isGenerating.value = false;
++          currentTaskId.value = null;
++          
++          // 更新对话ID
++          if (convId) {
++            const wasFirstMessage = isFirstInput.value;
++            currentDialogId.value = convId;
++            
++            if (wasFirstMessage) {
++              isFirstInput.value = false;
++              emit('add-to-recent-dialogs', {
++                id: convId,
++                name: '新对话'
++              });
++              localStorage.setItem('currentDialogId', convId);
++              
++              setTimeout(async () => {
++                try {
++                  const conversations = await getConversations();
++                  const conversation = conversations.data.find(conv => conv.id === convId);
++                  if (conversation && conversation.name) {
++                    emit('update-dialog-title', {
++                      id: convId,
++                      name: conversation.name
++                    });
++                  }
++                } catch (err) {
++                  console.error("获取对话标题失败:", err);
++                }
++              }, 1000);
++            }
++          }
++          
++          const remainingThinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (remainingThinkingIndex !== -1) {
++            messageList.value.splice(remainingThinkingIndex, 1, {
++              type: 'ai',
++              content: fullAnswer,
++              messageId: msgId
++            });
++          }
++          
++          const finalAiMsg = messageList.value.find(msg => msg.type === 'ai' && !msg.messageId);
++          if (finalAiMsg && msgId) {
++            finalAiMsg.messageId = msgId;
++          }
++        },
++        (error) => {
++          // 与上面相同的错误处理
++          isGenerating.value = false;
++          currentTaskId.value = null;
++          ElMessage.error('发送消息失败：' + error.message);
++          
++          const thinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (thinkingIndex !== -1) {
++            messageList.value.splice(thinkingIndex, 1, {
++              type: 'ai',
++              content: '回答生成失败，请重试。'
++            });
++          }
++        },
++        files,
++        (metadata, msgId) => {
++          // 与上面相同的元数据处理
++          console.log("处理元数据:", metadata);
++          
++          if (metadata && metadata.retriever_resources && metadata.retriever_resources.length > 0) {
++            console.log("找到参考来源:", metadata.retriever_resources.length);
++            
++            if (msgId) {
++              const aiMsgIndex = messageList.value.findIndex(msg => 
++                msg.type === 'ai' && msg.messageId === msgId
++              );
++              if (aiMsgIndex !== -1) {
++                messageList.value[aiMsgIndex].sources = metadata.retriever_resources;
++                return;
++              }
++            }
++            
++            for (let i = messageList.value.length - 1; i >= 0; i--) {
++              if (messageList.value[i].type === 'ai') {
++                messageList.value[i].sources = metadata.retriever_resources;
++                if (!messageList.value[i].messageId && msgId) {
++                  messageList.value[i].messageId = msgId;
++                }
++                break;
++              }
++            }
++          }
++        }
++      );
++    } catch (error) {
++      isGenerating.value = false;
++      currentTaskId.value = null;
++      ElMessage.error('处理文件失败');
++      console.error('处理文件失败:', error);
++      
++      const thinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++      if (thinkingIndex !== -1) {
++        messageList.value.splice(thinkingIndex, 1, {
++          type: 'ai',
++          content: '处理文件失败，请重试。'
++        });
++      }
++    }
+   }
+ };
+ // 移除临时ID，简化新建对话函数
+@@ -913,20 +1076,29 @@ const handleImageUpload = async (e) => {
+       throw new Error('服务器没有返回有效的文件ID');
+     }
+     
+-    // 添加纯图片消息 - 不包含任何文本内容
++    // 构建文件URL，与历史记录处理一致
++    let fileUrl = result.url || '';
++    if (fileUrl && fileUrl.startsWith('/')) {
++      fileUrl = `http://47.99.158.58${fileUrl}`;
++    }
++    
++    // 添加纯图片消息 - 不包含任何文本内容，保持与历史记录的结构一致
+     messageList.value.push({
+       type: 'user',
+-      content: '', // 完全清空内容
++      content: '', // 清空内容
+       fileId: result.id,
+-      fileName: '', // 不显示文件名
+       fileType: 'image',
+-      // 不手动构造URL
+-      tempImageUrl: URL.createObjectURL(file),
+-      isImageOnly: true // 标记这是纯图片消息
++      imageUrl: fileUrl, // 使用服务器URL
++      tempImageUrl: URL.createObjectURL(file), // 本地预览URL
++      isImageOnly: true, // 标记这是纯图片消息
++      fileSent: false    // 标记图片尚未发送给API
+     });
+     
+     ElMessage.success('图片上传成功');
+     
++    // 缓存图片URL
++    imageUrlCache.value[result.id] = fileUrl;
++    
+     // 自动滚动到底部
+     scrollToBottom();
+   } catch (error) {
+@@ -978,19 +1150,26 @@ const handleFileUpload = async (e) => {
+       throw new Error('服务器没有返回有效的文件ID');
+     }
+     
++    // 构建文件URL（与loadDialogFromLocal函数一致）
++    let fileUrl = result.url || '';
++    if (fileUrl && fileUrl.startsWith('/')) {
++      fileUrl = `http://47.99.158.58${fileUrl}`;
++    }
++    
+     // 上传成功后，修改消息内容，保存文件ID用于后续API调用
+     const lastIndex = messageList.value.length - 1;
+     messageList.value[lastIndex] = {
+       type: 'user',
+-      content: ``,
++      content: '', // 确保内容为空
+       fileId: result.id,
+       fileName: file.name,
+       fileType: 'document',
+-      isFileOnly: true
++      fileUrl: fileUrl, // 添加fileUrl与历史记录一致
++      isFileOnly: true, // 显式标记为仅文件消息
++      fileSent: false   // 标记文件尚未发送给API
+     };
+     
+     ElMessage.success('文件上传成功');
+-    // sendMessage();
+     
+   } catch (error) {
+     console.error("文件上传失败:", error);
+@@ -1356,10 +1535,6 @@ right: 0px;
+ }
+ 
+ .file-link {
+-  display: flex;
+-  align-items: center;
+-  gap: 5px;
+-  padding: 5px 10px;
+   background-color: #f0f2f5;
+   border-radius: 4px;
+   cursor: pointer;
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,991 @@
+From f4ce86e857e2b269502e03c1a5c77bcdd73ddf3a Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Thu, 27 Feb 2025 20:18:42 +0800
+Subject: [PATCH 04/85] =?UTF-8?q?add-=E6=B7=BB=E5=8A=A0api=E8=B0=83?=
+ =?UTF-8?q?=E7=94=A8=E4=BB=A3=E7=A0=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .DS_Store                                     | Bin 0 -> 6148 bytes
+ work/index.html                               |   4 +-
+ work/src/App.vue                              |   2 +-
+ work/src/api/dify.js                          | 405 ++++++++++++++++++
+ .../components/__tests__/HelloWorld.spec.ts   |  11 -
+ work/src/views/QMathify.vue                   | 137 +++---
+ work/src/views/ai.vue                         | 167 +++++---
+ 7 files changed, 589 insertions(+), 137 deletions(-)
+ create mode 100644 .DS_Store
+ create mode 100644 work/src/api/dify.js
+
+diff --git a/.DS_Store b/.DS_Store
+new file mode 100644
+index 0000000000000000000000000000000000000000..321ba579f17811086ac7b474777030dd3820ffab
+GIT binary patch
+literal 6148
+zcmeHKJ5Iw;5S#@|L`svA@?C)&SdlqFE`T6Zv1CL*w5~W8M`QL=5E-h7CYqJ@&3o&e
+zeex7uF96%V@9%&OfEC>lpS~>3pSv&Ysv?dSHQq4cWq*7cAE!n3?*ZrDV8AnuIN%3=
+z8lBMLgC$>a$fDE8dt_2T3P=GdAO)nr846S{U9HckA*vLR0+*?Pe;*p%u`iqx<I}+<
+zMgU^Ra2WS7OAwm}h<)Ll$Oz4nN=&NNh+#=*yj5ObI433@7B{m_-E1|XSlrHdi*#6@
+zs8tF`fl~#p^SJT;e^38o{y!z@Bn70vMJZt2up72~rRuGVm-AlR=nr(y`J%gV9~3Up
+lj)~EZdGL088%dehe9z~7;hY$B#)D4O&w%S9lLG&(z&FiV8m9mN
+
+literal 0
+HcmV?d00001
+
+diff --git a/work/index.html b/work/index.html
+index 9e5fc8f..22c931d 100644
+--- a/work/index.html
++++ b/work/index.html
+@@ -2,9 +2,9 @@
+ <html lang="">
+   <head>
+     <meta charset="UTF-8">
+-    <link rel="icon" href="/favicon.ico">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>Vite App</title>
++    <link rel="icon" href="public/favicon.png" />
++    <title>QMathify</title>
+   </head>
+   <body>
+     <div id="app"></div>
+diff --git a/work/src/App.vue b/work/src/App.vue
+index a8b7982..e1c21bc 100644
+--- a/work/src/App.vue
++++ b/work/src/App.vue
+@@ -1,5 +1,5 @@
+ <template>
+-  
++   
+   <RouterView></RouterView>
+ </template>
+ 
+diff --git a/work/src/api/dify.js b/work/src/api/dify.js
+new file mode 100644
+index 0000000..46977cb
+--- /dev/null
++++ b/work/src/api/dify.js
+@@ -0,0 +1,405 @@
++// Dify API service
++const API_BASE_URL = 'http://47.99.158.58/v1';
++const API_KEY = 'app-IwkD0errZfVqEfI30GVcMVEz'; // Replace with your actual API key
++
++// 用户ID生成或获取
++const getUserId = () => {
++  let userId = localStorage.getItem('dify_user_id');
++  if (!userId) {
++    userId = 'user_' + Math.random().toString(36).substring(2, 15);
++    localStorage.setItem('dify_user_id', userId);
++  }
++  return userId;
++};
++
++// 验证是否为有效的UUID
++function isValidUUID(str) {
++  // 简单检查是否符合UUID格式
++  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
++  return typeof str === 'string' && uuidRegex.test(str);
++}
++
++// 发送对话消息 - 流式响应
++export const sendChatMessage = async (message, conversationId = null, onMessage = null, onEnd = null, onError = null) => {
++  const user = getUserId();
++  
++  try {
++    // 处理 conversationId，确保只在有效时传递
++    const payload = {
++      query: message,
++      inputs: {},
++      user: user,
++      response_mode: 'streaming',
++    };
++    
++    // 只有当 conversationId 有效且不是时间戳形式时才添加到请求
++    if (conversationId && isValidUUID(conversationId)) {
++      payload.conversation_id = conversationId;
++    }
++    
++    const response = await fetch(`${API_BASE_URL}/chat-messages`, {
++      method: 'POST',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++        'Content-Type': 'application/json',
++      },
++      body: JSON.stringify(payload),
++    });
++
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '发送消息失败');
++    }
++
++    // 处理流式响应
++    const reader = response.body.getReader();
++    const decoder = new TextDecoder('utf-8');
++    let buffer = '';
++    let messageId = null;
++    let responseConversationId = null;
++    let fullAnswer = '';
++
++    while (true) {
++      const { done, value } = await reader.read();
++      if (done) break;
++      
++      buffer += decoder.decode(value, { stream: true });
++      const lines = buffer.split('\n\n');
++      buffer = lines.pop() || '';
++      
++      for (const line of lines) {
++        if (!line.startsWith('data: ')) continue;
++        
++        try {
++          const jsonStr = line.slice(6); // Remove the 'data: ' prefix
++          const data = JSON.parse(jsonStr);
++          
++          if (data.event === 'message') {
++            messageId = data.message_id;
++            responseConversationId = data.conversation_id;
++            fullAnswer += data.answer;
++            
++            if (onMessage) {
++              onMessage(data.answer, messageId, responseConversationId);
++            }
++          } else if (data.event === 'message_end') {
++            if (onEnd) {
++              onEnd(messageId, responseConversationId, data.metadata, fullAnswer);
++            }
++          } else if (data.event === 'error') {
++            if (onError) {
++              onError(data.message || '处理消息时出错');
++            }
++          }
++        } catch (e) {
++          console.error('解析SSE数据失败:', e);
++        }
++      }
++    }
++    
++    return {
++      messageId,
++      conversationId: responseConversationId
++    };
++  } catch (error) {
++    console.error('发送消息出错:', error);
++    if (onError) {
++      onError(error.message);
++    }
++    throw error;
++  }
++};
++
++// 获取历史消息
++export const getConversationHistory = async (conversationId, user = null, firstId = null, limit = 20) => {
++  const userId = user || getUserId();
++  
++  // 确保 conversationId 有效
++  if (!conversationId || !isValidUUID(conversationId)) {
++    throw new Error('无效的会话ID');
++  }
++  
++  try {
++    const url = new URL(`${API_BASE_URL}/messages`);
++    url.searchParams.append('conversation_id', conversationId);
++    url.searchParams.append('user', userId);
++    if (firstId) url.searchParams.append('first_id', firstId);
++    url.searchParams.append('limit', limit.toString());
++    
++    const response = await fetch(url, {
++      method: 'GET',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++      },
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '获取历史消息失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('获取历史消息出错:', error);
++    throw error;
++  }
++};
++
++// 获取会话列表
++export const getConversations = async (user = null, lastId = null, limit = 20) => {
++  const userId = user || getUserId();
++  
++  try {
++    const url = new URL(`${API_BASE_URL}/conversations`);
++    url.searchParams.append('user', userId);
++    if (lastId && isValidUUID(lastId)) url.searchParams.append('last_id', lastId);
++    url.searchParams.append('limit', limit.toString());
++    
++    const response = await fetch(url, {
++      method: 'GET',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++      },
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '获取会话列表失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('获取会话列表出错:', error);
++    throw error;
++  }
++};
++
++// 删除会话
++export const deleteConversation = async (conversationId, user = null) => {
++  const userId = user || getUserId();
++  
++  // 确保 conversationId 有效
++  if (!conversationId || !isValidUUID(conversationId)) {
++    throw new Error('无效的会话ID');
++  }
++  
++  try {
++    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
++      method: 'DELETE',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++        'Content-Type': 'application/json',
++      },
++      body: JSON.stringify({ user: userId }),
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '删除会话失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('删除会话出错:', error);
++    throw error;
++  }
++};
++
++// 重命名会话
++export const renameConversation = async (conversationId, name = null, autoGenerate = true, user = null) => {
++  const userId = user || getUserId();
++  
++  // 确保 conversationId 有效
++  if (!conversationId || !isValidUUID(conversationId)) {
++    throw new Error('无效的会话ID');
++  }
++  
++  try {
++    const body = { auto_generate: autoGenerate, user: userId };
++    if (name) body.name = name;
++    
++    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/name`, {
++      method: 'POST',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++        'Content-Type': 'application/json',
++      },
++      body: JSON.stringify(body),
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '重命名会话失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('重命名会话出错:', error);
++    throw error;
++  }
++};
++
++// 发送反馈（点赞/点踩）
++export const sendFeedback = async (messageId, rating, user = null, content = '') => {
++  const userId = user || getUserId();
++  
++  // 确保 messageId 有效
++  if (!messageId || !isValidUUID(messageId)) {
++    throw new Error('无效的消息ID');
++  }
++  
++  try {
++    const response = await fetch(`${API_BASE_URL}/messages/${messageId}/feedbacks`, {
++      method: 'POST',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++        'Content-Type': 'application/json',
++      },
++      body: JSON.stringify({
++        rating,
++        user: userId,
++        content,
++      }),
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '发送反馈失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('发送反馈出错:', error);
++    throw error;
++  }
++};
++
++// 上传文件
++export const uploadFile = async (file, user = null) => {
++  const userId = user || getUserId();
++  const formData = new FormData();
++  formData.append('file', file);
++  formData.append('user', userId);
++  
++  try {
++    const response = await fetch(`${API_BASE_URL}/files/upload`, {
++      method: 'POST',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++      },
++      body: formData,
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '上传文件失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('上传文件出错:', error);
++    throw error;
++  }
++};
++
++// 停止响应
++export const stopResponse = async (taskId, user = null) => {
++  const userId = user || getUserId();
++  
++  try {
++    const response = await fetch(`${API_BASE_URL}/chat-messages/${taskId}/stop`, {
++      method: 'POST',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++        'Content-Type': 'application/json',
++      },
++      body: JSON.stringify({ user: userId }),
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '停止响应失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('停止响应出错:', error);
++    throw error;
++  }
++};
++
++// 获取下一轮建议问题列表
++export const getSuggestedQuestions = async (messageId, user = null) => {
++  const userId = user || getUserId();
++  
++  // 确保 messageId 有效
++  if (!messageId || !isValidUUID(messageId)) {
++    throw new Error('无效的消息ID');
++  }
++  
++  try {
++    const url = new URL(`${API_BASE_URL}/messages/${messageId}/suggested`);
++    url.searchParams.append('user', userId);
++    
++    const response = await fetch(url, {
++      method: 'GET',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++      },
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '获取建议问题失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('获取建议问题出错:', error);
++    throw error;
++  }
++};
++
++// 获取应用基本信息
++export const getAppInfo = async () => {
++  try {
++    const response = await fetch(`${API_BASE_URL}/info`, {
++      method: 'GET',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++      },
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '获取应用信息失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('获取应用信息出错:', error);
++    throw error;
++  }
++};
++
++// 获取应用参数
++export const getAppParameters = async () => {
++  try {
++    const response = await fetch(`${API_BASE_URL}/parameters`, {
++      method: 'GET',
++      headers: {
++        'Authorization': `Bearer ${API_KEY}`,
++      },
++    });
++    
++    if (!response.ok) {
++      const errorData = await response.json();
++      throw new Error(errorData.message || '获取应用参数失败');
++    }
++    
++    return await response.json();
++  } catch (error) {
++    console.error('获取应用参数出错:', error);
++    throw error;
++  }
++};
+\ No newline at end of file
+diff --git a/work/src/components/__tests__/HelloWorld.spec.ts b/work/src/components/__tests__/HelloWorld.spec.ts
+index e1fb50f..e69de29 100644
+--- a/work/src/components/__tests__/HelloWorld.spec.ts
++++ b/work/src/components/__tests__/HelloWorld.spec.ts
+@@ -1,11 +0,0 @@
+-import { describe, it, expect } from 'vitest'
+-
+-import { mount } from '@vue/test-utils'
+-import HelloWorld from '../../views/home.vue'
+-
+-describe('HelloWorld', () => {
+-  it('renders properly', () => {
+-    const wrapper = mount(HelloWorld, { props: { msg: 'Hello Vitest' } })
+-    expect(wrapper.text()).toContain('Hello Vitest')
+-  })
+-})
+diff --git a/work/src/views/QMathify.vue b/work/src/views/QMathify.vue
+index 9712bcc..e7f3df5 100644
+--- a/work/src/views/QMathify.vue
++++ b/work/src/views/QMathify.vue
+@@ -1,4 +1,5 @@
+ <template>
++
+   <div class="container">
+     <!-- 边栏 -->
+     <div
+@@ -104,31 +105,53 @@
+     </div>
+   </div>
+ </template>
+-
+ <script setup>
+-import { ref } from 'vue';
++import { ref,onMounted } from 'vue';
++import { ElMessage } from "element-plus";
+ import { Memo, Edit, Delete } from '@element-plus/icons-vue'; // 引入图标
+ import ai from './ai.vue';
+ 
+-const isSidebarOpen = ref(false);
+-const isDialogListVisible = ref(false);
+-const dialogs = ref([]);
+-const showPopover = ref(false);
+-const isPopoverHovered = ref(false);
+-const isButtonHovered = ref(false);
+-
+-// 获取 ai 组件的引用
+-const aiComponent = ref(null);
++// 状态管理
++const isSidebarOpen = ref(false); // 侧栏展开状态
++const isDialogListVisible = ref(false); // 对话列表显示状态
++const showPopover = ref(false); // 悬浮卡片显示状态
++const isPopoverHovered = ref(false); // 悬浮卡片悬停状态
++const isButtonHovered = ref(false); // 个人信息按钮悬停状态
++
++// 对话管理
++const dialogs = ref([]); // 近期对话列表
++const aiComponent = ref(null); // ai 组件的引用
++const loadRecentDialogs = async () => {
++  try {
++    const conversations = await getConversations();
++    dialogs.value = conversations.map((conv) => ({
++      id: conv.id,
++      name: conv.name,
++    }));
++  } catch (error) {
++    ElMessage.error(`加载对话列表失败: ${error.message}`);
++  }
++};
++// 加载对话
++const loadDialog = (id) => {
++  if (aiComponent.value) {
++    aiComponent.value.loadDialogFromLocal(id);
++    localStorage.setItem('currentDialogId', id); // 更新当前对话ID
++  }
++};
+ 
+-// 删除单条对话
++// 删除对话
+ const deletedialog = (id) => {
+   if (aiComponent.value) {
+     aiComponent.value.deleteDialogFromLocal(id);
+     dialogs.value = dialogs.value.filter((dialog) => dialog.id !== id);
++    if (localStorage.getItem('currentDialogId') === id) {
++      localStorage.removeItem('currentDialogId'); // 清理当前对话ID
++    }
+   }
+ };
+ 
+-// 清空所有对话缓存
++// 清空所有对话
+ const clearAllDialogs = () => {
+   if (aiComponent.value) {
+     aiComponent.value.clearAllDialogs();
+@@ -136,77 +159,55 @@ const clearAllDialogs = () => {
+   }
+ };
+ 
+-// 新建对话逻辑
++// 新建对话
+ const handleNewDialog = () => {
+-  // 调用 ai 组件中的 handleNewDialog 方法
+-  if (aiComponent.value)  {
+-    aiComponent.value.handleNewDialog(); 
++  if (aiComponent.value) {
++    aiComponent.value.handleNewDialog();
+   }
+ };
+-// 将前七个字添加到近期对话列表
++
++// 添加对话到近期列表
+ const addToRecentDialogs = (message) => {
+   const dialogName = message.slice(0, 7); // 取前七个字
+-  const dialogId = Date.now().toString(); // 生成唯一的 id
++  const dialogId = Date.now().toString(); // 生成唯一ID
+   dialogs.value.unshift({ id: dialogId, name: dialogName }); // 添加到近期对话列表
+-  // 同时保存当前对话的 id 到本地存储
+-  localStorage.setItem('currentDialogId', dialogId);
++  localStorage.setItem('currentDialogId', dialogId); // 更新当前对话ID
+ };
+ 
+-// 加载对话
+-const loadDialog = (id) => {
+-  if (aiComponent.value) {
+-    aiComponent.value.loadDialogFromLocal(id);
+-    // 更新当前对话的 id 到本地存储
+-    localStorage.setItem('currentDialogId', id);
++const renameDialog = async (index) => {
++  const newValue = prompt('请输入新的名称', dialogs.value[index].name);
++  if (newValue !== null) {
++    try {
++      await renameConversation(dialogs.value[index].id, newValue);
++      dialogs.value[index].name = newValue;
++      ElMessage.success('对话重命名成功');
++    } catch (error) {
++      ElMessage.error(`重命名对话失败: ${error.message}`);
++    }
+   }
+ };
+-// 定义方法
+-const handleFunction1 = () => {
+-  console.log('功能 1 被点击');
+-  // 这里可以添加具体的功能逻辑
+-};
+-
+-const handleFunction2 = () => {
+-  // 清空近期对话记录
++// 删除所有对话记录
++const deleteAllDialogs = () => {
+   dialogs.value = [];
+ };
+ 
+-// 切换侧栏的展开与收起
++// 侧栏管理
+ const toggleSidebar = () => {
+   isSidebarOpen.value = !isSidebarOpen.value;
+ };
+ 
+-// 切换对话列表的显示与隐藏
+ const toggleDialogList = () => {
+   isDialogListVisible.value = !isDialogListVisible.value;
+ };
+ 
+-// 重命名对话
+-const renameDialog = (index) => {
+-  const newValue = prompt('请输入新的名称', dialogs.value[index].name);
+-  if (newValue !== null) {
+-    dialogs.value[index].name = newValue;
+-  }
+-};
+-
+-// 删除对话
+-const deleteDialog = (index) => {
+-  dialogs.value.splice(index, 1);
+-};
+-// 删除所有对话记录的方法
+-const deleteAllDialogs = () => {
+-  dialogs.value = [];
+-};
+-// 处理鼠标进入个人信息按钮
++// 悬浮卡片管理
+ const handleButtonEnter = () => {
+   isButtonHovered.value = true;
+   showPopover.value = true;
+ };
+ 
+-// 处理鼠标离开个人信息按钮
+ const handleButtonLeave = () => {
+   isButtonHovered.value = false;
+-  // 只有当悬浮卡片未被悬停时才隐藏
+   if (!isPopoverHovered.value) {
+     setTimeout(() => {
+       if (!isPopoverHovered.value) {
+@@ -216,12 +217,10 @@ const handleButtonLeave = () => {
+   }
+ };
+ 
+-// 处理鼠标进入悬浮卡片
+ const handlePopoverEnter = () => {
+   isPopoverHovered.value = true;
+ };
+ 
+-// 处理鼠标离开悬浮卡片
+ const handlePopoverLeave = () => {
+   isPopoverHovered.value = false;
+   if (!isButtonHovered.value) {
+@@ -229,14 +228,15 @@ const handlePopoverLeave = () => {
+   }
+ };
+ 
+-// 切换悬浮卡片的显示状态
+ const togglePopover = () => {
+   showPopover.value = !showPopover.value;
+ };
++onMounted(() => {
++  loadRecentDialogs(); // 加载近期对话列表
++});
++
+ </script>
+ <style>
+-
+-
+ /* 容器样式 */
+ .container {
+   display: flex;
+@@ -461,6 +461,8 @@ box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
+   top: 300px;
+   max-height:200px; /* 根据实际调整 */
+   overflow-y: auto;
++  overflow-x: hidden;
++
+   width: 180px;
+ height: 200px;
+ opacity: 1;
+@@ -475,19 +477,18 @@ background: rgba(249, 246, 255, 1);
+   padding-top: 14px ;
+   color: rgba(111, 58, 246, 1);
+   cursor: pointer;
+-  border-bottom: 1px solid #c0b7b7; /* 可选：添加分隔线 */
+   position: relative;
+-  left: -13px;
+-  width: 180px;
+-}
++  left: -9px;
++  
++  width: 170px;
+ 
+-.dialog-item:last-child {
+-  border-bottom: none; /* 最后一个项不显示分隔线 */
+ }
++
++
+ .dialog-item:hover {
+   background-color: rgba(237, 230, 255, 0.81);
+   border-radius: 4px;
+-
++  width: 175px;
+ }
+ .edit-icon,
+ .delete-icon {
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index cd21559..cb09b2f 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -140,8 +140,16 @@
+ <script setup>
+ import { ref, onMounted, watch, nextTick } from 'vue';
+ import { ElMessage } from "element-plus";
+-
+ import { Picture, FolderOpened, ChatDotRound,CopyDocument ,Refresh, CircleCheck,CircleClose } from '@element-plus/icons-vue';
++import {
++  sendChatMessage,
++  getConversationHistory,
++  getConversations,
++  deleteConversation,
++  renameConversation,
++  sendFeedback,
++  uploadFile,
++} from '@/api/dify'; 
+ const emit = defineEmits(['add-to-recent-dialogs']);
+ const chatMessagesRef = ref(null);
+ const messageList = ref([]);
+@@ -158,7 +166,7 @@ const isGreeting = (content) => {
+ const copyMessage = (text) => {
+   navigator.clipboard.writeText(text)
+     .then(() => {
+-      ElMessage.warning('消息复制成功');
++      ElMessage.success('消息复制成功');
+     })
+     .catch((err) => {
+       console.error('复制失败:', err);
+@@ -174,22 +182,27 @@ const regenerateResponse = (index) => {
+     messageList.value[index].content = newResponse;
+   }
+ };
+-
+-// 喜欢消息
+-const likeMessage = (index) => {
++const likeMessage = async (index) => {
+   const message = messageList.value[index];
+-  if (message.type === 'ai') {
+-    ElMessage.warning('感谢您的喜爱');
+-    // 这里可以添加记录用户反馈的逻辑
++  if (message.type === 'ai' && message.messageId) {
++    try {
++      await sendFeedback(message.messageId, 'like');
++      ElMessage.success('感谢您的喜爱');
++    } catch (error) {
++      ElMessage.error(`发送反馈失败: ${error.message}`);
++    }
+   }
+ };
+ 
+-// 不喜欢消息
+-const dislikeMessage = (index) => {
++const dislikeMessage = async (index) => {
+   const message = messageList.value[index];
+-  if (message.type === 'ai') {
+-    ElMessage.warning('我们已收到您的反馈');
+-    // 这里可以添加记录用户反馈的逻辑
++  if (message.type === 'ai' && message.messageId) {
++    try {
++      await sendFeedback(message.messageId, 'dislike');
++      ElMessage.success('我们已收到您的反馈');
++    } catch (error) {
++      ElMessage.error(`发送反馈失败: ${error.message}`);
++    }
+   }
+ };
+ const saveDialogToLocal = () => {
+@@ -201,15 +214,18 @@ const saveDialogToLocal = () => {
+   localStorage.setItem(`dialog-${dialog.id}`, JSON.stringify(dialog));
+   currentDialogId.value = dialog.id;
+ };
+-
+-const loadDialogFromLocal = (id) => {
+-  const dialog = JSON.parse(localStorage.getItem(`dialog-${id}`));
+-  if (dialog) {
+-    messageList.value = dialog.messages;
+-    currentDialogId.value = dialog.id;
++const loadDialogFromLocal = async (id) => {
++  try {
++    const history = await getConversationHistory(id);
++    messageList.value = history.messages.map((msg) => ({
++      type: msg.role === 'user' ? 'user' : 'ai',
++      content: msg.content,
++    }));
++    currentDialogId.value = id;
++  } catch (error) {
++    ElMessage.error(`加载历史消息失败: ${error.message}`);
+   }
+ };
+-
+ const deleteDialogFromLocal = (id) => {
+   localStorage.removeItem(`dialog-${id}`);
+ };
+@@ -230,50 +246,60 @@ const scrollToBottom = () => {
+   if (chatMessagesRef.value) {
+     chatMessagesRef.value.scrollTop = chatMessagesRef.value.scrollHeight;
+   }
+-};
+-const sendMessage = () => {
++};const sendMessage = async () => {
+   const trimmedMessage = inputMessage.value.trim();
+   if (trimmedMessage) {
+-    // 如果是第一次输入，将前七个字添加到近期对话列表
+-    if (isFirstInput.value) {
+-      emit('add-to-recent-dialogs', trimmedMessage);
+-      isFirstInput.value = false;
+-    }
+     // 添加用户消息到消息列表
+     messageList.value.push({
+       type: 'user',
+       content: trimmedMessage,
+     });
+     inputMessage.value = ''; // 清空输入框
++ // 触发 addToRecentDialogs 事件
++ emit('add-to-recent-dialogs', trimmedMessage);
+ 
+-    // 添加深度思考内容
++    // 添加“思考中”状态
+     messageList.value.push({
+       type: 'thinking',
+       thinkingContent: `正在深度思考 "${trimmedMessage}"...`,
+       content: '',
+     });
+ 
+-    // 模拟 AI 思考过程
+-    setTimeout(() => {
+-      // 移除“思考中”状态
+-      messageList.value = messageList.value.filter(
+-        (msg) => msg.type !== 'thinking'
++    try {
++      // 调用 API 发送消息
++      await sendChatMessage(
++        trimmedMessage,
++        currentDialogId.value,
++        (answer, messageId, conversationId) => {
++          // 更新 AI 回复内容
++          const thinkingIndex = messageList.value.findIndex(
++            (msg) => msg.type === 'thinking'
++          );
++          if (thinkingIndex !== -1) {
++            messageList.value[thinkingIndex] = {
++              type: 'ai',
++              content: answer,
++              messageId,
++            };
++          }
++        },
++        (messageId, conversationId, metadata, fullAnswer) => {
++          // 对话结束，保存对话 ID
++          currentDialogId.value = conversationId;
++          saveDialogToLocal();
++        },
++        (error) => {
++          // 处理错误
++          ElMessage.error(`发送消息失败: ${error}`);
++        }
+       );
+-
+-      // 模拟调用后端接口
+-      fetchAIResponse(trimmedMessage).then((response) => {
+-        // 添加 AI 回复
+-        messageList.value.push({
+-          type: 'ai',
+-          content: response,
+-        });
+-      });
+-    }, 2000); // 模拟 2 秒的思考时间
++    } catch (error) {
++      ElMessage.error(`发送消息失败: ${error.message}`);
++    }
+   } else {
+-    alert('请输入消息内容'); // 如果输入框为空，提示用户
++    ElMessage.warning('请输入消息内容');
+   }
+ };
+-
+ // 模拟调用后端接口
+ const fetchAIResponse = async (message) => {
+   // 这里可以替换为实际的后端接口调用
+@@ -292,22 +318,53 @@ const handleNewDialog = () => {
+     content: '亲爱的用户,你好!我是你的智能数学助手QMathify。我可以帮助你解答数学问题,包括但不限于：代数问题求解，概率统计计算 数学知识归纳....请告诉我你的问题，我会为你解答。'
+   });
+ };
+-
++const triggerImageInput = () => {
++  fileInput.value.click();
++};
+ const triggerFileInput = () => {
+   fileInput.value.click();
+ };
+-
++const handleFileUpload = async (e) => {
++    const file = e.target.files[0];
++    if (file) {
++        try {
++            const result = await uploadFile(file);
++            // 这里可以处理上传成功后的逻辑，比如显示提示信息
++            ElMessage.success('文件上传成功');
++            // 可以根据接口返回的结果，添加文件相关信息到消息列表
++            messageList.value.push({
++                type: 'file',
++                fileName: file.name,
++                // 假设接口返回了文件的URL，可添加到消息列表用于展示
++                fileUrl: result.fileUrl 
++            });
++        } catch (error) {
++            ElMessage.error(`文件上传失败: ${error.message}`);
++        }
++    }
++};
++const handleImageUpload = async (e) => {
++    const file = e.target.files[0];
++    if (file) {
++        try {
++            const result = await uploadFile(file);
++            ElMessage.success('图片上传成功');
++            // 假设接口返回了图片的URL，添加到消息列表用于展示
++            messageList.value.push({
++                type: 'image',
++                imageUrl: result.imageUrl 
++            });
++        } catch (error) {
++            ElMessage.error(`图片上传失败: ${error.message}`);
++        }
++    }
++};
+ 
+ onMounted(() => {
+-  // 尝试从本地存储加载对话
+-  const storedDialogId = localStorage.getItem('currentDialogId');
+-  if (storedDialogId) {
+-    loadDialogFromLocal(storedDialogId);
+-  } else {
+-    // 如果本地存储没有对话，添加初始问候语
++ 
+     handleNewDialog();
+   }
+-});
++);
+ defineExpose({
+   handleNewDialog,
+   loadDialogFromLocal,
+@@ -386,7 +443,7 @@ defineExpose({
+   display: flex;
+   gap: 10px; /* 图标之间的间距 */
+   justify-content: flex-start; /* 图标靠右对齐 */
+-  padding-top: 8px; /* 与消息内容的间距 */
++  padding-left: 128px; /* 与消息内容的间距 */
+  padding-bottom: 5px;
+ }
+ 
+-- 
+2.39.5 (Apple Git-154)
+

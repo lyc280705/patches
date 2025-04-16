@@ -1,0 +1,1730 @@
+From 860134e1a498decd0e35b08ab251bb91bf116b00 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 14:54:10 +0800
+Subject: [PATCH 20/85] =?UTF-8?q?feat-=E5=AE=9E=E7=8E=B0=E7=99=BB=E5=BD=95?=
+ =?UTF-8?q?=E5=8A=9F=E8=83=BD?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .DS_Store                                     | Bin 6148 -> 6148 bytes
+ backend/__pycache__/app.cpython-312.pyc       | Bin 0 -> 1266 bytes
+ .../__pycache__/extensions.cpython-312.pyc    | Bin 0 -> 853 bytes
+ backend/app.py                                |  31 +++
+ backend/config.py                             |  25 +++
+ backend/dump.rdb                              | Bin 0 -> 88 bytes
+ backend/extensions.py                         |  22 ++
+ backend/instance/app.db                       | Bin 0 -> 16384 bytes
+ .../models/__pycache__/user.cpython-312.pyc   | Bin 0 -> 1946 bytes
+ backend/models/user.py                        |  26 +++
+ .../__pycache__/auth_routes.cpython-312.pyc   | Bin 0 -> 4381 bytes
+ backend/routes/auth_routes.py                 | 106 ++++++++++
+ .../__pycache__/auth_service.cpython-312.pyc  | Bin 0 -> 4098 bytes
+ .../__pycache__/email_service.cpython-312.pyc | Bin 0 -> 1500 bytes
+ .../verification_service.cpython-312.pyc      | Bin 0 -> 3068 bytes
+ backend/services/auth_service.py              |  75 +++++++
+ backend/services/email_service.py             |  42 ++++
+ backend/services/verification_service.py      |  73 +++++++
+ work/package-lock.json                        |  58 ++++--
+ work/package.json                             |   1 +
+ work/src/views/QMathify.vue                   |  10 +-
+ work/src/views/ai.vue                         |  23 +--
+ work/src/views/login.vue                      | 107 ++++++++--
+ work/src/views/register.vue                   | 149 +++++++++++++-
+ work/src/views/reset.vue                      | 189 +++++++++++++++---
+ 25 files changed, 845 insertions(+), 92 deletions(-)
+ create mode 100644 backend/__pycache__/app.cpython-312.pyc
+ create mode 100644 backend/__pycache__/extensions.cpython-312.pyc
+ create mode 100644 backend/app.py
+ create mode 100644 backend/config.py
+ create mode 100644 backend/dump.rdb
+ create mode 100644 backend/extensions.py
+ create mode 100644 backend/instance/app.db
+ create mode 100644 backend/models/__pycache__/user.cpython-312.pyc
+ create mode 100644 backend/models/user.py
+ create mode 100644 backend/routes/__pycache__/auth_routes.cpython-312.pyc
+ create mode 100644 backend/routes/auth_routes.py
+ create mode 100644 backend/services/__pycache__/auth_service.cpython-312.pyc
+ create mode 100644 backend/services/__pycache__/email_service.cpython-312.pyc
+ create mode 100644 backend/services/__pycache__/verification_service.cpython-312.pyc
+ create mode 100644 backend/services/auth_service.py
+ create mode 100644 backend/services/email_service.py
+ create mode 100644 backend/services/verification_service.py
+
+diff --git a/.DS_Store b/.DS_Store
+index 2e4cb22047e83e6d7c4643852664cb00e9c7ee18..c47d8e8b9aaf281cef0d570affbe3c45726fe601 100644
+GIT binary patch
+delta 274
+zcmZoMXfc=|#>B`mF;R?_gMono$Pkfb0y02=1&A3L7z7v?QW^3XQc{YObCU8WCN8fB
+zNw6~{F(fi1Gh`!6=H~#_qe~T(B>9vUmlOeIR2f1Uih&x6fTTV{4nrl-0DT4*hI}Ah
+z%8&~-sst?O&XCDa!r%cEO#-S&1M0{Jx}gND!Z3xw2q=inB0s1_Xs(;6BfT-*kZrPo
+j2+L+}4sH&hk2fZMXP(S2qR0yJt-@qO5#h}qB72wttfx0u
+
+delta 91
+zcmZoMXfc=|#>AjHu~3+iaq@0PX(=WK2w((KKrFzJQk<NVl%Jo&xcMTZ8QbOuj0KFF
+i**W+*fVzMp-<c=#izsq}R40HmPB!6D-W(&cf*Am6=o5kf
+
+diff --git a/backend/__pycache__/app.cpython-312.pyc b/backend/__pycache__/app.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..e89511e807ee0594788188bb69bf5010f42fecc0
+GIT binary patch
+literal 1266
+zcmah|&ui3J9RI#aGLvLxn02kKJ3=cctRvc}bT6$a=(1fZDp)-@mynsf>84FG;k|@*
+z$`o2yXr&AGu%Jh;QV;tttRM(pthA`X;z2xk8>}GcWxp@ekUa?I@ZRV9ec$)_{`llQ
+zE0=Y^@9FrHnXfs3cfv?NX&>x`2=0LmHgUltbwUKrxj9d&O9_@-*;DF@m#^o&LcM@K
+z`A?{;RI`=269BB51FCNB)75pV&km(Yvfa)<Dr}OzO`xN8)SC7|m^BhBzquBlLm*$i
+zeq*{O#W}kX%bw-9afwme;bzlys2?^nI)FSHqK7>nS?@u(&kYb_r~NO@w*+07l~ZrF
+z&lWPABAcYQ2!vYd?czipNt^r3cv4JHW=ko`_AdO7qmuf+7l}0<NMo}-o$D_k=58yl
+z=IKkQ5k`Mw%3YGo`CD}!&Nx$)awjUI>REqXn1*9;7C4#D5x9-HMaF4ZkZ!{~sj1f%
+zwPxFIIWwa{=Ozj_z@s2&vk;X+!B8s4ayb)a;9<dv!avMLu&5bU;26R}uO2bi3>a-W
+z3$-#6O2(>b`j$scGtT$f<6?`oJu~RE9G5boAXAb+$9F>03IZnng1Cst#2X=92;(1F
+zI|?ZuO_KI86R!Xd=#0Zd%FKov(SSLA80%QB6;ji3-C8b|1fz)MqVl6hzl<5TIAz>$
+zJ5A%)b~Ey@Gj2>e;qOtyz|t_IZ=W+7R&x#kb{F70GE!t4L?Tf#U&mz`-sqLT)pcX}
+z@+-NpI<+$OQm$^v)%z3M^3R|0plE9cAB^qDCj>66URk-aA#KY8$;s-~m8%=aw&lTI
+z9`y3vkvk(hTJ^m;`bsUnREM|J;rsLdOgvYIx7CXnuNCi>@09<ld@h52r1t}qD$7%!
+z4`lcY7r*Vl=SDA`lpdc{E{zq$@bSg@rYZDPY}$xsuGLDh(h_g8uaBN!oHXN!7_p86
+zr#^SuK2L;6<Y3}eC5<zYgbm;lODysq!X83khlE2t@3rm7r5D%;n&R>Daa?*5A!HYZ
+zcHzidIK2g@Kgxro(mMlkX>IX^^wVp7VEt5oe3L7a8^@O?cjTd-0&<lN<MsalSpyM<
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/__pycache__/extensions.cpython-312.pyc b/backend/__pycache__/extensions.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..e17ecbc8e89d23d62cdd317a4754cf5705bd2b0f
+GIT binary patch
+literal 853
+zcmYLHO=uHA6rRaU{<cXIn>H1TT2LtQ;6lM3jHtoiVio*5bQMCHownQVX4Bn`O>WWB
+zQc9HymR9_05v5Xvf)@`;>A{ni3IWq81wj)P4@P^D>cN?$vBNU+ecyZUdvAC4o!2V>
+zwkD6g?P;|E@QIV^a&Ch4zYI(P8OTrt8k8X9*rwVvB%v}!DwZ(QkZPCgHbCI~W~t<0
+z4E<+L1xPM8U>feLtG3xXWh~oe@Z2$vDw-q^p|5c(UPV<u$eld0a~@VAY!;W~&7eJi
+z)b0gFv*ats-E8+0Up4C<kc9`R%2*AO1i41?c5>vq;>)1QIS2<q8g+s}81j7M4MLC#
+z7teP@)Oat^GK}G~F-1K`-KrjsslB>sDc`rVG(<5c6eo4VqBglJwUbpBM<)tnkG?KG
+zEZ%xj7+ttPWW_ArzgZZYE!>^ElnU^ashQ%-$x2E&ey};k48f1r<AsHh&u<pL+?gwk
+z3>RKZ^XJCg$<Q|H?^a`Gf7BdMW0koK{_&_#ku^4;fw^EecteUUMI(lbE0_mqtwuE6
+z$V5#`H)1`6+RKfpr<@**s|rc*H&GHj)SfgHM%*crL@RFY6X`ffT8f^akWge=#xt<a
+zyun6TylfJ~6xB>zJg&!68nZFQQ;Kyu)g^Wtdcq<JxmE0n#rqi$Nt$t!`I!5Y8R|Nu
+z>2gXXhm9S~i(jre&bAVQ5UzoiHPEyQJgcDQrvo_rLszr56=%)RwJa_<KwW*dwuId<
+zm=EllI4~8y9iBO}Aio;O1tQswkJ$eKH@wFUIo!B{-OEBKhxg_E_1D{f=bipv0Kp)a
+zJ-cVoOysd+I=$R-WLY?x!;yTTG24;%Hw?G`DLGl%hRJ`+r(z@smV)+37%epgBW-A@
+GjpKg^eEM_%
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/app.py b/backend/app.py
+new file mode 100644
+index 0000000..87a66a7
+--- /dev/null
++++ b/backend/app.py
+@@ -0,0 +1,31 @@
++from flask import Flask
++from flask_cors import CORS
++from extensions import db, mail, redis_client
++
++def create_app():
++    app = Flask(__name__)
++    app.config.from_pyfile('config.py')
++    
++    # 初始化CORS
++    CORS(app, supports_credentials=True)
++    
++    # 初始化数据库
++    db.init_app(app)
++    
++    # 初始化邮件服务
++    mail.init_app(app)
++    
++    # 在这里注册路由
++    with app.app_context():
++        # 导入模块需要在app_context中进行，避免循环导入
++        from routes.auth_routes import auth_bp
++        app.register_blueprint(auth_bp, url_prefix='/api/auth')
++        
++        # 创建所有数据库表
++        db.create_all()
++    
++    return app
++
++if __name__ == '__main__':
++    app = create_app()
++    app.run(debug=True)
+\ No newline at end of file
+diff --git a/backend/config.py b/backend/config.py
+new file mode 100644
+index 0000000..c974054
+--- /dev/null
++++ b/backend/config.py
+@@ -0,0 +1,25 @@
++import os
++from datetime import timedelta
++
++# 数据库配置
++SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
++SQLALCHEMY_TRACK_MODIFICATIONS = False
++
++# Redis配置
++REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
++
++# 邮件配置
++MAIL_SERVER = 'smtp.qq.com'
++MAIL_PORT = 587
++MAIL_USE_TLS = True
++MAIL_USERNAME = '381564291@qq.com'
++MAIL_PASSWORD = 'fgohttmvdowgbihf'
++MAIL_DEFAULT_SENDER = '381564291@qq.com'
++
++# 安全配置
++SECRET_KEY = os.urandom(24)
++JWT_SECRET_KEY = os.urandom(24)
++JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
++
++# 验证码配置
++VERIFICATION_CODE_EXPIRES = 300  # 5分钟过期
+\ No newline at end of file
+diff --git a/backend/dump.rdb b/backend/dump.rdb
+new file mode 100644
+index 0000000000000000000000000000000000000000..bd0a30cf9ed7e089f9a9ac30a1415e7c11f8e0d0
+GIT binary patch
+literal 88
+zcmWG?b@2=~FfcUy#aWb^l3A=<mRiJWu4klY{)-DDkd#?ce8AxsYjR0uZt5XXo1^K!
+oI7*9CQ*?7va}Pc67h?Fuk(i&Ro0M3bdVt}7+oUNLjJ^fG0h=8nmjD0&
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/extensions.py b/backend/extensions.py
+new file mode 100644
+index 0000000..f03d873
+--- /dev/null
++++ b/backend/extensions.py
+@@ -0,0 +1,22 @@
++from flask_sqlalchemy import SQLAlchemy
++from flask_mail import Mail
++import redis
++import time
++
++# 初始化扩展，但不绑定到具体应用
++db = SQLAlchemy()
++mail = Mail()
++
++# 添加错误处理，使用内存字典作为备选
++memory_storage = {}
++
++try:
++    redis_client = redis.Redis(host='localhost', port=6379, db=0)
++    # 测试连接
++    redis_client.ping()
++    print("成功连接到Redis服务器")
++    use_redis = True
++except Exception as e:
++    print(f"无法连接Redis: {str(e)}，将使用内存存储")
++    redis_client = None
++    use_redis = False
+\ No newline at end of file
+diff --git a/backend/instance/app.db b/backend/instance/app.db
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c427ccb37840d2a8542e16918f4cdb7410fc90c
+GIT binary patch
+literal 16384
+zcmeI&O;6h}7zgl#@}gE6ox~wmACN|*!D8ptJ<&n5bt_?n!iIK0PV9_Ml$WL(>@=|*
+z_xbiM_64}j4eLZVi4OpO%ZX$8@e}8llcVhJbo(PkiqqjhjEHMIHcZo4C&Vy}IepCP
+zV^V7R;&$Jh4BXMq8Ec<^JkkNR#Y>}UFaFdG3Irek0SG_<0uX=z1Rwwb2s|Kx_qBQJ
+znPq<MpGbAtzdZa@s$p53PsBh~z1fX4ZuercmvnaaV$w-A<9Fo0P_mtnDx9p0oAGQr
+zotd|6%PgmptAXerSE02#Ggoo9(pG)@s%I`(mSuil7>VroW`$L<nLo*T?dRQivXn->
+zFZGIh@ryVm$##z<d)@9+(x^|?NcP+5#>;lP5_tAhz|Gw!qm((*!)Kx_FHVQ@@JN(L
+zf0IxaO^4+}B}Pgf>OK9YHtcn_;_=<zq@AsHdO%*s2V|u$?S?(xo14uihOQ_OfB*y_
+z009U<00Izz00bZafrl<|wQnvMORL{@+LXC&ME$^HoUWgrujQwMG9P|98?{^(22m?&
+z(Pi)Lhl}Ln!B)BZ%1bu(hsz<4GDo?QVv-3dW$ych@8v4YojeaBhljF|RQa4ys(9vS
+z+;Kx+38lxS$GjqER76S$nejYuMCM04iWuVsFS5*YLzX+PD|606Q3RCwdcNn&EGlG}
+z3D;!~^H&{LSK|0B%3I7|3mqCnyrJK$+5BbbiUI)$KmY;|fB*y_009U<00Izzz&#LH
+ys;$=l{dRG)|Gzex*Z1H7@dyxr00bZa0SG_<0uX=z1Rwwb2uusi*Ouz~UxwefLdE(3
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/models/__pycache__/user.cpython-312.pyc b/backend/models/__pycache__/user.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..6ebf6781827633b4d94f8c7072d64447390e2cbb
+GIT binary patch
+literal 1946
+zcmb7E%}*Og6rWx1+G}HDY(9kDkkZmB@}aopLyE|UD5VXq1gb>Z!(LXlXMi>9HJRNN
+z7;*4{16&HI2ZK@xq+UR9pr_^^s1zxerclKiHEN`uxTT@J^wc-&kJ?c<WTgGgdv9mn
+zzTf-UC!tUP!TNRV=lN3)LVt3lzT}#4`3(qVgb@}DlowP%;Ie3lc~KQz*<*O}k}Bn8
+zRThwl?jbC#BP<gk7pyz`e?Nxr@TK~S-h}UhiwS{=I0LBQv`uV1PZA>QnI|TppleHM
+z%UUi_tSzLi1=g8eAlb!MW0rfVFK<n_{8r#`6Ql|lsUj9skBEqra~anUS9h?!AyO=!
+zc#g&D3DtMiUDw{x>W^z!I)?ANl88ktpLma@s;>Iq+L!N2UxBywr8IoWC;kS%wyXR=
+zZhEV6HzNt<t~Kjb`6STr7shStNbSHuzz7ZjMvLu<Fq6Kv2xYPZXx)dBw=GdUpQc4^
+zkrXe+!Oa&550iBhlNIK5O#OjFm|{AHk<J+8Vg(LdlmHR}ZFe{3!(=Y)7<RT+DX=2M
+zdyGGq9{`k*U8@8_YeJp<8qylpB03Ug5+da-&q6Kzb|f;%BE}q3>Sl|7sK5W;+euEv
+zN*cv%a<Y(h^2D^Q<UQS<ax%#|S}<*5;-O?Fom~VWnJ-{sSV>NNaH+_G7O@*myc*%I
+z2AfTsofQTsq2K$4Pp8iM?rccEDe+4%p%$*Zt6Z*wAhd8rx#pbki?ARAHR~**onQdo
+zd}L@Bhi-rxLCVX{+FQqMwbPBX)fnNI_)Um4{Qkknvw_j41EZ%aXW{W*lyMq|H`zw6
+zLE&k3BVGfcjMh*N_SY9!-xNK{alWrDI9s3krZ+i%lTs6pYdaRcmu7+bOhRI!j+w&i
+zVy5$i$t0iF4Hn2!0zV(DrR{`FufsL^E{A>&?*TBsZWZPVG!F*^+5;AgbL_9C&1V-h
+ztY_`jpqsCn##3y40#HIPqCMpsJ2xu5*Y-nup-OkGtnR3l`1SqdUh-Ld_-TCjEI#^|
+zU+xIJM6y5NCUGXw$rMfFVQLx+Xd3jCV{kdBX%C#VQF{~8G@Fl0Ri!-D%==lvaPlVe
+zrJyh833Vwk@2pLAbH0fh50NR8K>a@ahbd1s%%Pn%3(GET8UqXEvrh*Aj*uIfOPVU&
+z%7GWy`T<}aRl43OO~3F*H=<jy&Di!(d2DCwaOB+oacQCw?%kkU#m(YwY&W_e+lw6x
+zJ?uNgk47GUcpm<$G*t<9Z%k~ZHdEXBcBZWF=m(zf%)`k?U61AS;7sZBN>|_ZL^-vS
+z+SPY6`}&@K=y_<KI_F(?O4F4{d^=i>?ZkG6_HXUoI#qrO{}?`xjF-NAB?<D~S6)H>
+zRJind<!WZ#sAm!i3y>8UTT3sPmYcU~0wT+VF0K-19!50lP~9%NzY2G5m^{rVyGs5e
+zo&nzP)h<wOS1WXv@}l$huy`lE^az6R9L1iazCTdvZ>d`dYz%GP+`Rb@0@1zyA9)d+
+AjsO4v
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/models/user.py b/backend/models/user.py
+new file mode 100644
+index 0000000..4eaf3ca
+--- /dev/null
++++ b/backend/models/user.py
+@@ -0,0 +1,26 @@
++from extensions import db
++from datetime import datetime
++from werkzeug.security import generate_password_hash, check_password_hash
++
++class User(db.Model):
++    __tablename__ = 'users'
++    
++    id = db.Column(db.Integer, primary_key=True)
++    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
++    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
++    password_hash = db.Column(db.String(128), nullable=False)
++    created_at = db.Column(db.DateTime, default=datetime.utcnow)
++    
++    def set_password(self, password):
++        self.password_hash = generate_password_hash(password)
++    
++    def check_password(self, password):
++        return check_password_hash(self.password_hash, password)
++    
++    def to_dict(self):
++        return {
++            'id': self.id,
++            'username': self.username,
++            'email': self.email,
++            'created_at': self.created_at.isoformat()
++        }
+\ No newline at end of file
+diff --git a/backend/routes/__pycache__/auth_routes.cpython-312.pyc b/backend/routes/__pycache__/auth_routes.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..7eb0354fa4b623ecdbab67de35768f7046b9c796
+GIT binary patch
+literal 4381
+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
+VHY?QXvF&3d)HBv{+lWM->)-WmCRYFe
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/routes/auth_routes.py b/backend/routes/auth_routes.py
+new file mode 100644
+index 0000000..8c77679
+--- /dev/null
++++ b/backend/routes/auth_routes.py
+@@ -0,0 +1,106 @@
++from flask import Blueprint, request, jsonify
++from models.user import User
++from services.auth_service import register_user, authenticate_user, generate_token, reset_password
++from services.verification_service import generate_verification_code, save_verification_code
++from services.email_service import send_verification_email
++
++auth_bp = Blueprint('auth', __name__)
++
++@auth_bp.route('/register', methods=['POST'])
++def register():
++    """用户注册"""
++    data = request.get_json()
++    
++    # 获取注册信息
++    username = data.get('username')
++    email = data.get('email')
++    password = data.get('password')
++    verification_code = data.get('verificationCode')
++    
++    # 验证必要字段
++    if not all([username, email, password, verification_code]):
++        return jsonify({'success': False, 'message': '请填写所有必要信息'}), 400
++    
++    # 注册用户
++    result = register_user(username, email, password, verification_code)
++    
++    if result['success']:
++        return jsonify(result), 201
++    else:
++        return jsonify(result), 400
++
++@auth_bp.route('/send-verification-code', methods=['POST'])
++def send_code():
++    """发送验证码"""
++    data = request.get_json()
++    email = data.get('email')
++    
++    if not email:
++        return jsonify({'success': False, 'message': '请提供邮箱地址'}), 400
++    
++    # 检查邮箱格式
++    import re
++    if not re.match(r'[^@]+@[^@]+\.[^@]+', email):
++        return jsonify({'success': False, 'message': '邮箱格式不正确'}), 400
++    
++    # 生成验证码
++    code = generate_verification_code()
++    
++    # 保存验证码
++    save_verification_code(email, code)
++    
++    # 发送验证码邮件
++    if send_verification_email(email, code):
++        return jsonify({'success': True, 'message': '验证码已发送至您的邮箱'}), 200
++    else:
++        return jsonify({'success': False, 'message': '验证码发送失败，请稍后重试'}), 500
++
++@auth_bp.route('/login', methods=['POST'])
++def login():
++    """用户登录"""
++    data = request.get_json()
++    username_or_email = data.get('username')  # 可以是用户名或邮箱
++    password = data.get('password')
++    
++    if not all([username_or_email, password]):
++        return jsonify({'success': False, 'message': '请提供用户名/邮箱和密码'}), 400
++    
++    # 认证用户
++    result = authenticate_user(username_or_email, password)
++    
++    if result['success']:
++        user = result['user']
++        # 生成令牌
++        token = generate_token(user.id)
++        
++        return jsonify({
++            'success': True,
++            'message': '登录成功',
++            'token': token,
++            'user': user.to_dict()
++        }), 200
++    else:
++        return jsonify({'success': False, 'message': result['message']}), 401
++    
++@auth_bp.route('/reset-password', methods=['POST'])
++def reset_password_route():
++    """重置密码"""
++    data = request.get_json()
++    
++    # 获取重置信息
++    username = data.get('username')
++    email = data.get('email')
++    verification_code = data.get('verificationCode')
++    new_password = data.get('newPassword')
++    
++    # 验证必要字段
++    if not all([username, email, verification_code, new_password]):
++        return jsonify({'success': False, 'message': '请填写所有必要信息'}), 400
++    
++    # 调用重置密码服务
++    result = reset_password(username, email, verification_code, new_password)
++    
++    if result['success']:
++        return jsonify(result), 200
++    else:
++        return jsonify(result), 400
+diff --git a/backend/services/__pycache__/auth_service.cpython-312.pyc b/backend/services/__pycache__/auth_service.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..a8a21189d774bf01a09578c3fd7027a34e346578
+GIT binary patch
+literal 4098
+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
+B%mx4e
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/services/__pycache__/email_service.cpython-312.pyc b/backend/services/__pycache__/email_service.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..beb2b0b9d6002128e0ada457c196e3161dadfebf
+GIT binary patch
+literal 1500
+zcmcIkTWB0r7(TOe*;_W3W@Bt?nw6&DD$PKlEwoEuX>LLj(6(aovTSB%H<Rv-xineX
+zmCX{Qg+QxP3??yA6RB1W6;aU^$%9Y6q#zg$$y2kF?307>K`My<nb}zv-#swreE<D?
+z=lpYi4g`D%#@NN5lI;vaPl(_QR}CEY0(cLJNTgCIO^s6&!LF1mO^?$Src+Fs9cKYE
+zb7-8)vth1Eg2NPck4UN-Pf7rpbX-os>KAlHkuq8=p34bN5#sKKkB0B?Z<wGURdi{9
+z>@n5oS<{KGqkxLE#?}<5;3}XbRiHno?~_b0ij2q<s6`~Q%XEQ>)wBqSoTYVJTA*$Z
+zFVg%Do@#Q?ziWZHPuUWM@}84OYj$isNO``<YHf}zdbM^37g#515iPqMOrbF(`iktE
+zY~F9L)6_JYp~uiP6>ieIA=(#$QMvtgwKQA(Z2n+lc7JuYTK;nHhi@#4ehhqG8HsC?
+zav~o(9Wu)I_TQhYd*b$y=*yR5{R4y1YnQLat_+O!54;+tv0K$ArX)ebK1CAboD6rN
+zVosGZqNM0AIAtMOW&P1_59fVWt^edU7B((~^f!pJWj@$guh%t}ZW(uP8cQpC-+h0!
+za`Ua~J1b90<;o{z<AWtgV|?`?cpPkeYdk0$U#!)`pcE)8KR(*OyH4~LPYARNI5aDZ
+zA5|AtZ2GS|dyPz<>2n<F`64`MEyqZ%ug)gI=Ngrb=Vft<sG5?^B>VJtA$f$aNsUqe
+zBh|(-4j-Fv-EvhA!p3SnVI5Ir?ZLs<>lZ?!gJGXS{shbk*-S!CDx}#lGm#bZn3>el
+zDTVYoX2?xr@4$>8<uo~)!E8>EGa9CWYna2{dQ)IV$U;kaAV?w41g6t!5>t}Ofj~Ml
+z6nZ+uUsEMT<x_cq@6QT)nluwXBx}R^1fPJD)S%cIej+Yh2f%~x4Ox&>ULub{tS0v6
+z^0<@iDt1Fs<b*85$-ZKikJ1Un2rG3NrV=tesO6>7&`#jlUjyBb1KnGpvyTJkN`rg8
+zw(Zu=?O@lPi`y+7f4CVxSGr_2)4`)AhmM_C;7r7Jv!>hA>M32C8#aS<um>!s!mH;@
+zM860Yu4ZXv*^V7g({1l9@12wL&D$;QfA08$zatk>2ew*!)~?)Z`}noh;jQM=zj%6g
+zT7rL>EEu1vWUCK5qDRo?5pOg?ZyxWAo~Jj@vw%m#ZtP2>;_CGnVQycIPnv<_QGu&!
+zUkz({SeIz={uCWTN~Amk6ZS;XSy4|(eM%RI<QY=Q3uDq0MeU*!yXg2X>N;djQ60*2
+Gp#KLY4D&Gn
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/services/__pycache__/verification_service.cpython-312.pyc b/backend/services/__pycache__/verification_service.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..38133455d1fbf72cf10831770970121490f76b7e
+GIT binary patch
+literal 3068
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/backend/services/auth_service.py b/backend/services/auth_service.py
+new file mode 100644
+index 0000000..dd3b4df
+--- /dev/null
++++ b/backend/services/auth_service.py
+@@ -0,0 +1,75 @@
++from models.user import User
++from extensions import db
++from services.verification_service import verify_code
++from flask import current_app
++import jwt
++from datetime import datetime, timedelta
++
++def register_user(username, email, password, verification_code):
++    """注册新用户"""
++    # 验证验证码
++    if not verify_code(email, verification_code):
++        return {'success': False, 'message': '验证码无效或已过期'}
++    
++    # 检查用户名是否已存在
++    if User.query.filter_by(username=username).first():
++        return {'success': False, 'message': '用户名已存在'}
++    
++    # 检查邮箱是否已存在
++    if User.query.filter_by(email=email).first():
++        return {'success': False, 'message': '邮箱已被注册'}
++    
++    # 创建新用户
++    user = User(username=username, email=email)
++    user.set_password(password)
++    
++    try:
++        db.session.add(user)
++        db.session.commit()
++        return {'success': True, 'message': '注册成功', 'user': user.to_dict()}
++    except Exception as e:
++        db.session.rollback()
++        print(f"用户注册失败: {str(e)}")
++        return {'success': False, 'message': '注册失败，请稍后重试'}
++
++def authenticate_user(username_or_email, password):
++    """用户登录认证"""
++    # 支持使用用户名或邮箱登录
++    user = User.query.filter_by(username=username_or_email).first()
++    if not user:
++        user = User.query.filter_by(email=username_or_email).first()
++    
++    if user and user.check_password(password):
++        return {'success': True, 'user': user}
++    
++    return {'success': False, 'message': '用户名/邮箱或密码错误'}
++
++def generate_token(user_id):
++    """生成JWT令牌"""
++    payload = {
++        'user_id': user_id,
++        'exp': datetime.utcnow() + current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', timedelta(hours=1)),
++        'iat': datetime.utcnow()
++    }
++    return jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
++
++def reset_password(username, email, verification_code, new_password):
++    """重置用户密码"""
++    # 验证验证码
++    if not verify_code(email, verification_code):
++        return {'success': False, 'message': '验证码无效或已过期'}
++    
++    # 找到匹配用户名和邮箱的用户
++    user = User.query.filter_by(username=username, email=email).first()
++    if not user:
++        return {'success': False, 'message': '用户名或邮箱不正确'}
++    
++    # 重置密码
++    try:
++        user.set_password(new_password)
++        db.session.commit()
++        return {'success': True, 'message': '密码重置成功'}
++    except Exception as e:
++        db.session.rollback()
++        print(f"密码重置失败: {str(e)}")
++        return {'success': False, 'message': '密码重置失败，请稍后重试'}
+\ No newline at end of file
+diff --git a/backend/services/email_service.py b/backend/services/email_service.py
+new file mode 100644
+index 0000000..455d8fc
+--- /dev/null
++++ b/backend/services/email_service.py
+@@ -0,0 +1,42 @@
++from flask_mail import Message
++from extensions import mail  # 从extensions导入
++from flask import current_app
++
++def send_verification_email(recipient, code):
++    """
++    发送验证码邮件
++    """
++    subject = "QMathify - 您的验证码"
++    sender = current_app.config['MAIL_DEFAULT_SENDER']
++    
++    msg = Message(
++        subject=subject,
++        recipients=[recipient],
++        sender=sender
++    )
++    
++    # 邮件内容
++    msg.body = f"""
++    您好，
++
++    您的验证码是: {code}
++
++    该验证码有效期为5分钟。如果您没有请求此验证码，请忽略此邮件。
++
++    QMathify团队
++    """
++    
++    msg.html = f"""
++    <h2>QMathify验证码</h2>
++    <p>您好，</p>
++    <p>您的验证码是: <strong>{code}</strong></p>
++    <p>该验证码有效期为5分钟。如果您没有请求此验证码，请忽略此邮件。</p>
++    <p>QMathify团队</p>
++    """
++    
++    try:
++        mail.send(msg)
++        return True
++    except Exception as e:
++        print(f"发送邮件失败: {str(e)}")
++        return False
+\ No newline at end of file
+diff --git a/backend/services/verification_service.py b/backend/services/verification_service.py
+new file mode 100644
+index 0000000..b6e140f
+--- /dev/null
++++ b/backend/services/verification_service.py
+@@ -0,0 +1,73 @@
++import random
++import string
++from extensions import redis_client, use_redis, memory_storage
++from flask import current_app
++import time
++
++def generate_verification_code(length=6):
++    """生成指定长度的数字验证码"""
++    return ''.join(random.choices(string.digits, k=length))
++
++def save_verification_code(email, code):
++    """将验证码保存到Redis或内存"""
++    expires = current_app.config.get('VERIFICATION_CODE_EXPIRES', 300)  # 默认5分钟
++    
++    if use_redis:
++        try:
++            key = f"verification:{email}"
++            redis_client.set(key, code, ex=expires)
++            print(f"验证码已保存到Redis: {email} -> {code}")
++        except Exception as e:
++            print(f"Redis保存失败: {str(e)}，使用内存存储")
++            # 备选：使用内存存储
++            expiry_time = time.time() + expires
++            memory_storage[email] = {'code': code, 'expires_at': expiry_time}
++            print(f"验证码已保存到内存: {email} -> {code}")
++    else:
++        # 使用内存存储
++        expiry_time = time.time() + expires
++        memory_storage[email] = {'code': code, 'expires_at': expiry_time}
++        print(f"验证码已保存到内存: {email} -> {code}")
++
++def verify_code(email, code):
++    """验证用户提交的验证码"""
++    if use_redis:
++        try:
++            key = f"verification:{email}"
++            stored_code = redis_client.get(key)
++            
++            if stored_code is None:
++                return False
++            
++            # 转换为字符串进行比较
++            if stored_code.decode('utf-8') == code:
++                # 验证成功后删除已使用的验证码
++                redis_client.delete(key)
++                return True
++                
++            return False
++        except Exception as e:
++            print(f"Redis验证失败: {str(e)}，尝试内存验证")
++            # 如果Redis失败，尝试从内存验证
++            return verify_from_memory(email, code)
++    else:
++        return verify_from_memory(email, code)
++
++def verify_from_memory(email, code):
++    """从内存中验证验证码"""
++    if email not in memory_storage:
++        return False
++        
++    data = memory_storage[email]
++    
++    # 检查是否过期
++    if time.time() > data['expires_at']:
++        del memory_storage[email]
++        return False
++        
++    if data['code'] == code:
++        # 验证成功后删除已使用的验证码
++        del memory_storage[email]
++        return True
++        
++    return False
+\ No newline at end of file
+diff --git a/work/package-lock.json b/work/package-lock.json
+index 94dfb74..988f777 100644
+--- a/work/package-lock.json
++++ b/work/package-lock.json
+@@ -8,6 +8,7 @@
+       "name": "npm",
+       "version": "0.0.0",
+       "dependencies": {
++        "axios": "^1.8.1",
+         "element-plus": "^2.9.4",
+         "highlight.js": "^11.11.1",
+         "katex": "^0.16.21",
+@@ -2940,7 +2941,6 @@
+       "version": "0.4.0",
+       "resolved": "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz",
+       "integrity": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==",
+-      "dev": true,
+       "license": "MIT"
+     },
+     "node_modules/available-typed-arrays": {
+@@ -2959,6 +2959,17 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/axios": {
++      "version": "1.8.1",
++      "resolved": "https://registry.npmjs.org/axios/-/axios-1.8.1.tgz",
++      "integrity": "sha512-NN+fvwH/kV01dYUQ3PTOZns4LWtWhOFCAhQ/pHb88WQ1hNe5V/dvFwc4VJcDL11LT9xSX0QtsR8sWUuyOuOq7g==",
++      "license": "MIT",
++      "dependencies": {
++        "follow-redirects": "^1.15.6",
++        "form-data": "^4.0.0",
++        "proxy-from-env": "^1.1.0"
++      }
++    },
+     "node_modules/balanced-match": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
+@@ -3107,7 +3118,6 @@
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+       "integrity": "sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "es-errors": "^1.3.0",
+@@ -3278,7 +3288,6 @@
+       "version": "1.0.8",
+       "resolved": "https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz",
+       "integrity": "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "delayed-stream": "~1.0.0"
+@@ -3598,7 +3607,6 @@
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz",
+       "integrity": "sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.4.0"
+@@ -3608,7 +3616,6 @@
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz",
+       "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "call-bind-apply-helpers": "^1.0.1",
+@@ -3803,7 +3810,6 @@
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
+       "integrity": "sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">= 0.4"
+@@ -3813,7 +3819,6 @@
+       "version": "1.3.0",
+       "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+       "integrity": "sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">= 0.4"
+@@ -3830,7 +3835,6 @@
+       "version": "1.1.1",
+       "resolved": "https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.1.tgz",
+       "integrity": "sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "es-errors": "^1.3.0"
+@@ -3843,7 +3847,6 @@
+       "version": "2.1.0",
+       "resolved": "https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz",
+       "integrity": "sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "es-errors": "^1.3.0",
+@@ -4421,6 +4424,26 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/follow-redirects": {
++      "version": "1.15.9",
++      "resolved": "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.9.tgz",
++      "integrity": "sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==",
++      "funding": [
++        {
++          "type": "individual",
++          "url": "https://github.com/sponsors/RubenVerborgh"
++        }
++      ],
++      "license": "MIT",
++      "engines": {
++        "node": ">=4.0"
++      },
++      "peerDependenciesMeta": {
++        "debug": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/for-each": {
+       "version": "0.3.5",
+       "resolved": "https://registry.npmjs.org/for-each/-/for-each-0.3.5.tgz",
+@@ -4458,7 +4481,6 @@
+       "version": "4.0.2",
+       "resolved": "https://registry.npmjs.org/form-data/-/form-data-4.0.2.tgz",
+       "integrity": "sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "asynckit": "^0.4.0",
+@@ -4504,7 +4526,6 @@
+       "version": "1.1.2",
+       "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+       "integrity": "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==",
+-      "dev": true,
+       "license": "MIT",
+       "funding": {
+         "url": "https://github.com/sponsors/ljharb"
+@@ -4555,7 +4576,6 @@
+       "version": "1.2.7",
+       "resolved": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.2.7.tgz",
+       "integrity": "sha512-VW6Pxhsrk0KAOqs3WEd0klDiF/+V7gQOpAvY1jVU/LHmaD/kQO4523aiJuikX/QAKYiW6x8Jh+RJej1almdtCA==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "call-bind-apply-helpers": "^1.0.1",
+@@ -4580,7 +4600,6 @@
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz",
+       "integrity": "sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "dunder-proto": "^1.0.1",
+@@ -4693,7 +4712,6 @@
+       "version": "1.2.0",
+       "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
+       "integrity": "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">= 0.4"
+@@ -4772,7 +4790,6 @@
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz",
+       "integrity": "sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">= 0.4"
+@@ -4785,7 +4802,6 @@
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/has-tostringtag/-/has-tostringtag-1.0.2.tgz",
+       "integrity": "sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "has-symbols": "^1.0.3"
+@@ -4801,7 +4817,6 @@
+       "version": "2.0.2",
+       "resolved": "https://registry.npmjs.org/hasown/-/hasown-2.0.2.tgz",
+       "integrity": "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "function-bind": "^1.1.2"
+@@ -5916,7 +5931,6 @@
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
+       "integrity": "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">= 0.4"
+@@ -5971,7 +5985,6 @@
+       "version": "1.52.0",
+       "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.52.0.tgz",
+       "integrity": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">= 0.6"
+@@ -5981,7 +5994,6 @@
+       "version": "2.1.35",
+       "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.35.tgz",
+       "integrity": "sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "mime-db": "1.52.0"
+@@ -6960,6 +6972,12 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/proxy-from-env": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.1.0.tgz",
++      "integrity": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==",
++      "license": "MIT"
++    },
+     "node_modules/punycode": {
+       "version": "2.3.1",
+       "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz",
+diff --git a/work/package.json b/work/package.json
+index c4dea84..1da9c26 100644
+--- a/work/package.json
++++ b/work/package.json
+@@ -14,6 +14,7 @@
+     "format": "prettier --write src/"
+   },
+   "dependencies": {
++    "axios": "^1.8.1",
+     "element-plus": "^2.9.4",
+     "highlight.js": "^11.11.1",
+     "katex": "^0.16.21",
+diff --git a/work/src/views/QMathify.vue b/work/src/views/QMathify.vue
+index 96854a6..bde2c41 100644
+--- a/work/src/views/QMathify.vue
++++ b/work/src/views/QMathify.vue
+@@ -352,10 +352,10 @@ const handleButtonLeave = () => {
+   isButtonHovered.value = false;
+   if (!isPopoverHovered.value) {
+     setTimeout(() => {
+-      if (!isPopoverHovered.value) {
++      if (!isPopoverHovered.value && !isButtonHovered.value) {
+         showPopover.value = false;
+       }
+-    }, 100); // 延迟 100ms 确保悬浮卡片的 mouseenter 事件先触发
++    }, 300); // 延迟时间从100ms增加到300ms
+   }
+ };
+ 
+@@ -366,7 +366,11 @@ const handlePopoverEnter = () => {
+ const handlePopoverLeave = () => {
+   isPopoverHovered.value = false;
+   if (!isButtonHovered.value) {
+-    showPopover.value = false;
++    setTimeout(() => {
++      if (!isButtonHovered.value && !isPopoverHovered.value) {
++        showPopover.value = false;
++      }
++    }, 300); // 增加延迟到300ms，使隐藏更平滑
+   }
+ };
+ 
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index 80e6437..6db5959 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -1362,9 +1362,9 @@ defineExpose({
+ }
+ .four{width: 180px;
+   height: 57px;
+-position: absolute;
+-top: -65px;
+-right: 0px;
++  position: absolute;
++  top: -65px;
++  right: 0px;
+ }
+ /* 调整弹出框的样式 */
+ .newdia .el-popover {
+@@ -1471,7 +1471,7 @@ right: 0px;
+   align-self: flex-start;
+   margin-left: 95px; /* 为右侧头像留出空间 */
+   width: fit-content;
+-  margin-bottom: 40px; /* 添加透明 margin，用于放置 action-icons */
++  margin-bottom: 35px; /* 添加透明 margin，用于放置 action-icons */
+   position: relative; /* 为 action-icons 的定位提供参考 */
+ }
+ 
+@@ -1646,16 +1646,6 @@ top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+   color: #8c8c8c;
+ }
+ 
+-/* 调整action-icons-container的样式，确保与参考来源不冲突 */
+-.action-icons-container {
+-  position: absolute;
+-  bottom: -30px; /* 调整位置，让参考来源有足够空间 */
+-  left: 0;
+-  width: 100%;
+-  display: flex;
+-  justify-content: flex-start;
+-}
+-
+ /* 保留原来的tooltip相关样式 */
+ :deep(.reference-tooltip) {
+   max-width: 500px !important;
+@@ -1680,10 +1670,7 @@ top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+   border: 1px solid #eaeaea;
+ }
+ 
+-/* 调整AI消息的下边距，给参考来源腾出空间 */
+-.ai-message {
+-  margin-bottom: 35px; /* 增加下边距 */
+-}
++
+ /* 输入和发送区域样式 */
+ .chat-input {
+   display: flex;
+diff --git a/work/src/views/login.vue b/work/src/views/login.vue
+index bc80345..121e530 100644
+--- a/work/src/views/login.vue
++++ b/work/src/views/login.vue
+@@ -9,7 +9,7 @@
+       v-model="username"
+       style="width: 240px;height: 40px;"
+       placeholder="请输入邮箱/用户名"
+-      :prefix-icon="User "
++      :prefix-icon="User"
+     />
+     <el-input
+     class="input3"
+@@ -19,8 +19,13 @@
+     placeholder="请输入密码"
+     show-password
+     :prefix-icon="Lock"
++    @keyup.enter="handleLogin"
+   />
+-  <el-button class="botton02"   @click="handleLogin"   type="primary" >登录</el-button>
++  <el-button 
++    class="botton02" 
++    type="primary" 
++    @click="handleLogin" 
++    :loading="loading">登录</el-button>
+ 
+   <router-link to="/register" class="link" :style="{ fontSize: '13px' }"
+       >还没有账号？点击注册</router-link
+@@ -30,31 +35,103 @@
+     >
+     <el-checkbox  
+     class="box"    
+-    v-model="checked5" 
++    v-model="rememberMe" 
+     label="记住密码"  
+-    :class="{ 'is-checked': checked5 }"></el-checkbox>
++    :class="{ 'is-checked': rememberMe }"></el-checkbox>
+ </template>
+-<script lang="ts" setup>
+-
+ 
++<script lang="ts" setup>
+ import { User } from '@element-plus/icons-vue'
+ import { Lock} from '@element-plus/icons-vue'
+-import { ref } from 'vue'
+-import { useRouter } from 'vue-router'; // 引入 useRouter
++import { ref, onMounted } from 'vue'
++import { useRouter } from 'vue-router'
++import { ElMessage } from 'element-plus'
++import axios from 'axios'
++
+ const username = ref('');
+ const password = ref('');
++const rememberMe = ref(false);
++const loading = ref(false);
+ 
+-const checked5 = ref(false)
++const router = useRouter();
++const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
+ 
+-const router = useRouter(); // 获取路由实例
++// 在组件加载时检查是否有保存的凭证
++onMounted(() => {
++  const savedUsername = localStorage.getItem('username');
++  const savedPassword = localStorage.getItem('password');
++  
++  if (savedUsername && savedPassword) {
++    username.value = savedUsername;
++    password.value = savedPassword;
++    rememberMe.value = true;
++  }
++});
+ 
+-// 登录按钮点击事件
+-const handleLogin = () => {
+-  // 这里可以添加登录逻辑，比如验证用户名和密码
+-  // 如果登录成功，跳转到 /QMathify 页面
+-  router.push('/QMathify');
++// 表单验证
++const validateForm = () => {
++  if (!username.value) {
++    ElMessage.warning('请输入用户名或邮箱');
++    return false;
++  }
++  
++  if (!password.value) {
++    ElMessage.warning('请输入密码');
++    return false;
++  }
++  
++  return true;
+ };
+ 
++// 登录按钮点击事件
++const handleLogin = async () => {
++  if (!validateForm()) {
++    return;
++  }
++  
++  loading.value = true;
++  
++  try {
++    // 调用登录API
++    const response = await axios.post(`${API_BASE_URL}/login`, {
++      username: username.value,
++      password: password.value
++    });
++    
++    if (response.data.success) {
++      ElMessage.success('登录成功');
++      
++      // 处理记住密码
++      if (rememberMe.value) {
++        localStorage.setItem('username', username.value);
++        localStorage.setItem('password', password.value);
++      } else {
++        localStorage.removeItem('username');
++        localStorage.removeItem('password');
++      }
++      
++      // 保存登录令牌和用户信息
++      const { token, user } = response.data;
++      localStorage.setItem('token', token);
++      localStorage.setItem('user', JSON.stringify(user));
++      
++      // 设置全局请求头
++      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
++      
++      // 跳转到主页
++      router.push('/QMathify');
++    } else {
++      ElMessage.error(response.data.message || '登录失败');
++    }
++  } catch (error: any) {
++    console.error('登录出错:', error);
++    // 获取具体错误消息
++    const errorMsg = error.response?.data?.message || '用户名或密码错误，请重试';
++    ElMessage.error(errorMsg);
++  } finally {
++    loading.value = false;
++  }
++};
+ </script>
+ <style scoped>
+ html, body {
+diff --git a/work/src/views/register.vue b/work/src/views/register.vue
+index de94e5d..91f5bf9 100644
+--- a/work/src/views/register.vue
++++ b/work/src/views/register.vue
+@@ -1,5 +1,4 @@
+ <template>
+-
+   <body>
+   <div class="">
+     <img alt="background" class="bg" src="@/imgs/register.png" />
+@@ -11,7 +10,7 @@
+       v-model="username"
+       style="width: 240px;height: 40px; "
+       placeholder="请输入用户名"
+-      :prefix-icon="User "
++      :prefix-icon="User"
+     />
+     <el-input
+       class="input3"
+@@ -23,7 +22,6 @@
+     <el-input
+       class="input4"
+       v-model="verificationCode"
+-
+       style="width: 240px;height: 40px;"
+       placeholder="请输入验证码"
+       :prefix-icon="Key"
+@@ -47,21 +45,152 @@
+     :prefix-icon="Lock"
+   />
+   <el-button
+-  class="yanzheng"
+-  type="primary" plain>获取验证码</el-button>
+-  <el-button class="botton02"   type="primary" >注册</el-button>
++    class="yanzheng"
++    type="primary" 
++    plain
++    :disabled="isCodeButtonDisabled"
++    @click="getVerificationCode">{{ codeButtonText }}</el-button>
++  <el-button 
++    class="botton02" 
++    type="primary" 
++    @click="handleRegister"
++    :loading="loading">注册</el-button>
+   <router-link to="/login" class="link" :style="{ fontSize: '13px' }"
+   >已有账号？前往登录</router-link>
+ </template>
++
+ <script lang="ts" setup>
+ import { Key, Message, User } from '@element-plus/icons-vue'
+-import { Lock} from '@element-plus/icons-vue'
+-import { ref } from 'vue'
++import { Lock } from '@element-plus/icons-vue'
++import { ref, computed } from 'vue'
++import { ElMessage } from 'element-plus'
++import { useRouter } from 'vue-router'
++import axios from 'axios'
++
++const router = useRouter();
+ const username = ref('');
+ const email = ref('');
+ const verificationCode = ref('');
+ const password = ref('');
+-const confirmPassword = ref('');</script>
++const confirmPassword = ref('');
++const loading = ref(false);
++const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++// 验证码按钮状态管理
++const countdown = ref(0);
++const codeButtonText = computed(() => {
++  return countdown.value > 0 ? `${countdown.value}秒后重试` : '获取验证码';
++});
++const isCodeButtonDisabled = computed(() => {
++  return countdown.value > 0 || !validateEmail(email.value);
++});
++
++// 邮箱格式验证
++const validateEmail = (email: string) => {
++  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
++  return emailPattern.test(email);
++};
++
++// 获取验证码
++const getVerificationCode = async () => {
++  if (!validateEmail(email.value)) {
++    ElMessage.warning('请输入有效的邮箱地址');
++    return;
++  }
++  
++  try {
++    // 调用后端API发送验证码
++    const response = await axios.post(`${API_BASE_URL}/send-verification-code`, {
++      email: email.value
++    });
++    
++    if (response.data.success) {
++      ElMessage.success('验证码已发送，请查收邮箱');
++      
++      // 开始倒计时
++      countdown.value = 60;
++      const timer = setInterval(() => {
++        countdown.value--;
++        if (countdown.value <= 0) {
++          clearInterval(timer);
++        }
++      }, 1000);
++    } else {
++      ElMessage.error(response.data.message || '发送验证码失败');
++    }
++  } catch (error) {
++    console.error('发送验证码出错:', error);
++    ElMessage.error('发送验证码失败，请稍后重试');
++  }
++};
++
++// 表单验证
++const validateForm = () => {
++  if (!username.value) {
++    ElMessage.warning('请输入用户名');
++    return false;
++  }
++  
++  if (!validateEmail(email.value)) {
++    ElMessage.warning('请输入有效的邮箱地址');
++    return false;
++  }
++  
++  if (!verificationCode.value) {
++    ElMessage.warning('请输入验证码');
++    return false;
++  }
++  
++  if (password.value.length < 6) {
++    ElMessage.warning('密码长度至少为6位');
++    return false;
++  }
++  
++  if (password.value !== confirmPassword.value) {
++    ElMessage.warning('两次输入的密码不一致');
++    return false;
++  }
++  
++  return true;
++};
++
++// 处理注册逻辑
++const handleRegister = async () => {
++  if (!validateForm()) {
++    return;
++  }
++  
++  loading.value = true;
++  
++  try {
++    // 调用注册API
++    const response = await axios.post(`${API_BASE_URL}/register`, {
++      username: username.value,
++      email: email.value,
++      password: password.value,
++      verificationCode: verificationCode.value
++    });
++    
++    if (response.data.success) {
++      ElMessage.success('注册成功，即将跳转到登录页面');
++      
++      // 注册成功后跳转到登录页面
++      setTimeout(() => {
++        router.push('/login');
++      }, 1500);
++    } else {
++      ElMessage.error(response.data.message || '注册失败');
++    }
++  } catch (error: any) {
++    console.error('注册出错:', error);
++    // 获取具体错误消息
++    const errorMsg = error.response?.data?.message || '注册失败，请稍后重试';
++    ElMessage.error(errorMsg);
++  } finally {
++    loading.value = false;
++  }
++};
++</script>
++
+ <style scoped>
+ html, body {
+   margin: 0;
+@@ -100,7 +229,7 @@ html, body {
+ }
+ .yanzheng{position: absolute;
+   top: 49.5%;
+-  right: 41.3%;
++  right: 41.6%;
+   opacity: 1;
+   background: rgba(232, 222, 252, 0.89);}
+ .input5{
+diff --git a/work/src/views/reset.vue b/work/src/views/reset.vue
+index 9e45f50..29c350c 100644
+--- a/work/src/views/reset.vue
++++ b/work/src/views/reset.vue
+@@ -9,7 +9,7 @@
+       v-model="username"
+       style="width: 240px;height: 40px; "
+       placeholder="请输入用户名"
+-      :prefix-icon="User "
++      :prefix-icon="User"
+     />
+     <el-input
+       class="input3"
+@@ -30,7 +30,7 @@
+       v-model="newPassword"
+     style="width: 240px;height: 40px;"
+     type="password"
+-    placeholder="请输入密码"
++    placeholder="请输入新密码"
+     show-password
+     :prefix-icon="Lock"
+   />
+@@ -39,34 +39,167 @@
+       v-model="confirmPassword"
+     style="width: 240px;height: 40px;"
+     type="password"
+-    placeholder="请确认密码"
++    placeholder="请确认新密码"
+     show-password
+     :prefix-icon="Lock"
+   />
+   <el-button 
+-  class="yanzheng"
+-  type="primary" plain>获取验证码</el-button>
++    class="yanzheng"
++    type="primary" 
++    plain
++    :disabled="isCodeButtonDisabled"
++    @click="getVerificationCode">{{ codeButtonText }}</el-button>
+   <el-button 
+-  
+-      class="botton"
+-      type="primary"
+-     
+-      >重置密码</el-button
+-    ><router-link to="/login" class="link" :style="{ fontSize: '13px' }"
+-      >返回登录</router-link
+-    >
++    class="botton"
++    type="primary"
++    :loading="loading"
++    @click="handleResetPassword">重置密码</el-button>
++    <router-link to="/login" class="link" :style="{ fontSize: '13px' }">返回登录</router-link>
+ </template>
++
+ <script lang="ts" setup>
+ import { Key, Message, User } from '@element-plus/icons-vue'
+-import { Lock} from '@element-plus/icons-vue'
+-import { ref } from 'vue'
++import { Lock } from '@element-plus/icons-vue'
++import { ref, computed } from 'vue'
++import { ElMessage } from 'element-plus'
++import { useRouter } from 'vue-router'
++import axios from 'axios'
+ 
++const router = useRouter();
+ const username = ref('');
+ const email = ref('');
+ const verificationCode = ref('');
+ const newPassword = ref('');
+ const confirmPassword = ref('');
++const loading = ref(false);
++
++const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++
++// 验证码按钮状态管理
++const countdown = ref(0);
++const codeButtonText = computed(() => {
++  return countdown.value > 0 ? `${countdown.value}秒后重试` : '获取验证码';
++});
++const isCodeButtonDisabled = computed(() => {
++  return countdown.value > 0 || !validateEmail(email.value);
++});
++
++// 邮箱格式验证
++const validateEmail = (email: string) => {
++  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
++  return emailPattern.test(email);
++};
++
++// 获取验证码
++// 验证码按钮倒计时逻辑完善
++const getVerificationCode = async () => {
++  if (!validateEmail(email.value)) {
++    ElMessage.warning('请输入有效的邮箱地址');
++    return;
++  }
++  
++  try {
++    // 调用后端API发送验证码
++    const response = await axios.post(`${API_BASE_URL}/send-verification-code`, {
++      email: email.value
++    });
++    
++    if (response.data.success) {
++      ElMessage.success('验证码已发送，请查收邮箱');
++      
++      // 开始倒计时
++      countdown.value = 60;
++      const timer = setInterval(() => {
++        countdown.value--;
++        if (countdown.value <= 0) {
++          clearInterval(timer);
++        }
++      }, 1000);
++    } else {
++      ElMessage.error(response.data.message || '发送验证码失败');
++    }
++  } catch (error) {
++    console.error('发送验证码出错:', error);
++    ElMessage.error('发送验证码失败，请稍后重试');
++  }
++};
++
++
++// 表单验证
++const validateForm = () => {
++  if (!username.value) {
++    ElMessage.warning('请输入用户名');
++    return false;
++  }
++  
++  if (!validateEmail(email.value)) {
++    ElMessage.warning('请输入有效的邮箱地址');
++    return false;
++  }
++  
++  if (!verificationCode.value) {
++    ElMessage.warning('请输入验证码');
++    return false;
++  }
++  
++  if (newPassword.value.length < 6) {
++    ElMessage.warning('密码长度至少为6位');
++    return false;
++  }
++  
++  if (newPassword.value !== confirmPassword.value) {
++    ElMessage.warning('两次输入的密码不一致');
++    return false;
++  }
++  
++  return true;
++};
++
++// 处理重置密码
++const handleResetPassword = async () => {
++  if (!validateForm()) {
++    return;
++  }
++  
++  loading.value = true;
++  
++  try {
++    // 调用重置密码API
++    const response = await axios.post(`${API_BASE_URL}/reset-password`, {
++      username: username.value,
++      email: email.value,
++      verificationCode: verificationCode.value,
++      newPassword: newPassword.value
++    });
++    
++    if (response.data.success) {
++      ElMessage.success('密码重置成功，即将跳转到登录页面');
++      
++      // 清空所有输入
++      username.value = '';
++      email.value = '';
++      verificationCode.value = '';
++      newPassword.value = '';
++      confirmPassword.value = '';
++      
++      // 重置成功后跳转到登录页面
++      setTimeout(() => {
++        router.push('/login');
++      }, 1500);
++    } else {
++      ElMessage.error(response.data.message || '密码重置失败');
++    }
++  } catch (error: any) {
++    console.error('重置密码出错:', error);
++    // 获取具体错误消息
++    const errorMsg = error.response?.data?.message || '重置密码失败，请稍后重试';
++    ElMessage.error(errorMsg);
++  } finally {
++    loading.value = false;
++  }
++};
+ </script>
++
+ <style scoped>
+ html, body {
+   margin: 0;
+@@ -106,7 +239,7 @@ html, body {
+ }
+ .yanzheng{position: absolute;
+   top: 49.5%;
+-  right: 41.3%;
++  right: 41.6%;
+   opacity: 1;
+   background: rgba(232, 222, 252, 0.89);}
+ .input5{
+@@ -121,21 +254,25 @@ html, body {
+   right: 41.3%;
+   opacity: 1;
+ }
+-.botton{position: absolute;
++.botton{
++  position: absolute;
+   top: 70%;
+   right: 41.3%;
+   opacity: 1;
+   width: 240px;
+-height: 40px;
+-font-size: 20px;
+-font-weight: 400;
+-opacity: 1;
+-border-radius: 4px;
+-background: linear-gradient(135deg, rgba(170, 239, 242, 1) 0%, rgba(136, 191, 242, 0.95) 32.87%, rgba(162, 169, 252, 0.89) 74.12%, rgba(151, 107, 255, 0.8) 100%);
+-box-shadow: 2px 2px 8px  rgba(0, 0, 0, 0.25);}
+-.link{ position: absolute;
++  height: 40px;
++  font-size: 20px;
++  font-weight: 400;
++  opacity: 1;
++  border-radius: 4px;
++  background: linear-gradient(135deg, rgba(170, 239, 242, 1) 0%, rgba(136, 191, 242, 0.95) 32.87%, rgba(162, 169, 252, 0.89) 74.12%, rgba(151, 107, 255, 0.8) 100%);
++  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
++}
++.link{ 
++  position: absolute;
+   top: 76%;
+   right: 54.4%;
+   opacity: 1;
+-  color: rgba(153, 112, 255, 1);}
++  color: rgba(153, 112, 255, 1);
++}
+ </style>
+\ No newline at end of file
+-- 
+2.39.5 (Apple Git-154)
+

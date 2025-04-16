@@ -1,0 +1,146 @@
+From 54d9042b9de713525da1c2c9bb70d47596ebc432 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 23:32:38 +0800
+Subject: [PATCH 17/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=B6=88=E6=81=AF?=
+ =?UTF-8?q?=E9=A1=BA=E5=BA=8F=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ think.html            |  1 +
+ work/src/views/ai.vue | 84 ++++++++++++++++++-------------------------
+ 2 files changed, 35 insertions(+), 50 deletions(-)
+ create mode 100644 think.html
+
+diff --git a/think.html b/think.html
+new file mode 100644
+index 0000000..3bb81e3
+--- /dev/null
++++ b/think.html
+@@ -0,0 +1 @@
++<details style=\"color:gray;background-color: #f8f8f8;padding: 8px;border-radius: 4px;\" open> <summary> Thinking... </summary>
+\ No newline at end of file
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index 353517e..5f7ae18 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -502,25 +502,46 @@ const loadDialogFromLocal = async (id) => {
+         orderedMessages.forEach(msg => {
+           // 收集该消息相关的所有文件
+           const allFiles = msg.message_files || [];
+-          let userTextAdded = false;
+-          // 首先处理该条消息的所有组成部分
+-          const userMessages = [];
+-          const aiMessages = [];
+           
+-          // 1. 处理用户文本消息和图片文件（保持原始顺序）
++          // 分别处理用户图片消息和文本消息
++          const userImages = allFiles.filter(file => 
++            file.belongs_to !== 'assistant' && file.type === 'image'
++          );
++          
++          // 1. 先添加用户的图片消息（如果有）
++          userImages.forEach(file => {
++            let fileUrl = file.url;
++            if (fileUrl && fileUrl.startsWith('/')) {
++              fileUrl = `http://47.99.158.58${fileUrl}`;
++            }
++            
++            // 为每个图片创建独立的消息
++            messageList.value.push({
++              type: 'user',
++              content: '',
++              fileId: file.id,
++              fileType: 'image',
++              imageUrl: fileUrl,
++              isImageOnly: true
++            });
++            
++            // 缓存图片URL
++            imageUrlCache.value[file.id] = fileUrl;
++          });
++          
++          // 2. 添加用户文本消息（如果有）
+           if (msg.query && msg.query.trim() !== '') {
+-            // 如果有文本内容，创建文本消息
++            // 只处理文档文件（非图片）
++            const documentFiles = allFiles.filter(file => 
++              file.belongs_to !== 'assistant' && file.type !== 'image'
++            );
++            
+             const userTextMessage = {
+               type: 'user',
+               content: msg.query,
+               messageId: msg.id + '_user'
+             };
+             
+-            // 查找和此文本消息一起上传的文档文件（非图片）
+-            const documentFiles = allFiles.filter(file => 
+-              file.belongs_to !== 'assistant' && file.type !== 'image'
+-            );
+-            
+             if (documentFiles.length > 0) {
+               userTextMessage.fileId = documentFiles[0].id;
+               userTextMessage.fileSent = true;
+@@ -539,35 +560,9 @@ const loadDialogFromLocal = async (id) => {
+               });
+             }
+             
+-            userMessages.push(userTextMessage);
+-            userTextAdded = true;
++            messageList.value.push(userTextMessage);
+           }
+           
+-          // 2. 处理单独的图片消息
+-          const imageFiles = allFiles.filter(file => 
+-            file.belongs_to !== 'assistant' && file.type === 'image'
+-          );
+-          
+-          imageFiles.forEach(file => {
+-            let fileUrl = file.url;
+-            if (fileUrl && fileUrl.startsWith('/')) {
+-              fileUrl = `http://47.99.158.58${fileUrl}`;
+-            }
+-            
+-            // 为每个图片创建独立的消息
+-            userMessages.push({
+-              type: 'user',
+-              content: '',
+-              fileId: file.id,
+-              fileType: 'image',
+-              imageUrl: fileUrl,
+-              isImageOnly: true
+-            });
+-            
+-            // 缓存图片URL
+-            imageUrlCache.value[file.id] = fileUrl;
+-          });
+-          
+           // 3. 处理AI回复
+           if (msg.answer) {
+             const aiMessage = {
+@@ -597,19 +592,8 @@ const loadDialogFromLocal = async (id) => {
+               });
+             }
+             
+-            aiMessages.push(aiMessage);
++            messageList.value.push(aiMessage);
+           }
+-          
+-          // 4. 按顺序将所有消息添加到消息列表
+-          // 先添加所有用户消息
+-          userMessages.forEach(userMsg => {
+-            messageList.value.push(userMsg);
+-          });
+-          
+-          // 然后添加所有AI回复
+-          aiMessages.forEach(aiMsg => {
+-            messageList.value.push(aiMsg);
+-          });
+         });
+         
+         // 更新对话ID和状态
+-- 
+2.39.5 (Apple Git-154)
+

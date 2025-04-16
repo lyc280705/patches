@@ -1,0 +1,33 @@
+From 28b5b8b59031374681ab8f0a0f8c62bedeb37eb7 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sat, 8 Mar 2025 15:24:37 +0800
+Subject: [PATCH 54/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=B8=85=E9=99=A4?=
+ =?UTF-8?q?=E6=89=80=E6=9C=89=E5=AF=B9=E8=AF=9D=E7=82=B9=E5=87=BB=E9=97=AE?=
+ =?UTF-8?q?=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 65433b2..1ddfc89 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -105,9 +105,9 @@
+               <img class="pen" src="@/imgs/pen.png" />
+               <span class="xiu">修改个人信息</span>
+             </div>
+-            <div class="popover-item">
++            <div class="popover-item" @click="clearAllDialogs">
+               <img class="delete" src="@/imgs/delete.png" />
+-              <span class="shan" @click="clearAllDialogs">清空全部对话</span>
++              <span class="shan">清空全部对话</span>
+             </div>
+             <div class="popover-item">
+               <img class="set" src="@/imgs/set.png" />
+-- 
+2.39.5 (Apple Git-154)
+

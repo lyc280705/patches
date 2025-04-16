@@ -1,0 +1,31 @@
+From 5e42b595ec5407fe7aa141d3c30e8d5dd895624a Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 28 Feb 2025 23:40:27 +0800
+Subject: [PATCH 10/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=B6=88=E6=81=AF?=
+ =?UTF-8?q?=E9=A1=BA=E5=BA=8F=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index db3580b..c0a6dbc 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -456,8 +456,9 @@ const loadDialogFromLocal = async (id) => {
+       
+       // 处理API返回的数据
+       if (history && Array.isArray(history.data) && history.data.length > 0) {
++        const orderedMessages = [...history.data].reverse();
+         // 处理历史消息 - 根据API文档格式解析
+-        history.data.forEach(msg => {
++        orderedMessages.forEach(msg => {
+           // 1. 添加用户消息 (如果存在query)
+           if (msg.query) {
+             const userMessage = {
+-- 
+2.39.5 (Apple Git-154)
+

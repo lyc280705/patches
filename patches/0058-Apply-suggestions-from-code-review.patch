@@ -1,0 +1,73 @@
+From 4bbee5f6995a44b52631d21ef402ad55f9637c31 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 10 Mar 2025 09:21:06 +0800
+Subject: [PATCH 58/85] Apply suggestions from code review
+
+Co-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>
+---
+ frontend/src/views/login.vue    | 2 +-
+ frontend/src/views/register.vue | 5 ++---
+ frontend/src/views/reset.vue    | 4 ++--
+ 3 files changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/frontend/src/views/login.vue b/frontend/src/views/login.vue
+index 76ea2ca..1c30af6 100644
+--- a/frontend/src/views/login.vue
++++ b/frontend/src/views/login.vue
+@@ -219,7 +219,7 @@ height: 40px;
+ font-size: 20px;
+ font-weight: 400;
+ opacity: 1;
+-border: 0cap;
++border: 0;
+ border-radius: 4px;
+ background: linear-gradient(135deg, rgba(170, 239, 242, 1) 0%, rgba(136, 191, 242, 0.95) 32.87%, rgba(162, 169, 252, 0.89) 74.12%, rgba(151, 107, 255, 0.8) 100%);
+ box-shadow: 2px 2px 8px  rgba(0, 0, 0, 0.25);
+diff --git a/frontend/src/views/register.vue b/frontend/src/views/register.vue
+index 4a9d14f..e5343a6 100644
+--- a/frontend/src/views/register.vue
++++ b/frontend/src/views/register.vue
+@@ -231,8 +231,7 @@ html, body {
+   top: 49.5%;
+   right: 41.6%;
+   opacity: 1;
+-  border: 0cap;
+-
++  border: 0;
+   background: rgba(232, 222, 252, 0.89);}
+ .input5{
+   position: absolute;
+@@ -257,7 +256,7 @@ height: 40px;
+ font-size: 20px;
+ font-weight: 400;
+ opacity: 1;
+-border: 0cap;
++border: 0;
+ border-radius: 4px;
+ background: linear-gradient(135deg, rgba(170, 239, 242, 1) 0%, rgba(136, 191, 242, 0.95) 32.87%, rgba(162, 169, 252, 0.89) 74.12%, rgba(151, 107, 255, 0.8) 100%);
+ box-shadow: 2px 2px 8px  rgba(0, 0, 0, 0.25);
+diff --git a/frontend/src/views/reset.vue b/frontend/src/views/reset.vue
+index 346a750..ebaa307 100644
+--- a/frontend/src/views/reset.vue
++++ b/frontend/src/views/reset.vue
+@@ -241,7 +241,7 @@ html, body {
+   top: 49.5%;
+   right: 41.6%;
+   opacity: 1;
+-border: 0cap;
++border: 0;
+   background: rgba(232, 222, 252, 0.89);}
+ .input5{
+   position: absolute;
+@@ -265,7 +265,7 @@ border: 0cap;
+   font-size: 20px;
+   font-weight: 400;
+   opacity: 1;
+-  border: 0cap;
++  border: 0;
+   border-radius: 4px;
+   background: linear-gradient(135deg, rgba(170, 239, 242, 1) 0%, rgba(136, 191, 242, 0.95) 32.87%, rgba(162, 169, 252, 0.89) 74.12%, rgba(151, 107, 255, 0.8) 100%);
+   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
+-- 
+2.39.5 (Apple Git-154)
+

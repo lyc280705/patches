@@ -1,0 +1,2141 @@
+From 27dcd6f53452cb6d0e4d8ff62d0c0f3066fa0daa Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 7 Mar 2025 19:43:37 +0800
+Subject: [PATCH 43/85] =?UTF-8?q?edit-=E9=87=8D=E6=9E=84=E4=BB=A3=E7=A0=81?=
+ =?UTF-8?q?=E6=94=AF=E6=8C=81=E5=93=8D=E5=BA=94=E5=BC=8F=E8=AE=BE=E8=AE=A1?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 922 ++++++++++++++++++--------------
+ frontend/src/views/ai.vue       | 651 ++++++++++------------
+ 2 files changed, 811 insertions(+), 762 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 957db63..9b464aa 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -1,39 +1,48 @@
+- <template>
++<template>
+   <div class="container">
++    <!-- 移动端菜单按钮 -->
++    <div class="mobile-menu-button" v-if="!isSidebarOpen" @click="toggleSidebar">
++      <el-icon><Menu /></el-icon>
++    </div>
++
+     <!-- 边栏 -->
+     <div
+       class="sidebar"
+       :class="{ 'sidebar-open': isSidebarOpen, 'sidebar-collapsed': !isSidebarOpen }"
+     >
++      <!-- 关闭按钮 (移动端) -->
++      <div class="mobile-close-button" v-if="isSidebarOpen" @click="toggleSidebar">
++        <el-icon><Close /></el-icon>
++      </div>
++      
+       <!-- 侧栏收起时的内容 -->
+       <div v-if="!isSidebarOpen" class="collapsed-content">
+         <el-icon class="menu-icon" @click="toggleSidebar">
+-          <Memo /> <!-- Memo图标 -->
++          <Memo />
+         </el-icon>
+         <img alt="logo" class="logo" src="@/imgs/logo.png" />
+-        <el-button type="primary" class="bo01" @click="toggleSidebar">
+-          <img alt="dia" src="@/imgs/dia.png" />
++        <el-button type="primary" class="sidebar-button bo01" @click="toggleSidebar">
++          <img alt="dia" src="@/imgs/dia.png" class="collapsed-icon" />
+         </el-button>
+-        <el-button type="primary" class="bo02" @click="toggleSidebar">
+-          <img alt="sear" src="@/imgs/search.png" />
++        <el-button type="primary" class="sidebar-button bo02" @click="toggleSidebar">
++          <img alt="sear" src="@/imgs/search.png" class="collapsed-icon" />
+         </el-button>
+-        <el-button type="primary" class="bo03" @click="toggleSidebar">
+-          <img alt="late" src="@/imgs/lately.png" />
++        <el-button type="primary" class="sidebar-button bo03" @click="toggleSidebar">
++          <img alt="late" src="@/imgs/lately.png" class="collapsed-icon" />
+         </el-button>
+-        <el-button type="primary" class="bo04" @click="toggleSidebar">
+-          <img alt="per" src="@/imgs/person.png" />
++        <el-button type="primary" class="sidebar-button bo04" @click="toggleSidebar">
++          <img alt="per" src="@/imgs/person.png" class="collapsed-icon" />
+         </el-button>
+       </div>
+ 
+       <!-- 侧栏展开时的内容 -->
+       <div v-else class="expanded-content">
+-        <!-- Memo图标（移动到右上角） -->
+         <el-icon class="menu-icon-top-right" @click="toggleSidebar">
+-          <Memo /> <!-- Memo图标 -->
++          <Memo />
+         </el-icon>
+         <img class="math" src="@/imgs/math.png" />
+ 
+-        <el-button type="primary" class="bo05" @click="handleNewDialog">
++        <el-button type="primary" class="sidebar-button bo05" @click="handleNewDialog">
+           <div class="button-content">
+             <img alt="dia" src="@/imgs/dia.png" class="dia-icon" />
+             <span>新建对话</span>
+@@ -42,24 +51,23 @@
+ 
+         <img class="line" src="@/imgs/line.png" />
+ 
+-        <el-button type="primary" class="bo06" @click="openSearchDialog">
++        <el-button type="primary" class="sidebar-button bo06" @click="openSearchDialog">
+           <div class="button-content">
+             <img alt="" src="@/imgs/search.png" class="search-icon" />
+             <span>搜索历史记录</span>
+           </div>
+         </el-button>
+-        <el-button type="primary" class="bo07" @click="toggleDialogList">
++        
++        <el-button type="primary" class="sidebar-button bo07" @click="toggleDialogList">
+           <div class="button-content">
+             <img alt="" src="@/imgs/lately.png" class="lately-icon" />
+             <span>近期对话</span>
+-            <!-- 动态绑定图标 -->
+             <el-icon :class="['arrow-icon', { 'rotate': isDialogListVisible }]">
+               <ArrowDown v-if="!isDialogListVisible" />
+               <ArrowUp v-else />
+             </el-icon>
+           </div>
+         </el-button>
+-
+         <!-- 近期对话列表 -->
+         <div v-if="isDialogListVisible" class="recent-dialog-list">
+           <div 
+@@ -79,119 +87,150 @@
+             </div>
+           </div>
+         </div>
+-        <div>
+-          <el-button type="primary" class="bo08" @mouseenter="handleButtonEnter" @mouseleave="handleButtonLeave" @click="togglePopover">
+-            <div class="button-content">
+-              <img alt="per" src="@/imgs/person.png" class="per-icon" />
+-              <span>{{ currentUser ? currentUser.username : '个人信息' }}</span>
++        
++        <div class="user-profile-container">
++          <el-button type="primary" class="sidebar-button bo08" 
++            @mouseenter="handleButtonEnter" 
++            @mouseleave="handleButtonLeave" 
++            @click="togglePopover"
++          >
++          <div class="button-content">
++            <img alt="per" src="@/imgs/person.png" class="per-icon" />
++            <span>{{ currentUser ? currentUser.username : '个人信息' }}</span>
+             </div>
+           </el-button>
+         </div>
+-        <div v-if="showPopover" class="popover" @mouseenter="handlePopoverEnter" @mouseleave="handlePopoverLeave">
+-          <el-button type="text" class="xiu" @click="showProfileDialog = true">
+-            <img alt="pen" src="@/imgs/pen.png" class="pen" />
+-            修改个人信息</el-button>
+-          <el-button type="text" @click="clearAllDialogs" class="shan">
+-            <img alt="delete" src="@/imgs/delete.png" class="delete" />
+-            删除历史记录</el-button>
+-          <el-button type="text" class="she">
+-            <img alt="set" src="@/imgs/set.png" class="set" />
+-            系统设置</el-button>
+-          <el-button type="text" class="jiao">
+-            <img alt="call" src="@/imgs/call.png" class="call" />
+-            联系我们</el-button>
+-          <el-button type="text" class="tui" @click="logout">
+-            <img alt="loginout" src="@/imgs/loginout.png" class="loginout" />
+-            退出登录</el-button>
+-        </div>
+-        <el-dialog
+-          v-model="showProfileDialog"
+-          title="修改个人信息"
+-          width="30%"
+-          :close-on-click-modal="false"
+-          class="el-dialog"
++      </div>
++    </div>
++    <!-- 个人信息悬浮卡片 -->
++    <div v-if="showPopover" class="popover" @mouseenter="handlePopoverEnter" @mouseleave="handlePopoverLeave">
++      <div class="popover-item" @click="showProfileDialog = true">
++        <img class="pen" src="@/imgs/pen.png" />
++        <span class="xiu">修改个人信息</span>
++      </div>
++      <div class="popover-item">
++        <img class="delete" src="@/imgs/delete.png" />
++        <span class="shan" @click="clearAllDialogs">清空全部对话</span>
++      </div>
++      <div class="popover-item">
++        <img class="set" src="@/imgs/set.png" />
++        <span class="she">设置</span>
++      </div>
++      <div class="popover-item">
++        <img class="call" src="@/imgs/call.png" />
++        <span class="jiao">联系我们</span>
++      </div>
++      <div class="popover-item" @click="logout">
++        <img class="loginout" src="@/imgs/loginout.png" />
++        <span class="tui">退出登录</span>
++      </div>
++    </div>
++
++    <!-- 个人信息编辑对话框 -->
++    <el-dialog
++      v-model="showProfileDialog"
++      title="个人信息"
++      width="90%"
++      max-width="500px"
++      class="profile-dialog"
++      :close-on-click-modal="false"
++    >
++    <el-form 
++        ref="userFormRef"
++        :model="userForm" 
++        :rules="userFormRules" 
++        label-width="100px"
++        label-position="left"
++      >
++        <el-form-item label="用户名" prop="username">
++          <el-input v-model="userForm.username"></el-input>
++        </el-form-item>
++        <el-form-item label="邮箱" prop="email">
++          <el-input v-model="userForm.email"></el-input>
++        </el-form-item>
++        <el-form-item label="当前密码" prop="current_password">
++          <el-input v-model="userForm.current_password" type="password"></el-input>
++        </el-form-item>
++        <el-form-item label="新密码" prop="new_password">
++          <el-input v-model="userForm.new_password" type="password"></el-input>
++          <div class="form-help-text">不修改密码请留空</div>
++        </el-form-item>
++        <el-form-item label="确认新密码" prop="confirm_password">
++          <el-input v-model="userForm.confirm_password" type="password"></el-input>
++        </el-form-item>
++      </el-form>
++      <template #footer>
++        <span class="dialog-footer">
++          <el-button @click="showProfileDialog = false">取消</el-button>
++          <el-button type="primary" @click="updateUserProfile" :loading="updating">
++            保存
++          </el-button>
++        </span>
++      </template>
++    </el-dialog>
++
++    <!-- 搜索对话框 -->
++    <el-dialog
++      v-model="showSearchDialog"
++      title="搜索历史对话"
++      width="90%"
++      max-width="500px"
++      class="search-dialog"
++      :close-on-click-modal="true"
++    >
++      <div class="search-container">
++        <el-input
++          v-model="searchQuery"
++          placeholder="输入关键词搜索历史对话..."
++          clearable
++          @keyup.enter="searchDialogs"
+         >
+-          <el-form :model="userForm" ref="userFormRef" label-width="100px" :rules="userFormRules">
+-            <el-form-item label="用户名" prop="username">
+-              <el-input v-model="userForm.username" placeholder="请输入新用户名"></el-input>
+-            </el-form-item>
+-            <el-form-item label="邮箱" prop="email">
+-              <el-input v-model="userForm.email" placeholder="请输入新邮箱"></el-input>
+-            </el-form-item>
+-            <el-form-item label="当前密码" prop="current_password">
+-              <el-input v-model="userForm.current_password" type="password" placeholder="请输入当前密码" show-password></el-input>
+-            </el-form-item>
+-            <el-form-item label="新密码" prop="new_password">
+-              <el-input v-model="userForm.new_password" type="password" placeholder="请输入新密码（可选）" show-password></el-input>
+-            </el-form-item>
+-            <el-form-item label="确认新密码" prop="confirm_password">
+-              <el-input v-model="userForm.confirm_password" type="password" placeholder="请确认新密码" show-password></el-input>
+-            </el-form-item>
+-          </el-form>
+-          <template #footer>
+-            <span class="dialog-footer">
+-              <el-button @click="showProfileDialog = false">取消</el-button>
+-              <el-button type="primary" @click="updateUserProfile" :loading="updating">确认</el-button>
+-            </span>
++          <template #append>
++            <el-button :icon="Search" @click="searchDialogs" :loading="searching">
++              搜索
++            </el-button>
+           </template>
+-        </el-dialog>
+-        <!-- 更新搜索对话框组件 -->
+-        <el-dialog
+-          v-model="showSearchDialog"
+-          title="搜索历史记录"
+-          width="30%"
+-          :close-on-click-modal="true"
+-        >
+-          <el-input
+-            v-model="searchQuery"
+-            placeholder="输入关键词搜索对话..."
+-            :prefix-icon="Search"
+-            clearable
+-            @keyup.enter="searchDialogs"
+-          >
+-            <template #append>
+-              <el-button @click="searchDialogs" :loading="searching">
+-                搜索
+-              </el-button>
+-            </template>
+-          </el-input>
+-        
+-          <div class="search-tips" v-if="!hasSearched && !searchResults.length">
+-            <p>搜索提示:</p>
+-            <ul>
+-              <li>输入完整或部分对话标题</li>
+-              <li>对于中文，支持单字和连续字符匹配</li>
+-              <li>系统会自动查找相似的对话记录</li>
+-            </ul>
+-          </div>
++        </el-input>
++
++        <!-- 搜索提示 -->
++        <div v-if="!hasSearched" class="search-tips">
++          <p>搜索提示:</p>
++          <ul>
++            <li>输入关键词可以搜索对话标题</li>
++            <li>中文关键词支持拆分匹配</li>
++            <li>支持完整词组匹配</li>
++          </ul>
++        </div>
+         
++        <!-- 搜索结果 -->
++        <div v-if="hasSearched">
+           <div v-if="searchResults.length > 0" class="search-results">
+             <div 
+-              v-for="result in searchResults" 
+-              :key="result.id"
++              v-for="dialog in searchResults" 
++              :key="dialog.id" 
+               class="search-result-item"
+-              @click="loadDialogFromSearch(result.id)"
++              @click="loadDialogFromSearch(dialog.id)"
+             >
+-              <span class="search-result-name">{{ result.name }}</span>
++              <div class="search-result-name">{{ dialog.name }}</div>
+             </div>
+           </div>
+-          <div v-else-if="hasSearched && !searching" class="no-results">
+-            未找到匹配的对话记录
++          <div v-else class="no-results">
++            <p>没有找到匹配的对话记录</p>
+             <div class="search-suggestion">
+-              <p>搜索建议：</p>
++              <p>建议尝试:</p>
+               <ul>
+-                <li>使用对话标题搜索</li>
+-                <li>使用更简短的关键词</li>
+-                <li>检查拼写是否正确</li>
++                <li>使用更短的关键词</li>
++                <li>检查关键词拼写</li>
++                <li>尝试更一般性的词语</li>
+               </ul>
+             </div>
+           </div>
+-        </el-dialog>
++        </div>
+       </div>
+-    </div>
++    </el-dialog>
+ 
+     <!-- 页面内容 -->
+-    <div class="ai" :class="{ 'content-shifted': isSidebarOpen }">
++    <div class="content" :class="{ 'content-shifted': isSidebarOpen }">
+       <ai 
+         ref="aiComponent" 
+         :dialogs="dialogs" 
+@@ -201,38 +240,41 @@
+     </div>
+   </div>
+ </template>
+-
+ <script setup>
+ import { ref, onMounted, onUnmounted, reactive } from 'vue';
+ const API_BASE_URL = '/api/auth';
+ import { ElMessage, ElMessageBox, ElForm } from "element-plus";
+-import { Memo, Edit, Delete, Search } from '@element-plus/icons-vue'; // 引入图标
++import { 
++  Memo, Edit, Delete, Search, Menu, Close, 
++  ArrowDown, ArrowUp 
++} from '@element-plus/icons-vue'; // 添加Menu和Close图标
+ import ai from './ai.vue';
+-import { useRouter } from 'vue-router'; // 导入路由
+-import axios from 'axios'; // 导入axios
++import { useRouter } from 'vue-router';
++import axios from 'axios';
+ import {
+   getConversations,
+   deleteConversation,
+   renameConversation,
+ } from '@/api/dify';
+-import { ArrowDown, ArrowUp } from '@element-plus/icons-vue'; // 引入 Element Plus 图标
+ const router = useRouter();
+ // 状态管理
+-const isSidebarOpen = ref(false); // 侧栏展开状态
+-const isDialogListVisible = ref(false); // 对话列表显示状态
+-const showPopover = ref(false); // 悬浮卡片显示状态
+-const isPopoverHovered = ref(false); // 悬浮卡片悬停状态
+-const isButtonHovered = ref(false); // 个人信息按钮悬停状态
++const isSidebarOpen = ref(false);
++const isDialogListVisible = ref(false);
++const showPopover = ref(false);
++const isPopoverHovered = ref(false);
++const isButtonHovered = ref(false);
+ const currentUser = ref(null);
+ const showProfileDialog = ref(false);
+ const updating = ref(false);
+ const userFormRef = ref(null);
+-// 新增状态管理变量 - 添加到现有script setup中
+-const showSearchDialog = ref(false); // 控制搜索对话框的显示
+-const searchQuery = ref(''); // 搜索关键词
+-const searchResults = ref([]); // 搜索结果
+-const searching = ref(false); // 搜索状态指示
+-const hasSearched = ref(false); 
++const showSearchDialog = ref(false);
++const searchQuery = ref('');
++const searchResults = ref([]);
++const searching = ref(false);
++const hasSearched = ref(false);
++const dialogs = ref([]);
++const aiComponent = ref(null);
++const currentDialogId = ref(null);
+ // 用户表单数据
+ const userForm = reactive({
+   username: '',
+@@ -348,9 +390,6 @@ const logout = () => {
+     ElMessage.error('退出登录失败，请重试');
+   }
+ };
+-// 对话管理
+-const dialogs = ref([]); // 近期对话列表
+-const aiComponent = ref(null); // ai 组件的引用
+ // 优化更新对话标题的处理函数
+ const updateDialogTitle = (dialog) => {
+   if (!dialog || !dialog.id) return;
+@@ -449,8 +488,6 @@ const handleNewDialog = () => {
+   }
+ };
+ 
+-// 定义currentDialogId变量
+-const currentDialogId = ref(null); // 添加这一行
+ 
+ // 优化添加到最近对话列表的方法
+ const addToRecentDialogs = (dialog) => {
+@@ -642,12 +679,42 @@ const loadDialogFromSearch = (id) => {
+ const deleteAllDialogs = () => {
+   dialogs.value = [];
+ };
+-
+-// 侧栏管理
++// 添加移动端屏幕检测
++const isMobileView = () => {
++  return window.innerWidth <= 768;
++};
++// 修改toggleSidebar函数以处理移动端
+ const toggleSidebar = () => {
+   isSidebarOpen.value = !isSidebarOpen.value;
++  
++  // 在移动端打开侧栏时，添加body类阻止滚动
++  if (isMobileView()) {
++    if (isSidebarOpen.value) {
++      document.body.classList.add('sidebar-open-mobile');
++    } else {
++      document.body.classList.remove('sidebar-open-mobile');
++    }
++  }
++};
++// 修改移动端体验：点击内容区域关闭侧栏
++const closeOnClickOutside = (event) => {
++  if (isSidebarOpen.value && isMobileView()) {
++    const sidebar = document.querySelector('.sidebar');
++    const mobileMenuButton = document.querySelector('.mobile-menu-button');
++    
++    if (sidebar && !sidebar.contains(event.target) && 
++        mobileMenuButton && !mobileMenuButton.contains(event.target)) {
++      isSidebarOpen.value = false;
++      document.body.classList.remove('sidebar-open-mobile');
++    }
++  }
++};
++// 监听屏幕大小变化
++const handleResize = () => {
++  if (!isMobileView() && document.body.classList.contains('sidebar-open-mobile')) {
++    document.body.classList.remove('sidebar-open-mobile');
++  }
+ };
+-
+ const toggleDialogList = () => {
+   isDialogListVisible.value = !isDialogListVisible.value;
+   // 确保箭头图标在点击后始终向下旋转
+@@ -701,17 +768,27 @@ const togglePopover = () => {
+   showPopover.value = !showPopover.value;
+ };
+ onMounted(() => {
+-  // 设置拦截器并保存引用以便之后移除
++  // 添加全局点击事件监听器
++  document.addEventListener('click', closeOnClickOutside);
++  // 添加窗口大小变化监听器
++  window.addEventListener('resize', handleResize);
++  
++  // 保留原有的初始化逻辑
++  const token = localStorage.getItem('token');
++  if (!token) {
++    ElMessage.warning('您尚未登录，请先登录');
++    router.push('/login');
++    return;
++  }
++  loadUserInfo();
++  loadRecentDialogs();
++  
++  // 设置拦截器
+   const interceptorId = axios.interceptors.response.use(
+     response => response,
+     error => {
+       if (error.response && error.response.status === 401) {
+-        // 清除认证信息
+-        localStorage.removeItem('token');
+-        localStorage.removeItem('user');
+-        localStorage.removeItem('currentDialogId');
+-        
+-        ElMessage.error('无效或过期的令牌，请重新登录');
++        ElMessage.error('登录已过期，请重新登录');
+         router.push('/login');
+       }
+       return Promise.reject(error);
+@@ -721,19 +798,11 @@ onMounted(() => {
+   // 组件卸载时移除拦截器
+   onUnmounted(() => {
+     axios.interceptors.response.eject(interceptorId);
++    // 移除事件监听器
++    document.removeEventListener('click', closeOnClickOutside);
++    window.removeEventListener('resize', handleResize);
+   });
+ });
+-onMounted(() => {
+-  // 在组件挂载时检查用户是否已登录
+-  const token = localStorage.getItem('token');
+-  if (!token) {
+-    ElMessage.warning('您尚未登录，请先登录');
+-    router.push('/login');
+-    return;
+-  }
+-  loadUserInfo(); // 加载用户信息
+-  loadRecentDialogs(); // 加载近期对话列表
+-});
+ </script>
+ 
+ <style>
+@@ -741,54 +810,100 @@ onMounted(() => {
+ body, html {
+   margin: 0;
+   padding: 0;
++  height: 100%;
++  width: 100%;
++  overflow-x: hidden;
++  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 
++    'Open Sans', 'Helvetica Neue', sans-serif;
++}
++
++/* 防止移动端侧栏打开时页面滚动 */
++body.sidebar-open-mobile {
++  overflow: hidden;
+ }
+ 
+ .container {
+   display: flex;
+   min-height: 100vh;
+-  overflow: hidden;
++  position: relative;
++  overflow-x: hidden;
++}
++
++/* 移动端菜单按钮 */
++.mobile-menu-button {
++  position: fixed;
++  top: 1rem;
++  left: 1rem;
++  z-index: 1000;
++  background-color: white;
++  border-radius: 50%;
++  width: 40px;
++  height: 40px;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
++  cursor: pointer;
++  display: none; /* 默认隐藏，在移动端显示 */
++}
++
++.mobile-menu-button .el-icon {
++  font-size: 1.5rem;
++  color: rgba(111, 58, 246, 1);
++}
++
++/* 移动端关闭按钮 */
++.mobile-close-button {
++  position: absolute;
++  top: 1rem;
++  right: 1rem;
++  z-index: 1010;
++  display: none;
++  cursor: pointer;
++}
++
++.mobile-close-button .el-icon {
++  font-size: 1.5rem;
++  color: rgba(111, 58, 246, 1);
+ }
+ 
+ /* 页面内容区域 */
+-.ai {
++.content {
+   flex: 1;
+   display: flex;
+-  position: relative;
+-  right: -45px;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+-  padding: 0px;
+-  overflow-y: auto;
+   transition: margin-left 0.3s ease;
+-  max-width: calc(100vw - 0px);
++  max-width: calc(100vw - 80px);
++  margin-left: 80px;
+ }
+ 
+ .content-shifted {
+-  margin-left: 290px;
+-  max-width: calc(100vw - 290px);
+-  position: relative;
+-  right: 10px;
++  margin-left: 280px;
++  max-width: calc(100vw - 280px);
+ }
+ 
+ /* 侧边栏基础样式 */
+ .sidebar {
+-  width: 250px;
+-  height: calc(100vh - 40px);
++  height: 100vh;
+   background-color: #ffffff;
+-  box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2);
++  box-shadow: 4px 0 8px 0 rgba(0, 0, 0, 0.1);
+   color: white;
+   position: fixed;
+-  top: 20px;
+-  left: 20px;
++  top: 0;
++  left: 0;
+   transition: all 0.3s ease;
+   z-index: 1000;
+-  border-radius: 8px;
++  overflow-y: auto;
+ }
+ 
+ .sidebar-collapsed {
+   width: 80px;
+-  background-color: #ffffff;
++}
++
++.sidebar-open {
++  width: 280px;
+ }
+ 
+ /* 侧栏内容容器 */
+@@ -796,22 +911,25 @@ body, html {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+-  padding-top: 20px;
++  padding-top: 1.5rem;
++  height: 100%;
+ }
+ 
+ .expanded-content {
+-  padding: 20px;
++  padding: 1.5rem 1rem;
+   position: relative;
+-  height: calc(100% - 40px);
++  height: calc(100% - 3rem);
++  display: flex;
++  flex-direction: column;
+ }
+ 
+ /* 菜单图标样式 */
+ .menu-icon {
+   color: rgba(164, 128, 252, 1);
+   position: absolute;
+-  top: 15px;
+-  right: 5px;
+-  font-size: 14px;
++  top: 1rem;
++  right: 1rem;
++  font-size: 1.25rem;
+   cursor: pointer;
+ }
+ 
+@@ -821,10 +939,10 @@ body, html {
+ 
+ .menu-icon-top-right {
+   position: absolute;
+-  top: 10px;
+-  right: 10px;
++  top: 1rem;
++  right: 1rem;
+   color: rgba(164, 128, 252, 1);
+-  font-size: 14px;
++  font-size: 1.25rem;
+   cursor: pointer;
+ }
+ 
+@@ -834,275 +952,164 @@ body, html {
+ 
+ /* 侧栏图像元素 */
+ .logo {
+-  width: 50px;
+-  height: 50px;
++  width: 3.125rem;
++  height: 3.125rem;
+   display: block;
+-  margin-top: 10px;
++  margin-top: 0.625rem;
+ }
+ 
+ .math {
+-  width: 200px;
++  width: 80%;
++  max-width: 200px;
+   height: auto;
+-  position: absolute;
+-  top: 30px;
++  margin: 0 auto 1.5rem;
++  display: block;
+ }
+ 
+ .line {
+-  width: 190px;
++  width: 80%;
++  max-width: 190px;
+   height: auto;
+-  position: absolute;
+-  top: 170px;
+-  left: 30px;
++  margin: 1rem auto;
++  display: block;
+ }
+ 
+ /* 按钮基础样式 */
+-.bo01, .bo02, .bo03, .bo04, .bo05, .bo06, .bo07, .bo08 {
+-  position: absolute;
++.sidebar-button {
+   opacity: 1;
+   border-radius: 10px;
+   display: flex;
+   align-items: center;
+   border: none;
++  margin: 0.5rem auto;
++  width: 100%;
++  max-width: 220px;
++  background: rgba(237, 230, 255, 0.81);
+ }
+ 
+-.bo01:hover, .bo02:hover, .bo03:hover, .bo04:hover,
+-.bo05:hover, .bo06:hover, .bo07:hover, .bo08:hover {
++.sidebar-button:hover {
+   background-color: rgb(88.6%, 83.9%, 100%);
+   color: rgba(111, 58, 246, 1);
+ }
+ 
+-/* 侧栏折叠时的按钮 */
+-.bo01, .bo02, .bo03, .bo04 {
+-  width: 40px;
+-  height: 40px;
+-  justify-content: center;
+-  background: rgba(237, 230, 255, 0.81);
+-}
+-
+-.bo01 {
+-  left: 20px;
+-  top: 100px;
+-}
+-
+-.bo02 {
+-  left: 8px;
+-  top: 150px;
+-}
+-
+-.bo03 {
+-  left: 8px;
+-  top: 200px;
++/* 收起侧栏图标尺寸控制 */
++.collapsed-icon {
++  width: 1.5rem;
++  height: 1.5rem;
++  max-width: 100%;
++  object-fit: contain;
+ }
+ 
+-.bo04 {
+-  left: 8px;
+-  bottom: 40px;
++/* 优化折叠侧栏按钮 */
++.bo01, .bo02, .bo03, .bo04 {
++  width: 3rem;
++  height: 3rem;
++  justify-content: center;
++  margin: 0.75rem auto;
++  padding: 0;
++  display: flex;
++  align-items: center;
+ }
+ 
+-/* 侧栏展开时的按钮 */
++/* 展开侧栏按钮样式 */
+ .bo05, .bo06, .bo07, .bo08 {
+-  width: 180px;
+-  height: 50px;
++  height: 3rem;
+   color: rgba(111, 58, 246, 1);
+   justify-content: flex-start;
+-  padding-left: 10px;
+-  background: rgba(237, 230, 255, 0.81);
++  padding-left: 1rem;
+   font-weight: 550;
+ }
+ 
+-.bo05 {
+-  left: 30px;
+-  top: 105px;
+-}
+-
+-.bo06 {
+-  left: 30px;
+-  top: 180px;
+-}
+-
+-.bo07 {
+-  left: 18px;
+-  top: 250px;
+-}
+-
+-.bo08 {
+-  left: 30px;
+-  bottom: 40px; /* 改为距离底部定位，确保在小屏幕上也可见 */
+-}
+-
+ /* 按钮内图标 */
+-.bo01 img, .bo02 img, .bo03 img, .bo04 img,
+-.bo05 img, .bo06 img, .bo07 img, .bo08 img {
+-  width: 20px;
+-  height: 20px;
+-  vertical-align: middle;
+-}
+-
+-.bo05 img, .bo06 img, .bo07 img, .bo08 img {
+-  margin-right: 8px;
+-}
+-
+ .button-content {
+   display: flex;
+   align-items: center;
+-  gap: 8px;
++  width: 100%;
++}
++
++.button-content img {
++  width: 1.25rem;
++  height: 1.25rem;
++  margin-right: 0.75rem;
+ }
+ 
+ /* 箭头图标 */
+ .arrow-icon {
+   transition: transform 0.8s ease;
+-  margin-left: 40px;
++  margin-left: auto;
++  margin-right: 1rem;
+ }
+ 
+ .arrow-icon.rotate {
+   transform: rotate(180deg);
+ }
+-::v-deep .el-dialog .el-dialog__header {
+-  text-align: center; /* 标题文本居中 */
++
++/* 用户配置部分 */
++.user-profile-container {
++  margin-top: auto;
++  margin-bottom: 1.5rem;
+ }
++
+ /* 个人信息悬浮卡片 */
+ .popover {
+   position: absolute;
+-  bottom: 100px; /* 改为相对底部定位，与bo08按钮位置相适应 */
+-  left: 40px;
+-  width: 140px;
+-  height: 180px;
+-  opacity: 1;
+-  border-radius: 10px;
++  bottom: 7rem;
++  left: 3rem;
++  width: 210px;
+   background: rgba(255, 255, 255, 1);
+-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+-  border: 1px solid #ccc;
+-  padding-top: 25px;
+-  padding-left: 10px;
+-  padding-right: 10px;
+-  z-index: 1;
+-}
+-
+-/* 搜索结果样式 */
+-.search-results {
+-  margin-top: 16px;
+-  max-height: 300px;
+-  overflow-y: auto;
+-  border-radius: 8px;
+-  background-color: rgba(249, 246, 255, 1);
++  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
++  border: 1px solid #eee;
++  border-radius: 10px;
++  padding: 0.5rem;
++  z-index: 1010;
+ }
+ 
+-.search-result-item {
+-  padding: 10px;
++.popover-item {
++  display: flex;
++  align-items: center;
++  padding: 0.75rem 1rem;
+   cursor: pointer;
+-  border-bottom: 1px solid rgba(237, 230, 255, 0.81);
+-  color: rgba(111, 58, 246, 1);
++  border-radius: 6px;
+   transition: background-color 0.2s;
+ }
+ 
+-.search-result-item:hover {
++.popover-item:hover {
+   background-color: rgba(237, 230, 255, 0.81);
+ }
+ 
+-.search-result-name {
+-  font-size: 14px;
+-}
+-/* 在<style>标签内添加 */
+-
+-.search-tips {
+-  color: #909399;
+-  font-size: 14px;
+-  margin: 16px 0;
+-  padding: 10px;
+-  background-color: rgba(249, 246, 255, 0.5);
+-  border-radius: 8px;
+-}
+-
+-.search-tips p {
+-  margin-top: 0;
+-  margin-bottom: 8px;
+-  font-weight: 500;
+-  color: rgba(111, 58, 246, 0.8);
+-}
+-
+-.search-tips ul {
+-  padding-left: 20px;
+-  margin-top: 5px;
+-  margin-bottom: 0;
++.popover-item img {
++  width: 1.25rem;
++  height: 1.25rem;
++  margin-right: 0.75rem;
+ }
+ 
+-.search-tips li {
+-  margin-bottom: 5px;
+-}
+-
+-.search-suggestion {
+-  margin-top: 10px;
+-  font-size: 13px;
+-  color: #606266;
+-  text-align: left;
+-}
+-.search-suggestion p {
+-  margin-top: 0;
+-  margin-bottom: 8px;
+-  font-weight: 500;
+-  color: rgba(111, 58, 246, 0.8);
+-  text-align: left;
+-}
+-.search-suggestion ul {
+-  padding-left: 20px;
+-  margin-top: 5px;
+-  margin-bottom: 0;
+-  text-align: left;
+-}
+-
+-.search-suggestion li {
+-  margin-bottom: 5px;
+-  text-align: left;
+-}
+-.no-results {
+-  margin-top: 16px;
+-  padding: 16px;
+-  text-align: center;
+-  color: #999;
+-  background-color: rgba(249, 246, 255, 0.5);
+-  border-radius: 8px;
+-}
+-/* 弹出菜单图标 */
+-.loginout, .call, .set, .delete, .pen { 
+-  position: relative;
+-  width: 20px;
+-  height: 20px;
+-  margin-right: 8px;
+-}
+-
+-/* 弹出菜单按钮 */
+-.xiu, .shan, .she, .jiao, .tui {
+-  color: black;
+-  position: relative;
+-}
+-
+-.xiu {
+-  left: 10px;
+-}
+-
+-.shan, .she, .jiao, .tui {
+-  left: -2px;
++.popover-item span {
++  color: #333;
++  font-size: 0.9rem;
+ }
+ 
+ /* 近期对话列表 */
+ .recent-dialog-list {
+-  margin-top: 10px;
+-  position: absolute;
+-  top: 300px;
+-  max-height: 200px;
++  margin-top: 0.625rem;
++  max-height: 12.5rem;
+   overflow-y: auto;
+   overflow-x: hidden;
+-  width: 182px;
+-  height: 200px;
+-  opacity: 1;
++  width: 100%;
+   border-radius: 10px;
+   background: transparent;
+-  left: 29px;
+ }
+ 
+ .recent-dialog-list::-webkit-scrollbar {
+-  width: 0;
+-  height: 0;
++  width: 4px;
++}
++
++.recent-dialog-list::-webkit-scrollbar-track {
++  background: transparent;
++}
++
++.recent-dialog-list::-webkit-scrollbar-thumb {
++  background-color: rgba(111, 58, 246, 0.5);
++  border-radius: 4px;
+ }
+ 
+ /* 对话项 */
+@@ -1110,15 +1117,15 @@ body, html {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+-  padding: 8px 4px;
++  padding: 0.5rem;
+   color: rgba(111, 58, 246, 1);
+   background-color: rgba(249, 246, 255, 1);
+-  font-size: 14px;
++  font-size: 0.875rem;
+   cursor: pointer;
+-  border-radius: 4px;
+-  margin-bottom: 4px;
+-  width: 95%;
+-  margin-right: 2px;
++  border-radius: 6px;
++  margin-bottom: 0.25rem;
++  width: 100%;
++  box-sizing: border-box;
+ }
+ 
+ .dialog-active {
+@@ -1131,7 +1138,7 @@ body, html {
+   overflow: hidden;
+   text-overflow: ellipsis;
+   max-width: 70%;
+-  margin: 3px;
++  margin: 0.1875rem;
+ }
+ 
+ .dialog-item:hover {
+@@ -1140,30 +1147,163 @@ body, html {
+ 
+ .icon-container {
+   display: flex;
+-  gap: 3px;
++  gap: 0.5rem;
+ }
+ 
+ .edit-icon, .delete-icon {
+-  margin-left: 8px;
+   cursor: pointer;
++  color: rgba(111, 58, 246, 0.7);
+ }
+ 
+ .edit-icon:hover, .delete-icon:hover {
+-  color: #409eff;
++  color: rgba(111, 58, 246, 1);
+ }
+ 
+-/* Element Plus 组件样式覆盖 */
+-.el-dialog__header {
+-  font-weight: bold;
++/* 搜索结果样式 */
++.search-container {
++  width: 100%;
++}
++
++.search-results {
++  margin-top: 1rem;
++  max-height: 300px;
++  overflow-y: auto;
++  border-radius: 8px;
++  background-color: rgba(249, 246, 255, 1);
++}
++
++.search-result-item {
++  padding: 0.75rem;
++  cursor: pointer;
++  border-bottom: 1px solid rgba(237, 230, 255, 0.81);
+   color: rgba(111, 58, 246, 1);
++  transition: background-color 0.2s;
++}
++
++.search-result-item:hover {
++  background-color: rgba(237, 230, 255, 0.81);
++}
++
++.search-result-name {
++  font-size: 0.875rem;
++}
++
++/* 搜索提示和无结果提示 */
++.search-tips,
++.no-results {
++  margin-top: 1rem;
++  padding: 1rem;
++  background-color: rgba(249, 246, 255, 0.5);
++  border-radius: 8px;
++}
++
++
++/* 对话框样式优化 */
++.profile-dialog,
++.search-dialog {
++  border-radius: 12px;
++  overflow: hidden;
++}
++
++/* 表单帮助文本 */
++.form-help-text {
++  font-size: 0.75rem;
++  color: #909399;
++  margin-top: 0.25rem;
+ }
+ 
+-.el-form-item__label {
+-  font-weight: 500;
++/* 媒体查询 - 中等屏幕 */
++@media (max-width: 1024px) {
++  .content-shifted {
++    margin-left: 250px;
++    max-width: calc(100vw - 250px);
++  }
++  
++  .sidebar-open {
++    width: 250px;
++  }
+ }
+ 
++/* 媒体查询 - 平板设备 */
++@media (max-width: 768px) {
++  .mobile-menu-button,
++  .mobile-close-button {
++    display: flex;
++  }
++  
++  .menu-icon,
++  .menu-icon-top-right {
++    display: none;
++  }
++  
++  .content {
++    margin-left: 0;
++    max-width: 100vw;
++  }
++  
++  .content-shifted {
++    margin-left: 0;
++    max-width: 100vw;
++    filter: blur(3px);
++    pointer-events: none;
++  }
++  
++  .sidebar {
++    transform: translateX(-100%);
++    width: 80vw;
++    max-width: 280px;
++  }
++  
++  .sidebar-open {
++    transform: translateX(0);
++    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
++  }
++
++  .sidebar-collapsed {
++    transform: translateX(-100%);
++  }
++  
++  /* 悬浮卡片位置调整 */
++  .popover {
++    left: 50%;
++    transform: translateX(-50%);
++    width: 80%;
++    max-width: 250px;
++  }
++}
+ 
+-.el-input__inner:focus {
+-  border-color: rgba(151, 107, 255, 0.8);
++/* 媒体查询 - 移动设备 */
++@media (max-width: 480px) {
++  .mobile-menu-button {
++    top: 0.75rem;
++    left: 0.75rem;
++    width: 36px;
++    height: 36px;
++  }
++  
++  .sidebar {
++    width: 85vw;
++  }
++  
++  .math {
++    width: 70%;
++  }
++  
++  .popover {
++    width: 90%;
++  }
++  
++  .search-results {
++    max-height: 250px;
++  }
++  
++  .dialog-item {
++    padding: 0.4rem;
++  }
++  
++  /* 对话框宽度调整 */
++  .el-dialog {
++    width: 95% !important;
++  }
+ }
+ </style>
+\ No newline at end of file
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 2e439d8..b4dcee6 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -1,9 +1,8 @@
+ <template>
+   <div>
+-      <img alt="four" src="@/imgs/four.png" class="four" />
+-    </div>
++    <img alt="four" src="@/imgs/four.png" class="four" />
++  </div>
+   <div class="chat-container">
+-    
+     <!-- 消息显示区域 -->
+     <div class="chat-messages" ref="chatMessagesRef">
+       <!-- 循环渲染消息列表 -->
+@@ -40,7 +39,7 @@
+           <div class="loader"></div>
+         </div>
+         
+-        <!-- 将 action-icons 移出消息框，放在消息框下方的透明 margin 中 -->
++        <!-- 操作图标 -->
+         <div v-if="message.type === 'ai' && !isGreeting(message.content)" class="action-icons-container">
+           <div class="action-icons">
+             <el-icon class="copy-icon" @click="copyMessage(message.content)">
+@@ -57,8 +56,8 @@
+             </el-icon>
+           </div>
+         </div>
++
+         <!-- 显示图片预览 -->
+-                <!-- 修改图片容器部分 -->
+         <div class="image-container" v-if="message.images && message.images.length > 0">
+           <div v-for="(img, imgIndex) in message.images" :key="img.id" class="uploaded-image-wrapper">
+             <img
+@@ -69,7 +68,8 @@
+             />
+           </div>
+         </div>
+-        <!-- 保留现有的单图片显示逻辑，确保兼容性 -->
++        
++        <!-- 单图片显示 -->
+         <div class="image-container" v-else-if="message.imageUrl || message.tempImageUrl || message.isUploading">
+           <img
+             :src="message.imageUrl || message.tempImageUrl"
+@@ -82,8 +82,8 @@
+             <span>上传中...</span>
+           </div>
+         </div>
+-        <!-- 文件上传标识 - 只在没有实际文件预览时显示 -->
+-                <!-- 文件上传标识 - 统一使用isFileOnly标记识别文件消息 -->
++                
++        <!-- 文件上传标识 -->
+         <div v-if="message.isFileOnly && message.fileType === 'document'" class="file-upload-indicator">
+           <div class="file-link">
+             <el-icon><Document /></el-icon>
+@@ -155,6 +155,7 @@
+         </div>
+       </template>
+     </div>
++    
+     <!-- 输入和发送区域 -->
+     <div class="chat-input">
+       <div class="input-wrapper">
+@@ -1242,6 +1243,7 @@ defineExpose({
+ });
+ 
+ </script>
++
+ <style>
+ /* 由于需要让markdown-it-texmath正确应用样式，这里的样式改为全局样式 */
+ .katex-display {
+@@ -1319,17 +1321,18 @@ body {
+   padding: 0;
+ }
+ </style>
++
+ <style scoped>
+-/* 对话框容器样式 */
++/* 响应式聊天容器 */
+ .chat-container {
+-  position: absolute;
+-  width: 1000px;
+-  height: 650px;
+-  align-items: center;
+-  justify-content: center;
+-  opacity: 1;
+-  border-radius: 20px;
+-  margin: 0 auto; /* 居中显示 */
++  position: relative;
++  width: 90%;
++  max-width: 1000px;
++  height: calc(100vh - 150px);
++  min-height: 500px;
++  margin: 0 auto;
++  display: flex;
++  flex-direction: column;
+   background: linear-gradient(
+     132.73deg,
+     rgba(194, 247, 252, 0.2) 0%,
+@@ -1337,203 +1340,55 @@ body {
+     rgba(194, 210, 255, 0.2) 57.22%,
+     rgba(194, 175, 240, 0.2) 100%
+   );
+-  top: 100px;
+-  bottom: 0%;
+-  display: flex; /* 添加flex布局 */
+-  flex-direction: column; /* 纵向排列 */
+-}
+-/* 深度思考内容样式 */
+-.thinking-content {
+-  font-style: italic;
+-  color: transparent;
+-  margin-bottom: 8px;
+-  background: transparent;
+-
+-}
+-
+-/* 思考中状态样式 */
+-.thinking-message {
+-  align-self: flex-start;
+-  background-color: #ffffff; 
+-  width: fit-content;
+-  position: relative; /* 与 ai-message 保持一致 */
+-  left: 9.8%;
+-  border-radius: 14px;
+-  padding: 12px;
+-  max-width: 77%; /* 设置消息的最大宽度 */
+-  position: relative; /* 为 action-icons 的定位提供参考 */
+-  padding-bottom: 0.4%;
+-  padding-left: 5px;
+-  padding-right: 5px;
+-  gap: 2px;
+-}
+-/* 添加渐变边框 */
+-.thinking-message::before {
+-  content: '';
+-  position: absolute;
+-  top: -2px;
+-  left: -2px;
+-  right: -2px;
+-  bottom: -2px;
+-  background: linear-gradient(
+-    90deg,
+-    rgba(170, 239, 242, 1) 0.92%,
+-    rgba(136, 191, 242, 0.95) 33.49%,
+-    rgba(162, 169, 252, 0.89) 74.36%,
+-    rgba(151, 107, 255, 0.8) 100%
+-  );
+-  border-radius: 16px;  /* 比实际圆角大2px */
+-  z-index: -1;
+-}
+-
+-.thinking {
+-  display: flex;
+-  align-items: center;
+-  gap: 8px;
+-  color: transparent;
+-  border: 1px solid 
+-  linear-gradient(90deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);
+-
+-}
+-
+-.loader {
+-  border: 3px solid #f3f3f3;
+-  border-top: 3px solid #409eff;
+-  border-radius: 50%;
+-  width: 16px;
+-  height: 16px;
+-  animation: spin 1s linear infinite;
+-}
+-
+-@keyframes spin {
+-  0% {
+-    transform: rotate(0deg);
+-  }
+-  100% {
+-    transform: rotate(360deg);
+-  }
+-}
+-
+-/* 功能图标区域样式 */
+-.action-icons {
+-  display: flex;
+-  gap: 10px; /* 图标之间的间距 */
+-  background:transparent; /* 半透明背景 */
+-  padding: 5px 10px; /* 内边距 */
+-  border-radius: 8px; /* 圆角 */
+-  position: relative;
+-  right: -82.9%; 
+-}
+-
+-/* 图标样式 */
+-.copy-icon,
+-.check-icon,
+-.close-icon,
+-.stop-responding-icon {
+-  cursor: pointer;
+-  color: #666; /* 默认颜色 */
+-  font-size: 20px;
+- 
+-}
+-.stop-responding-icon:hover,
+-.close-icon:hover ,
+-.check-icon:hover,
+-.copy-icon:hover {
+-  color: #409eff; /* 复制图标悬停颜色 */
+-}
+-
+-.check-icon:hover {
+-  color: #2bde14; /* 喜欢图标悬停颜色 */
++  border-radius: 20px;
+ }
+ 
+-.close-icon:hover {
+-  color: #f70606; /* 不喜欢图标悬停颜色 */}
+-
+-.stop-responding-icon:hover {
+-  color:rgba(144, 107, 232, 1); /* 停止回答图标悬停颜色 */
+-}
+-.four{width: 180px;
++/* 响应式Logo */
++.four {
++  width: 180px;
+   height: 57px;
+   position: relative;
+-  top: -330px;
+-  right: -413px;
+-}
+-/* 调整弹出框的样式 */
+-.newdia .el-popover {
+-  text-align: center; /* 内容居中 */
+-  max-width: 50px; /* 设置最小宽度 */
+-  padding: 10px; /* 调整内边距 */
++  top: 2rem;
++  left: 50%;
++  transform: translateX(-50%);
++  margin-bottom: 1.5rem;
+ }
++
+ /* 消息显示区域样式 */
+ .chat-messages {
+   flex: 1;
+-  padding: 10px; 
++  padding: 1rem;
+   overflow-y: auto;
+-  overflow-x: hidden; /* 新增这一行，禁用横向滚动 */
++  overflow-x: hidden;
++  margin-top: 1rem;
+ }
++
+ .chat-messages::-webkit-scrollbar {
+-  width: 0; /* 隐藏垂直滚动条 */
+-  height: 0; /* 隐藏水平滚动条 */
++  width: 0;
++  height: 0;
+ }
++
+ /* 单条消息样式 */
+ .message {
+-  padding: 8px;
+-  margin: 20px 0;
++  padding: 0.5rem;
++  margin: 1rem 0;
+   border-radius: 15px;
+   display: flex;
+-  align-items: center; /* 确保头像和内容对齐 */
+-  position: relative; /* 为头像的绝对定位提供参考 */
+-  max-width: 78%; /* 设置消息的最大宽度 */
+-  word-wrap: break-word; /* 强制长单词或 URL 换行 */
+-}
+-
+-/* 修改图片容器样式，使图片居中显示 */
+-.image-container {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 10px;
+-  width: 100%; /* 确保占满消息框宽度 */
+-  justify-content: center; /* 水平居中 */
+-  align-items: center; /* 垂直居中 */
+-}
+-
+-.uploaded-image-wrapper {
+-  display: inline-block;
+-  text-align: center; /* 内部内容居中 */
+-}
+-
+-.uploaded-image {
+-  max-width: 300px;
+-  max-height: 200px;
+-  border-radius: 8px;
+-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+-  cursor: pointer;
+-  transition: transform 0.3s ease;
+-
+-}
+-
+-.uploaded-image:hover {
+-  transform: scale(1.03);
++  align-items: flex-start;
++  position: relative;
++  max-width: 85%;
++  word-wrap: break-word;
+ }
+ 
+-.file-name {
+-  margin-top: 10px;
+-  font-weight: bold;
+-}
+ /* 用户消息样式 */
+ .user-message {
+   background: rgba(255, 255, 255, 1);
+   border-radius: 15px;
+   align-self: flex-end;
+-  margin-right: 106px;
+-  margin-left: auto; /* 左侧外边距自动，将消息推到最右侧 */
+-  width: fit-content;
++  margin-left: auto;
++  margin-right: 3.5rem;
++  padding: 0.5rem;
+   position: relative;
+-  padding: 8px;
+-  max-width: 79%; /* 设置消息的最大宽度 */
+-  word-wrap: break-word;
+-  word-break: break-all;
+-
+ }
+ 
+ .user-message::before {
+@@ -1543,7 +1398,6 @@ body {
+   left: -2px;
+   right: -2px;
+   bottom: -2px;
+-
+   background: linear-gradient(
+     90deg,
+     rgba(170, 239, 242, 1) 0.92%,
+@@ -1551,7 +1405,7 @@ body {
+     rgba(162, 169, 252, 0.89) 74.36%,
+     rgba(113, 61, 235, 0.8) 100%
+   );
+-  border-radius: 17px; /* 比实际边框大2px */
++  border-radius: 17px;
+   z-index: -1;
+ }
+ 
+@@ -1559,27 +1413,13 @@ body {
+ .ai-message {
+   background: rgba(255, 255, 255, 1);
+   align-self: flex-start;
+-  margin-left: 95px; /* 为右侧头像留出空间 */
+-  max-width: 79%; /* 设置消息的最大宽度 */
+-  margin-bottom: 35px; /* 添加透明 margin，用于放置 action-icons */
+-  position: relative; /* 为 action-icons 的定位提供参考 */
+-  padding-top: 0.4%;
+-  padding-bottom: 0.4%;
+-  padding-left: 5px;
+-  padding-right: 5px;
++  margin-left: 3.5rem;
++  max-width: 85%;
++  margin-bottom: 35px;
++  position: relative;
++  padding: 0.5rem;
+ }
+ 
+-/* 透明 margin 容器 */
+-/* 更新操作按钮容器位置，避免与参考来源重叠 */
+-.action-icons-container {
+-  position: absolute;
+-  bottom: -30px; /* 保持位置不变 */
+-  left: 0;
+-  width: 100%;
+-  display: flex;
+-  justify-content: flex-start;
+-  z-index: 2; /* 确保按钮在参考来源上方 */
+-}
+ .ai-message::before {
+   content: '';
+   position: absolute;
+@@ -1587,7 +1427,6 @@ body {
+   left: -2px;
+   right: -2px;
+   bottom: -2px;
+-  padding: 5px;
+   background: linear-gradient(
+     90deg,
+     rgba(170, 239, 242, 1) 0.92%,
+@@ -1595,202 +1434,158 @@ body {
+     rgba(162, 169, 252, 0.89) 74.36%,
+     rgba(113, 61, 235, 0.8) 100%
+   );
+-  border-radius: 17px; /* 比实际边框大2px */
++  border-radius: 17px;
+   z-index: -1;
+ }
+-/* 添加到style部分 */
+-.message-files {
+-  margin-top: 10px;
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 8px;
+-}
+ 
+-.message-file {
+-  display: flex;
+-  flex-direction: column;
+-  align-items: center;
+-}
+-/* 全局修改 el-tooltip 内容的字体大小 */
+-.el-tooltip__popper {
+-  font-size: 16px; /* 根据需要调整字体大小 */
+-}
+-/* 文件预览图片样式 */
+-.file-image {
+-  max-width: 250px;
+-  max-height: 180px;
+-  border-radius: 8px;
+-  color: rgba(144, 107, 232, 1);
+-  cursor: pointer;
+-  transition: transform 0.3s ease;
+-  object-fit: contain; /* 保持图片比例 */
+-}
+-
+-.file-image:hover {
+-  transform: scale(1.05);
+-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+-}
+-
+-.file-link {
+-  display: flex;
+-  align-items: center;
+-  gap: 5px;
+-  padding: 5px 10px;
+-  background-color: transparent;
+-  color: rgba(144, 107, 232, 1);
+-  border-radius: 4px;
+-  cursor: pointer;
++/* 思考中状态样式 */
++.thinking-message {
++  background-color: #ffffff;
++  width: fit-content;
++  position: relative;
++  left: 9.8%;
++  border-radius: 14px;
++  padding: 12px;
++  max-width: 85%;
++  position: relative;
++  margin-left: 3.5rem;
+ }
+ 
+-.file-link a {
+-  color:rgba(144, 107, 232, 1);
+-  text-decoration: none;
++.thinking-message::before {
++  content: '';
++  position: absolute;
++  top: -2px;
++  left: -2px;
++  right: -2px;
++  bottom: -2px;
++  background: linear-gradient(
++    90deg,
++    rgba(170, 239, 242, 1) 0.92%,
++    rgba(136, 191, 242, 0.95) 33.49%,
++    rgba(162, 169, 252, 0.89) 74.36%,
++    rgba(151, 107, 255, 0.8) 100%
++  );
++  border-radius: 16px;
++  z-index: -1;
+ }
+ 
+-.file-link a:hover {
+-  text-decoration: underline;
+-}
+ /* 头像样式 */
+ .aitou {
+-  width: 40px; /* 头像大小 */
+-  height: 40px;
+-  border-radius: 50%; /* 圆形头像 */
++  width: 2.5rem;
++  height: 2.5rem;
++  border-radius: 50%;
+   position: absolute;
+-  left: -70px; /* 定位到对话框左侧外部 */
+-  top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+-  transform: translateY(0); /* 移除 translateY(-50%)，因为不再需要垂直居中 */
++  left: -3rem;
++  top: 0;
+ }
+ 
+ .usertou {
+-  width: 40px; /* 头像大小 */
+-  height: 40px;
+-  border-radius: 50%; /* 圆形头像 */
++  width: 2.5rem;
++  height: 2.5rem;
++  border-radius: 50%;
+   position: absolute;
+-  right: -70px; /* 定位到对话框右侧外部 */
+-top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+-  transform: translateY(0); /* 移除 translateY(-50%)，因为不再需要垂直居中 */
+-  margin-left: 10px;
+-}
+-/* 消息框外参考来源样式 */
+-.references-outside-container {
+-  margin-top: -30px; /* 减少负边距，降低与消息的贴合度 */
+-  margin-left: 98px; /* 向右移动，给操作按钮留出空间 */
+-  padding: 4px 8px;
+-  background-color: transparent;
+-  border-radius: 13px; /* 四周都有圆角 */
+-  max-width: 70%; /* 稍微减小宽度 */
+-  position: relative;
+-  z-index: 1;
+-  position: relative;
+-  width: 600px;
++  right: -3rem;
++  top: 0;
+ }
+ 
+-.references-title {
++/* 图片容器响应式样式 */
++.image-container {
+   display: flex;
++  flex-wrap: wrap;
++  gap: 10px;
++  width: 100%;
++  justify-content: center;
+   align-items: center;
+-  font-size: 12px;
+-  color: #57606a;
+-  margin-bottom: 4px;
+-}
+-
+-.references-title .el-icon {
+-  margin-right: 4px;
+-  font-size: 14px;
+-  color:rgba(144, 107, 232, 1);
+ }
+ 
+-.references-list {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 6px;
+-  margin-right: 6px;
++.uploaded-image-wrapper {
++  display: inline-block;
++  text-align: center;
+ }
+ 
+-.reference-item-compact {
+-  display: flex;
+-  align-items: center;
+-  background-color: #f6f8fa;
+-  border-radius: 4px;
+-  padding: 3px 8px;
+-  cursor: pointer;
+-  transition: all 0.3s ease;
++.uploaded-image {
+   max-width: 100%;
++  max-height: 200px;
++  border-radius: 8px;
++  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
++  cursor: pointer;
++  transition: transform 0.3s ease;
+ }
+ 
+-.reference-item-compact:hover {
+-  background-color: #eef5ff;
+-}
+-
+-.reference-chip {
+-  background-color: rgba(144, 107, 232, 1);
+-  color: white;
+-  font-size: 10px;
+-  padding: 0px 5px;
+-  border-radius: 10px;
+-  margin-right: 5px;
++.uploaded-image:hover {
++  transform: scale(1.03);
+ }
+ 
+-.reference-title {
+-  font-size: 12px;
+-  color: #24292f;
+-  white-space: nowrap;
+-  overflow: hidden;
+-  text-overflow: ellipsis;
+-  max-width: 210px;
++/* 功能图标区域样式 */
++.action-icons-container {
++  position: absolute;
++  bottom: -30px;
++  left: 0;
++  width: 100%;
++  display: flex;
++  justify-content: flex-start;
++  z-index: 2;
+ }
+ 
+-.reference-icon {
+-  margin-left: 3px;
+-  font-size: 11px;
+-  color: #8c8c8c;
++.action-icons {
++  display: flex;
++  gap: 10px;
++  background: transparent;
++  padding: 5px 10px;
++  border-radius: 8px;
++  position: relative;
++  right: -82.9%;
+ }
+ 
+-/* 保留原来的tooltip相关样式 */
+-:deep(.reference-tooltip) {
+-  max-width: 500px !important;
+-  padding: 10px !important;
++/* 图标样式 */
++.copy-icon,
++.check-icon,
++.close-icon,
++.stop-responding-icon {
++  cursor: pointer;
++  color: #666;
++  font-size: 1.25rem;
+ }
+ 
+-.reference-tooltip-content {
++/* 参考资源样式 */
++.references-outside-container {
++  margin-top: -30px;
++  margin-left: 3.5rem;
++  padding: 4px 8px;
++  background-color: transparent;
++  border-radius: 13px;
++  max-width: 90%;
++  position: relative;
++  z-index: 1;
+   width: 100%;
+-  max-width: 480px;
+ }
+ 
+-.reference-text-full {
+-  font-size: 13px;
+-  color: #24292f;
+-  white-space: pre-wrap;
+-  max-height: 200px;
+-  overflow-y: auto;
+-  padding: 8px;
+-  border-radius: 4px;
+-  background-color: #f9f9f9;
+-  margin-top: 8px;
+-  border: 1px solid #eaeaea;
++.references-list {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 6px;
++  margin-right: 6px;
+ }
+ 
+-
+-/* 输入和发送区域样式 */
++/* 输入区域样式 */
+ .chat-input {
+   display: flex;
+   position: relative;
+   width: 100%;
+-  padding: 0 20px 20px 20px; /* 增加底部内边距 */
+-  margin-top: 0; /* 移除自动边距 */
+-  flex-shrink: 0; /* 防止输入区域被压缩 */
++  padding: 0 1rem 1rem;
++  margin-top: 0;
++  flex-shrink: 0;
+   box-sizing: border-box;
+ }
+ 
+-/* 输入框包装器 */
+ .input-wrapper {
+-  width: calc(100% - 145px); /* 减去左边距和右侧边距 */
+-  max-width: 770px;
+-  margin-left: 95px; /* 与AI消息左侧对齐 */
+-  margin-right: 50px;
++  width: 100%;
++  max-width: 100%;
++  margin: 0 auto;
+   display: flex;
+   flex-direction: column;
+   position: relative;
+-  border-radius: 15px; /* 稍微减小圆角 */
++  border-radius: 15px;
+   background: white;
+   border: 2px solid rgba(182, 182, 250, 1);
+   overflow: hidden;
+@@ -1799,15 +1594,15 @@ top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+ /* 文本框样式 */
+ textarea {
+   width: 100%;
+-  padding: 10px 12px; /* 减小上下内边距 */
++  padding: 0.75rem;
+   border: none;
+   font-family: inherit;
+   font-size: inherit;
+   resize: none;
+   overflow-y: auto;
+   line-height: 1.5;
+-  max-height: 90px; /* 减小最大高度 */
+-  min-height: 38px; /* 减小最小高度 */
++  max-height: 90px;
++  min-height: 38px;
+   background-color: transparent;
+   box-sizing: border-box;
+ }
+@@ -1821,13 +1616,12 @@ textarea:focus {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+-  padding: 3px 12px; /* 减小工具栏的上下内边距 */
++  padding: 0.25rem 0.75rem;
+   border-top: 1px solid rgba(230, 230, 250, 0.8);
+ }
+ 
+-/* 工具图标 */
+ .tool-icon {
+-  font-size: 20px; /* 稍微减小图标大小 */
++  font-size: 1.25rem;
+   color: rgb(152, 158, 162);
+   cursor: pointer;
+   padding: 3px;
+@@ -1836,8 +1630,8 @@ textarea:focus {
+ 
+ /* 发送按钮样式 */
+ .send-button {
+-  width: 50px; /* 减小按钮尺寸 */
+-  height: 30px;
++  width: 3rem;
++  height: 2rem;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+@@ -1858,14 +1652,129 @@ textarea:focus {
+ }
+ 
+ .send {
+-  width: 20px;
+-  height: 20px;
++  width: 1.25rem;
++  height: 1.25rem;
+ }
+ 
++/* 媒体查询 - 平板设备 */
++@media (max-width: 768px) {
++  .chat-container {
++    width: 95%;
++    height: calc(100vh - 120px);
++  }
++  
++  .message {
++    max-width: 90%;
++  }
++  
++  .user-message {
++    margin-right: 3rem;
++  }
++  
++  .ai-message {
++    margin-left: 3rem;
++  }
++  
++  .references-outside-container {
++    margin-left: 3rem;
++    max-width: 95%;
++  }
++  
++  .action-icons {
++    right: -75%;
++  }
++}
+ 
+-@media (max-height: 650px) {
++/* 媒体查询 - 移动设备 */
++@media (max-width: 480px) {
+   .chat-container {
+-    height: 90%;
++    width: 100%;
++    height: calc(100vh - 100px);
++    border-radius: 10px;
++  }
++  
++  .four {
++    width: 130px;
++    height: 41px;
++    top: 1rem;
++  }
++  
++  .message {
++    max-width: 95%;
++  }
++  
++  .user-message {
++    margin-right: 2.5rem;
++  }
++  
++  .ai-message {
++    margin-left: 2.5rem;
++    margin-bottom: 25px;
++  }
++  
++  .thinking-message {
++    margin-left: 2.5rem;
++  }
++  
++  .aitou {
++    width: 2rem;
++    height: 2rem;
++    left: -2.25rem;
++  }
++  
++  .usertou {
++    width: 2rem;
++    height: 2rem;
++    right: -2.25rem;
++  }
++  
++  .references-outside-container {
++    margin-left: 2.5rem;
++    max-width: 95%;
++    width: auto;
++  }
++  
++  .references-list {
++    flex-direction: column;
++  }
++  
++  .action-icons {
++    right: -65%;
++    gap: 5px;
++  }
++  
++  .copy-icon,
++  .check-icon,
++  .close-icon,
++  .stop-responding-icon {
++    font-size: 1rem;
++  }
++  
++  .uploaded-image {
++    max-width: 100%;
++  }
++  
++  .input-wrapper {
++    margin-left: 0;
++    margin-right: 0;
++  }
++  
++  .tools-bar {
++    padding: 0.25rem 0.5rem;
++  }
++  
++  .tool-icon {
++    font-size: 1.1rem;
++  }
++  
++  .send-button {
++    width: 2.5rem;
++    height: 1.75rem;
++  }
++  
++  .send {
++    width: 1rem;
++    height: 1rem;
+   }
+ }
+ </style>
+\ No newline at end of file
+-- 
+2.39.5 (Apple Git-154)
+

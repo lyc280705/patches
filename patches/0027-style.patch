@@ -1,0 +1,39 @@
+From fadf84500412416c24efdb943c898ad548eb5278 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 4 Mar 2025 00:40:12 +0800
+Subject: [PATCH 27/85] =?UTF-8?q?style-=E4=BF=AE=E6=94=B9=E4=B8=8B?=
+ =?UTF-8?q?=E6=96=B9=E6=93=8D=E4=BD=9C=E6=8C=89=E9=92=AE=E6=82=AC=E5=81=9C?=
+ =?UTF-8?q?=E9=A2=9C=E8=89=B2?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 9fd6ea8..05f0c0d 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -1364,14 +1364,14 @@ defineExpose({
+ }
+ 
+ .check-icon:hover {
+-  color: #f56c6c; /* 喜欢图标悬停颜色 */
++  color: #2bde14; /* 喜欢图标悬停颜色 */
+ }
+ 
+ .close-icon:hover {
+-  color: #909399; /* 不喜欢图标悬停颜色 */}
++  color: #f70606; /* 不喜欢图标悬停颜色 */}
+ 
+ .stop-responding-icon:hover {
+-  color: #e63c3c; /* 停止回答图标悬停颜色 */
++  color: #999090; /* 停止回答图标悬停颜色 */
+ }
+ .four{width: 180px;
+   height: 57px;
+-- 
+2.39.5 (Apple Git-154)
+

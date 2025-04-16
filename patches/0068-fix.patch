@@ -1,0 +1,102 @@
+From 9f271377d6bb81868437968004b04bf2637b12dc Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 30 Mar 2025 13:54:47 +0800
+Subject: [PATCH 68/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=8E=86=E5=8F=B2?=
+ =?UTF-8?q?=E8=AE=B0=E5=BD=95=E8=AF=BB=E5=8F=96=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/api/dify02.js     | 5 ++---
+ frontend/src/api/dify03.js     | 2 +-
+ frontend/src/views/Leading.vue | 2 +-
+ frontend/src/views/point02.vue | 8 ++++----
+ 4 files changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/frontend/src/api/dify02.js b/frontend/src/api/dify02.js
+index 4b2be4d..e5f595c 100644
+--- a/frontend/src/api/dify02.js
++++ b/frontend/src/api/dify02.js
+@@ -1,5 +1,4 @@
+-// Dify API service
+-const API_BASE_URL = ' http://121.40.214.128/v1';
++const API_BASE_URL = 'http://121.40.214.128/v1';
+ const API_KEY = 'app-IIzdZFROTi7AEuBSotTesCqB'; // Replace with your actual API key
+ 
+ // 用户ID生成或获取
+@@ -197,7 +196,7 @@ export const getConversationHistory = async (conversationId, user = null, firstI
+ };
+ 
+ // 获取会话列表
+-export const getConversations02 = async (user = null, lastId = null, limit = 20) => {
++export const getConversations = async (user = null, lastId = null, limit = 20) => {
+   const userId = user || getUserId();
+   
+   try {
+diff --git a/frontend/src/api/dify03.js b/frontend/src/api/dify03.js
+index 48f2ca6..8b7b4bf 100644
+--- a/frontend/src/api/dify03.js
++++ b/frontend/src/api/dify03.js
+@@ -1,4 +1,4 @@
+-const API_BASE_URL = ' http://121.40.214.128/v1';
++const API_BASE_URL = 'http://121.40.214.128/v1';
+ const API_KEY = 'app-53Rjhj3UMdWPZUVyK6I5TU0u'; // Replace with your actual API key
+ 
+ // 用户ID生成或获取
+diff --git a/frontend/src/views/Leading.vue b/frontend/src/views/Leading.vue
+index c043683..95c43fe 100644
+--- a/frontend/src/views/Leading.vue
++++ b/frontend/src/views/Leading.vue
+@@ -258,7 +258,7 @@ import {
+   getConversations,
+   deleteConversation,
+   renameConversation,
+-} from '@/api/dify';
++} from '@/api/dify02.js'; // 确保路径正确
+ const router = useRouter();
+ // 添加移动端屏幕检测
+ const isMobileView = () => {
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index e3ac5ed..3765564 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -254,7 +254,7 @@ import { Picture, FolderOpened, ChatDotRound, CopyDocument, Refresh, CircleCheck
+ import {
+   sendChatMessage,
+   getConversationHistory,
+-  getConversations02,
++  getConversations,
+   deleteConversation,
+   renameConversation,
+   sendFeedback,
+@@ -440,7 +440,7 @@ const loadDialogFromLocal = async (id) => {
+ 
+     // 尝试获取对话信息，包括服务器生成的标题
+     try {
+-      const conversations = await getConversations02();
++      const conversations = await getConversations();
+       const conversation = conversations.data.find(conv => conv.id === id);
+       if (conversation && conversation.name) {
+         console.log("获取到服务器标题:", conversation.name);
+@@ -826,7 +826,7 @@ const sendMessage = async () => {
+               // 获取服务器返回的正确对话标题
+               setTimeout(async () => {
+                 try {
+-                  const conversations = await getConversations02();
++                  const conversations = await getConversations();
+                   const conversation = conversations.data.find(conv => conv.id === convId);
+                   if (conversation && conversation.name) {
+                     console.log("更新对话标题:", conversation.name);
+@@ -994,7 +994,7 @@ const sendMessage = async () => {
+               
+               setTimeout(async () => {
+                 try {
+-                  const conversations = await getConversations02();
++                  const conversations = await getConversations();
+                   const conversation = conversations.data.find(conv => conv.id === convId);
+                   if (conversation && conversation.name) {
+                     emit('update-dialog-title', {
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,275 @@
+From a321cded006d15d834b31d141d2ca4f0c194a2f4 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 16:40:31 +0800
+Subject: [PATCH 12/85] =?UTF-8?q?fix-=E5=8E=86=E5=8F=B2=E6=B6=88=E6=81=AF?=
+ =?UTF-8?q?=E5=9B=BE=E7=89=87=E5=9C=A8=E5=A4=9A=E4=B8=AA=E6=B6=88=E6=81=AF?=
+ =?UTF-8?q?=E6=A1=86=E4=B8=AD=E6=98=BE=E7=A4=BA?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 178 ++++++++++++++++++++++++------------------
+ 1 file changed, 102 insertions(+), 76 deletions(-)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index d0edf9c..de8b683 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -449,6 +449,7 @@ const saveDialogToLocal = () => {
+   localStorage.setItem(`dialog-${dialog.id}`, JSON.stringify(dialog));
+   currentDialogId.value = dialog.id;
+ };
++// ...existing code...
+ const loadDialogFromLocal = async (id) => {
+   try {
+     console.log("加载对话:", id);
+@@ -496,112 +497,130 @@ const loadDialogFromLocal = async (id) => {
+       // 处理API返回的数据
+       if (history && Array.isArray(history.data) && history.data.length > 0) {
+         const orderedMessages = [...history.data].reverse();
+-        // 处理历史消息 - 根据API文档格式解析
++        
++        // 处理历史消息，按照消息组处理
+         orderedMessages.forEach(msg => {
+-          // 1. 添加用户消息 (如果存在query)
+-          if (msg.query) {
+-            const userMessage = {
++          // 收集该消息相关的所有文件
++          const allFiles = msg.message_files || [];
++          let userTextAdded = false;
++          
++          // 首先处理该条消息的所有组成部分
++          const userMessages = [];
++          const aiMessages = [];
++          
++          // 1. 处理用户文本消息和图片文件（保持原始顺序）
++          if (msg.query && msg.query.trim() !== '') {
++            // 如果有文本内容，创建文本消息
++            const userTextMessage = {
+               type: 'user',
+               content: msg.query,
+               messageId: msg.id + '_user'
+             };
+             
+-            // 处理用户上传的文件
+-            if (msg.inputs && msg.inputs.files && Array.isArray(msg.inputs.files) && msg.inputs.files.length > 0) {
+-              userMessage.fileId = msg.inputs.files[0];
+-              userMessage.fileSent = true;
++            // 查找和此文本消息一起上传的文档文件（非图片）
++            const documentFiles = allFiles.filter(file => 
++              file.belongs_to !== 'assistant' && file.type !== 'image'
++            );
++            
++            if (documentFiles.length > 0) {
++              userTextMessage.fileId = documentFiles[0].id;
++              userTextMessage.fileSent = true;
++              userTextMessage.fileType = 'document';
++              userTextMessage.files = documentFiles.map(file => {
++                let fileUrl = file.url;
++                if (fileUrl && fileUrl.startsWith('/')) {
++                  fileUrl = `http://47.99.158.58${fileUrl}`;
++                }
++                return {
++                  id: file.id,
++                  type: file.type,
++                  url: fileUrl,
++                  belongs_to: file.belongs_to
++                };
++              });
+             }
+             
+-            messageList.value.push(userMessage);
++            userMessages.push(userTextMessage);
++            userTextAdded = true;
+           }
+           
+-          // 2. 添加AI消息 (如果存在answer)
++          // 2. 处理单独的图片消息
++          const imageFiles = allFiles.filter(file => 
++            file.belongs_to !== 'assistant' && file.type === 'image'
++          );
++          
++          imageFiles.forEach(file => {
++            let fileUrl = file.url;
++            if (fileUrl && fileUrl.startsWith('/')) {
++              fileUrl = `http://47.99.158.58${fileUrl}`;
++            }
++            
++            // 为每个图片创建独立的消息
++            userMessages.push({
++              type: 'user',
++              content: '',
++              fileId: file.id,
++              fileType: 'image',
++              imageUrl: fileUrl,
++              isImageOnly: true
++            });
++            
++            // 缓存图片URL
++            imageUrlCache.value[file.id] = fileUrl;
++          });
++          
++          // 3. 处理AI回复
+           if (msg.answer) {
+             const aiMessage = {
+               type: 'ai',
+               content: msg.answer,
+               messageId: msg.id
+             };
++            
++            // 处理AI回复中的引用资源
+             if (msg.retriever_resources && msg.retriever_resources.length > 0) {
+               aiMessage.sources = msg.retriever_resources;
+-              console.log("历史消息包含引用资源:", msg.retriever_resources.length);
+             }
+             
+-            messageList.value.push(aiMessage);
+-          }
+-          
+-          // 3. 处理文件附件
+-          if (msg.message_files && msg.message_files.length > 0) {
+-            const processedImageIds = new Set();
+-            msg.message_files.forEach(file => {
+-              let fileUrl = file.url;
+-              // 如果URL是相对路径（以/开头），则添加基础URL前缀
+-              if (fileUrl && fileUrl.startsWith('/')) {
+-                fileUrl = `http://47.99.158.58${fileUrl}`;
+-              }
+-              // 保存文件URL，确保能够显示
+-              const fileInfo = {
+-                id: file.id,
+-                type: file.type,
+-                url: fileUrl,
+-                belongs_to: file.belongs_to
+-              };
+-              
+-              // 关联到对应消息
+-              if (file.belongs_to === 'assistant') {
+-                const lastAiMsg = [...messageList.value].reverse().find(m => m.type === 'ai');
+-                if (lastAiMsg) {
+-                  if (!lastAiMsg.files) lastAiMsg.files = [];
+-                  lastAiMsg.files.push(fileInfo);
++            // 处理AI回复中的附件
++            const aiFiles = allFiles.filter(file => file.belongs_to === 'assistant');
++            if (aiFiles.length > 0) {
++              aiMessage.files = aiFiles.map(file => {
++                let fileUrl = file.url;
++                if (fileUrl && fileUrl.startsWith('/')) {
++                  fileUrl = `http://47.99.158.58${fileUrl}`;
+                 }
+-              } else {
+-                const lastUserMsg = [...messageList.value].reverse().find(m => m.type === 'user');
+-                if (lastUserMsg) {
+-                  // 修改处理图片文件的逻辑
+-                  if (file.type === 'image') {
+-                    // 创建图片数组来保存多张图片
+-                    if (!lastUserMsg.images) lastUserMsg.images = [];
+-                    lastUserMsg.images.push({
+-                      id: file.id,
+-                      url: fileUrl
+-                    });
+-                    
+-                    // 保留单个imageUrl属性以兼容现有代码
+-                    lastUserMsg.imageUrl = fileUrl;
+-                    processedImageIds.add(file.id);
+-                    imageUrlCache.value[file.id] = fileUrl;
+-                    
+-                    // 标记为纯图片消息，如果内容为空
+-                    if (!lastUserMsg.content || lastUserMsg.content.trim() === '') {
+-                      lastUserMsg.isImageOnly = true;
+-                    }
+-                  } 
+-                }
+-              }
+-            });
+-          }
+-        });
+-        messageList.value.forEach(msg => {
+-          if (msg.files && msg.files.length > 0) {
+-            msg.files = msg.files.filter(file => 
+-              !(file.type === 'image' && processedImageIds.has(file.id))
+-            );
+-            
+-            // 如果过滤后files数组为空，则删除它
+-            if (msg.files.length === 0) {
+-              delete msg.files;
++                return {
++                  id: file.id,
++                  type: file.type,
++                  url: fileUrl
++                };
++              });
+             }
++            
++            aiMessages.push(aiMessage);
+           }
++          
++          // 4. 按顺序将所有消息添加到消息列表
++          // 先添加所有用户消息
++          userMessages.forEach(userMsg => {
++            messageList.value.push(userMsg);
++          });
++          
++          // 然后添加所有AI回复
++          aiMessages.forEach(aiMsg => {
++            messageList.value.push(aiMsg);
++          });
+         });
++        
+         // 更新对话ID和状态
+         currentDialogId.value = id;
+         isFirstInput.value = false;
+         return true;
+       } else {
+         console.log("历史数据为空或格式不匹配");
+-        // 已经添加了欢迎消息，所以不需要再添加
+         
+-        // 重要：保留传入的对话ID
++        // 已经添加了欢迎消息，保留传入的对话ID
+         currentDialogId.value = id;
+         isFirstInput.value = true;
+         return true;
+@@ -623,6 +642,7 @@ const loadDialogFromLocal = async (id) => {
+     return false;
+   }
+ };
++// ...existing code...
+ const deleteDialogFromLocal = (id) => {
+   localStorage.removeItem(`dialog-${id}`);
+ };
+@@ -1213,24 +1233,30 @@ right: 0px;
+   word-wrap: break-word; /* 强制长单词或 URL 换行 */
+ }
+ 
++/* 修改图片容器样式，使图片居中显示 */
+ .image-container {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 10px;
+   margin-top: 10px;
++  width: 100%; /* 确保占满消息框宽度 */
++  justify-content: center; /* 水平居中 */
++  align-items: center; /* 垂直居中 */
+ }
+ 
+ .uploaded-image-wrapper {
+   display: inline-block;
++  text-align: center; /* 内部内容居中 */
+ }
++
+ .uploaded-image {
+   max-width: 300px;
+   max-height: 200px;
+-  margin-top: 10px;
+   border-radius: 8px;
+   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+   cursor: pointer;
+   transition: transform 0.3s ease;
++
+ }
+ 
+ .uploaded-image:hover {
+-- 
+2.39.5 (Apple Git-154)
+

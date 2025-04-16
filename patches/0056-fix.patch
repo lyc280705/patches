@@ -1,0 +1,401 @@
+From 566bd5611aedfe1f54f94e66daaebefd9e13ac00 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 9 Mar 2025 23:40:58 +0800
+Subject: [PATCH 56/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=8F=82=E8=80=83?=
+ =?UTF-8?q?=E5=86=85=E5=AE=B9=E5=92=8C=E6=93=8D=E4=BD=9C=E6=8C=89=E9=92=AE?=
+ =?UTF-8?q?=E4=B8=8E=E7=94=A8=E6=88=B7=E6=B6=88=E6=81=AF=E9=87=8D=E5=8F=A0?=
+ =?UTF-8?q?=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue |   4 +-
+ frontend/src/views/ai.vue       | 239 ++++++++++++++++++--------------
+ 2 files changed, 136 insertions(+), 107 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 1ddfc89..ac5c669 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -499,7 +499,7 @@ const addToRecentDialogs = (dialog) => {
+     // 如果传入的是字符串，创建对话对象
+     dialog = {
+       id: Date.now().toString(),
+-      name: dialog.length > 20 ? dialog.substring(0, 20) + '...' : dialog
++      name: dialog
+     };
+   }
+   
+@@ -1196,7 +1196,7 @@ body.sidebar-open-mobile {
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+-  max-width: 70%;
++  max-width: 100%;
+   margin: 0.1875rem;
+ }
+ 
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 97a794d..6cc7e37 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -5,81 +5,111 @@
+       <!-- 循环渲染消息列表 -->
+       <template v-for="(message, index) in messageList" :key="index">
+         <div
+-          :class="['message', message.type === 'user' ? 'user-message' : message.type === 'thinking' ? 'thinking-message' : 'ai-message']"
++          :class="['message', 
++                  message.type === 'user' ? 'user-message' : 
++                  message.type === 'thinking' ? 'thinking-message' : 
++                  isGreeting(message.content) ? 'ai-message greeting-message' : 
++                  (message.sources && message.sources.length > 0) ? 'ai-message has-references' : 'ai-message']"
+         >
+-        <!-- AI 消息显示头像 -->
+-        <img
+-          v-if="message.type === 'ai' || message.type === 'thinking'"
+-          class="aitou"
+-          src="@/imgs/bot.png"
+-          alt="AI Avatar"
+-        />
+-        <img
+-          v-if="message.type === 'user'"
+-          class="usertou"
+-          src="@/imgs/user.png"
+-          alt="User Avatar"
+-        />
+-        <!-- 显示深度思考内容 --> 
+-        <div v-if="message.thinkingContent" class="thinking-content">
+-          {{ message.thinkingContent }}
+-        </div>
+-      
+-        <!-- 显示消息内容 - 修改AI消息为Markdown渲染 -->
+-        <div v-if="message.content && !message.isImageOnly">
+-          <div v-if="message.type === 'ai'" class="markdown-body" v-html="renderMarkdown(message.content)"></div>
+-          <div v-else>{{ message.content }}</div>
+-        </div>
+-         <!-- 思考中状态 -->
+-        <div v-if="message.type === 'thinking'" class="thinking">
+-          <span></span>
+-          <div class="loader"></div>
+-        </div>
++          <!-- AI 消息显示头像 -->
++          <img
++            v-if="message.type === 'ai' || message.type === 'thinking' || isGreeting(message.content)"
++            class="aitou"
++            src="@/imgs/bot.png"
++            alt="AI Avatar"
++          />
++          <img
++            v-if="message.type === 'user'"
++            class="usertou"
++            src="@/imgs/user.png"
++            alt="User Avatar"
++          />
++          <!-- 显示深度思考内容 --> 
++          <div v-if="message.thinkingContent" class="thinking-content">
++            {{ message.thinkingContent }}
++          </div>
+         
+-        <!-- 操作图标 -->
+-        <div v-if="message.type === 'ai' && !isGreeting(message.content)" class="action-icons-container">
+-          <div class="action-icons">
+-            <el-icon class="copy-icon" @click="copyMessage(message.content)">
+-              <CopyDocument />
+-            </el-icon>
+-            <el-icon class="check-icon" @click="likeMessage(index)">
+-              <CircleCheck />
+-            </el-icon>
+-            <el-icon class="close-icon" @click="dislikeMessage(index)">
+-              <CircleClose/>
+-            </el-icon>
++          <!-- 显示消息内容 - 修改AI消息为Markdown渲染 -->
++          <div v-if="message.content && !message.isImageOnly">
++            <div v-if="message.type === 'ai' || isGreeting(message.content)" class="markdown-body" v-html="renderMarkdown(message.content)"></div>
++            <div v-else>{{ message.content }}</div>
++          </div>
++          <!-- 思考中状态 -->
++          <div v-if="message.type === 'thinking'" class="thinking">
++            <span></span>
++            <div class="loader"></div>
++          </div>
++          
++          <!-- 操作图标 -->
++          <div v-if="message.type === 'ai' && !isGreeting(message.content)" class="action-icons-container">
++            <div class="action-icons">
++              <el-icon class="copy-icon" @click="copyMessage(message.content)">
++                <CopyDocument />
++              </el-icon>
++              <el-icon class="check-icon" @click="likeMessage(index)">
++                <CircleCheck />
++              </el-icon>
++              <el-icon class="close-icon" @click="dislikeMessage(index)">
++                <CircleClose/>
++              </el-icon>
++            </div>
+           </div>
+-        </div>
+ 
+-        <!-- 显示图片预览 -->
+-        <div class="image-container" v-if="message.images && message.images.length > 0">
+-          <div v-for="(img, imgIndex) in message.images" :key="img.id" class="uploaded-image-wrapper">
++          <!-- 显示图片预览 -->
++          <div class="image-container" v-if="message.images && message.images.length > 0">
++            <div v-for="(img, imgIndex) in message.images" :key="img.id" class="uploaded-image-wrapper">
++              <img
++                :src="img.url"
++                alt="Uploaded Image"
++                class="uploaded-image"
++                @click="openImageInNewTab(img.url)"
++              />
++            </div>
++          </div>
++          
++          <!-- 单图片显示 -->
++          <div class="image-container" v-else-if="message.imageUrl || message.tempImageUrl || message.isUploading">
+             <img
+-              :src="img.url"
++              :src="message.imageUrl || message.tempImageUrl"
+               alt="Uploaded Image"
+               class="uploaded-image"
+-              @click="openImageInNewTab(img.url)"
++              @click="openImageInNewTab(message.imageUrl || message.tempImageUrl)"
+             />
++            <div v-if="message.isUploading" class="image-uploading-overlay">
++              <div class="uploading-spinner"></div>
++              <span>上传中...</span>
++            </div>
+           </div>
+-        </div>
+-        
+-        <!-- 单图片显示 -->
+-        <div class="image-container" v-else-if="message.imageUrl || message.tempImageUrl || message.isUploading">
+-          <img
+-            :src="message.imageUrl || message.tempImageUrl"
+-            alt="Uploaded Image"
+-            class="uploaded-image"
+-            @click="openImageInNewTab(message.imageUrl || message.tempImageUrl)"
+-          />
+-          <div v-if="message.isUploading" class="image-uploading-overlay">
+-            <div class="uploading-spinner"></div>
+-            <span>上传中...</span>
++                  
++          <!-- 文件上传标识 -->
++          <div v-if="message.isFileOnly && message.fileType === 'document'" class="file-upload-indicator">
++            <div class="file-link">
++              <el-icon><Document /></el-icon>
++              <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
++                {{ message.fileName || '查看文件' }}
++              </a>
++            </div>
+           </div>
+-        </div>
+-                
+-        <!-- 文件上传标识 -->
+-        <div v-if="message.isFileOnly && message.fileType === 'document'" class="file-upload-indicator">
+-          <div class="file-link">
++          
++          <!-- 显示文件附件 -->
++          <div v-if="message.files && message.files.length > 0" class="message-files">
++            <div v-for="(file, fileIndex) in message.files" :key="fileIndex" class="message-file">
++              <img 
++                v-if="file.type === 'image'" 
++                :src="file.url" 
++                :alt="'附件 ' + (fileIndex + 1)" 
++                class="file-image" 
++                @click="openImageInNewTab(file.url)"
++              />
++              <div v-else class="file-link">
++                <el-icon><Document /></el-icon>
++                <a :href="file.url" target="_blank" rel="noopener noreferrer">
++                  查看文件附件
++                </a>
++              </div>
++            </div>
++          </div>
++          <div v-if="message.fileUrl && !message.imageUrl && !message.isImageOnly && !message.isFileOnly" class="file-link">
+             <el-icon><Document /></el-icon>
+             <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
+               {{ message.fileName || '查看文件' }}
+@@ -87,30 +117,7 @@
+           </div>
+         </div>
+         
+-        <!-- 显示文件附件 -->
+-        <div v-if="message.files && message.files.length > 0" class="message-files">
+-          <div v-for="(file, fileIndex) in message.files" :key="fileIndex" class="message-file">
+-            <img 
+-              v-if="file.type === 'image'" 
+-              :src="file.url" 
+-              :alt="'附件 ' + (fileIndex + 1)" 
+-              class="file-image" 
+-              @click="openImageInNewTab(file.url)"
+-            />
+-            <div v-else class="file-link">
+-              <el-icon><Document /></el-icon>
+-              <a :href="file.url" target="_blank" rel="noopener noreferrer">
+-                查看文件附件
+-              </a>
+-            </div>
+-          </div>
+-        </div>
+-        <div v-if="message.fileUrl && !message.imageUrl && !message.isImageOnly && !message.isFileOnly" class="file-link">
+-          <el-icon><Document /></el-icon>
+-          <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
+-            {{ message.fileName || '查看文件' }}
+-          </a>
+-        </div>
++        <!-- 参考来源 - 移到AI消息框外部 -->
+         <div 
+           v-if="message.type === 'ai' && message.sources && message.sources.length > 0" 
+           class="references-outside-container"
+@@ -154,7 +161,6 @@
+             </el-tooltip>
+           </div>
+         </div>
+-      </div>
+       </template>
+     </div>
+     
+@@ -1382,6 +1388,10 @@ body {
+   word-wrap: break-word;
+ }
+ 
++.greeting-message {
++  margin-bottom: 20px !important; /* 使用更小的底部间距，并使用!important确保覆盖原有样式 */
++}
++
+ /* 用户消息样式 */
+ .user-message {
+   background: rgba(255, 255, 255, 1);
+@@ -1417,11 +1427,11 @@ body {
+   background: rgba(255, 255, 255, 1);
+   align-self: flex-start;
+   margin-left: 3.5rem;
+-  max-width: 85%;
+-  margin-bottom: 30px;
++  max-width: 83.7%;
++  margin-bottom: 48px; /* 减小为更合理的值 */
+   position: relative;
+   padding: 0.5rem;
+-  width: auto; /* 改为auto，而不是fit-content */
++  width: auto;
+   box-sizing: border-box;
+ }
+ 
+@@ -1551,7 +1561,7 @@ body {
+   bottom: -36px;  /* 调整下移距离 */
+   right: 0;       
+   display: flex;
+-  z-index: 3;
++  z-index: 5;
+ }
+ 
+ .action-icons {
+@@ -1585,20 +1595,27 @@ body {
+   transform: scale(1.1);
+ }
+ 
++.has-references {
++  margin-bottom: 20px !important; /* 减少底部间距，让参考资源更靠近消息 */
++}
++
+ /* 参考资源样式 */
+ .references-outside-container {
+-  position: absolute;  /* 改为绝对定位 */
+-  top: 100%;          /* 定位在AI消息底部 */
+-  margin-top: 6px;    /* 与消息保持一定间距 */
++  position: relative; /* 改为相对定位 */
+   padding: 0;
+   background-color: transparent;
+   border-radius: 0;
+-  max-width: 85%;
+-  z-index: 2;
++  max-width: 84%; /* 调整最大宽度 */
+   border: none;
+   box-shadow: none;
+   display: inline-flex;
+   flex-direction: column;
++  width: 100%;
++  background-color: transparent;
++  background-color: transparent;
++  margin-left: 3.5rem; /* 添加与AI消息相同的左边距 */
++  left: 2.6%; /* 添加与AI消息相同的左偏移 */
++  box-sizing: border-box;
+ }
+ 
+ .references-title {
+@@ -1855,17 +1872,17 @@ textarea:focus {
+     margin-right: 3rem;
+   }
+   
+-  .ai-message {
++  .ai-message .ai-message-greeting {
+     margin-left: 3rem;
+   }
+ 
+   .action-icons-container {
+     padding-right: 10px;
+-    bottom: -24px;
++    bottom: -35.3px;
+   }
+   
+   .references-outside-container {
+-    margin-top: 3px;
++    margin-left: 3rem;
+   }
+   
+   .reference-title {
+@@ -1890,6 +1907,10 @@ textarea:focus {
+   .reference-score {
+     margin-left: 0;
+   }
++
++  .chat-input {
++    width: 90%;
++  }
+ }
+ 
+ /* 媒体查询 - 移动设备 */
+@@ -1908,11 +1929,16 @@ textarea:focus {
+     margin-right: 2.5rem;
+   }
+   
+-  .ai-message {
++  .ai-message-greeting {
+     margin-left: 2.5rem;
+     margin-bottom: 20px;
+   }
+ 
++  .ai-message{
++    margin-left: 2.5rem;
++    margin-bottom: 28px;
++  }
++
+   .thinking-message {
+     margin-left: 2.5rem;
+   }
+@@ -1940,8 +1966,7 @@ textarea:focus {
+   }
+   
+   .references-outside-container {
+-    margin-top: 2px;
+-    padding: 6px 10px;
++    margin-left: 2.5rem;
+   }
+   
+   .references-list {
+@@ -1981,6 +2006,10 @@ textarea:focus {
+     max-width: 100%;
+   }
+   
++  .chat-input {
++    width: 100%;
++  }
++  
+   .input-wrapper {
+     margin-left: 0;
+     margin-right: 0;
+-- 
+2.39.5 (Apple Git-154)
+

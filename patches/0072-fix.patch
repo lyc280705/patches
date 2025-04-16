@@ -1,0 +1,87 @@
+From 89f423a8d9c389c27a30274bd649c50f5628b0f7 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 31 Mar 2025 12:08:42 +0800
+Subject: [PATCH 72/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=B0=8F=E5=B1=8F?=
+ =?UTF-8?q?=E5=B9=95=E4=B8=8B=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/login.vue    | 4 +++-
+ frontend/src/views/register.vue | 4 +++-
+ frontend/src/views/reset.vue    | 4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/frontend/src/views/login.vue b/frontend/src/views/login.vue
+index d1313c0..9d749f1 100644
+--- a/frontend/src/views/login.vue
++++ b/frontend/src/views/login.vue
+@@ -177,6 +177,7 @@ const handleLogin = async () => {
+   background-color: white;
+   border-radius: 16px;
+   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
++  box-sizing: border-box;
+   padding: 20px;
+   padding-top: 40px;
+   padding-bottom: 40px;
+@@ -293,7 +294,8 @@ const handleLogin = async () => {
+   }
+   
+   .logo {
+-    max-width: 80px;
++    max-width: 180px;
++    padding-top: 20px;
+   }
+ }
+ </style>
+\ No newline at end of file
+diff --git a/frontend/src/views/register.vue b/frontend/src/views/register.vue
+index baa0483..b9b4675 100644
+--- a/frontend/src/views/register.vue
++++ b/frontend/src/views/register.vue
+@@ -238,6 +238,7 @@ const handleRegister = async () => {
+   padding: 20px;
+   padding-top: 40px;
+   padding-bottom: 40px;
++  box-sizing: border-box;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+@@ -352,7 +353,8 @@ const handleRegister = async () => {
+   }
+   
+   .logo {
+-    max-width: 80px;
++    max-width: 180px;
++    padding-top: 20px;
+   }
+ }
+ </style>
+\ No newline at end of file
+diff --git a/frontend/src/views/reset.vue b/frontend/src/views/reset.vue
+index a6beed0..aa4d6c2 100644
+--- a/frontend/src/views/reset.vue
++++ b/frontend/src/views/reset.vue
+@@ -244,6 +244,7 @@ const handleResetPassword = async () => {
+   background-color: white;
+   border-radius: 16px;
+   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
++  box-sizing: border-box;
+   padding: 20px;
+   padding-top: 40px;
+   padding-bottom: 40px;
+@@ -361,7 +362,8 @@ const handleResetPassword = async () => {
+   }
+   
+   .logo {
+-    max-width: 80px;
++    max-width: 180px;
++    padding-top: 20px;
+   }
+ }
+ </style>
+\ No newline at end of file
+-- 
+2.39.5 (Apple Git-154)
+

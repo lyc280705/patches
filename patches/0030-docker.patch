@@ -1,0 +1,90 @@
+From 1ab0859c12043d15b7fdf00c794f0afc334cd863 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 4 Mar 2025 17:13:11 +0800
+Subject: [PATCH 30/85] =?UTF-8?q?=E4=BF=AE=E5=A4=8Ddocker=E9=83=A8?=
+ =?UTF-8?q?=E7=BD=B2=E5=BC=82=E5=B8=B8=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .gitignore         | 4 +++-
+ backend/Dockerfile | 6 +++---
+ backend/app.py     | 9 +++++++--
+ docker-compose.yml | 2 +-
+ 4 files changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index d610852..836a3a8 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -25,4 +25,6 @@ build/
+ *.swp
+ *.swo
+ 
+-.DS_Store
+\ No newline at end of file
++.DS_Store
++.DS_Store?
++.rdb
+\ No newline at end of file
+diff --git a/backend/Dockerfile b/backend/Dockerfile
+index 1811594..aa2b923 100644
+--- a/backend/Dockerfile
++++ b/backend/Dockerfile
+@@ -7,13 +7,13 @@ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ COPY . .
+ 
+-# Create instance directory and set proper permissions
+-RUN mkdir -p /app/instance && chmod 777 /app/instance
++# Create instance directory with proper permissions - ensure the user running the app has full access
++RUN mkdir -p /app/instance && chmod 777 /app/instance && chown -R nobody:nogroup /app/instance
+ 
+ # 使用环境变量配置
+ ENV FLASK_APP=app.py
+ ENV FLASK_ENV=production
+-ENV SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
++ENV SQLALCHEMY_DATABASE_URI=sqlite:////app/instance/app.db
+ ENV REDIS_URL=redis://redis:6379/0
+ 
+ # 邮件服务配置
+diff --git a/backend/app.py b/backend/app.py
+index 66dfad3..260e3fd 100644
+--- a/backend/app.py
++++ b/backend/app.py
+@@ -26,11 +26,16 @@ def create_app():
+     
+     # 在这里注册路由
+     with app.app_context():
+-        # Ensure instance directory exists
+-        instance_path = os.path.join(os.getcwd(), 'instance')
++        # Ensure instance directory exists with proper permissions
++        instance_path = os.path.join(app.instance_path)
+         os.makedirs(instance_path, exist_ok=True)
++        # Ensure directory has correct permissions
++        os.chmod(instance_path, 0o777)
+         print(f"Instance directory path: {instance_path}")
+         
++        # Print the actual database URI being used
++        print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
++        
+         from routes.auth_routes import auth_bp
+         app.register_blueprint(auth_bp, url_prefix='/api/auth')
+         
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 39587c6..fda5e44 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -20,7 +20,7 @@ services:
+     environment:
+       - FLASK_APP=app.py
+       - FLASK_ENV=production
+-      - SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
++      - SQLALCHEMY_DATABASE_URI=sqlite:////app/instance/app.db
+       - REDIS_URL=redis://redis:6379/0
+       - MAIL_SERVER=smtp.qq.com
+       - MAIL_PORT=587
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,41 @@
+From 1cde9f8c844c58d6e2e3c60d9349956c97d377df Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Thu, 6 Mar 2025 15:52:35 +0800
+Subject: [PATCH 39/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E8=B0=83=E6=95=B4?=
+ =?UTF-8?q?=E9=AB=98=E5=BA=A6=E5=87=BD=E6=95=B0=E5=92=8CCSS=E5=86=B2?=
+ =?UTF-8?q?=E7=AA=81=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 39dd4a7..99c5390 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -665,8 +665,8 @@ const adjustTextareaHeight = () => {
+   // 重置高度以便准确测量
+   textarea.style.height = 'auto';
+   
+-  // 计算内容实际高度并设置（最大高度120px）
+-  const newHeight = Math.min(textarea.scrollHeight, 120);
++  // 计算内容实际高度并设置（最大高度90px）
++  const newHeight = Math.min(textarea.scrollHeight, 90);
+   textarea.style.height = `${newHeight}px`;
+ };
+ const newLine = (e) => {
+@@ -1750,7 +1750,7 @@ textarea {
+   resize: none;
+   overflow-y: auto;
+   line-height: 1.5;
+-  max-height: 80px; /* 减小最大高度 */
++  max-height: 90px; /* 减小最大高度 */
+   min-height: 38px; /* 减小最小高度 */
+   background-color: transparent;
+   box-sizing: border-box;
+-- 
+2.39.5 (Apple Git-154)
+

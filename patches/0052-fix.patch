@@ -1,0 +1,70 @@
+From 09f65661a1d8bde5b7fa59779533bfabdf9015ea Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sat, 8 Mar 2025 14:26:11 +0800
+Subject: [PATCH 52/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=8F=91=E9=80=81?=
+ =?UTF-8?q?=E6=B6=88=E6=81=AF=E6=97=B6=E6=97=A0=E6=B3=95=E7=82=B9=E8=B5=9E?=
+ =?UTF-8?q?=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/api/dify.js  |  2 +-
+ frontend/src/views/ai.vue | 11 ++++++++---
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/frontend/src/api/dify.js b/frontend/src/api/dify.js
+index d881ad0..3a15640 100644
+--- a/frontend/src/api/dify.js
++++ b/frontend/src/api/dify.js
+@@ -115,7 +115,7 @@ export const sendChatMessage = async (message, conversationId = null, onMessage
+               
+               fullAnswer += data.answer || '';
+               // 传递所有需要的参数
+-              if (onMessage) onMessage(fullAnswer, taskId);
++              if (onMessage) onMessage(fullAnswer, taskId ,messageId);
+             } else if (data.event === 'message_end') {
+               messageId = data.message_id || messageId;
+               responseConversationId = data.conversation_id || responseConversationId;
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index dc7846e..3a241c4 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -760,7 +760,7 @@ const sendMessage = async () => {
+         currentDialogId.value,
+         // 流式回调处理...
+         // 其余代码保持不变
+-        (text, tid) => {
++        (text, tid, msgId) => {
+           // 现有代码不变
+           if (tid && !currentTaskId.value) {
+             currentTaskId.value = tid;
+@@ -772,18 +772,23 @@ const sendMessage = async () => {
+             // 替换思考中消息为AI回复
+             messageList.value.splice(thinkingMsgIndex, 1, {
+               type: 'ai',
+-              content: text
++              content: text,
++              messageId: msgId
+             });
+           } else {
+             // 查找并更新现有AI回复
+             const aiMsg = messageList.value[messageList.value.length - 1];
+             if (aiMsg && aiMsg.type === 'ai') {
+               aiMsg.content = text;
++              if (messageId) {
++                aiMsg.messageId = msgId;
++              }
+             } else {
+               // 如果没有找到现有消息，添加新的
+               messageList.value.push({
+                 type: 'ai',
+-                content: text
++                content: text,
++                messageId: msgId
+               });
+             }
+           }
+-- 
+2.39.5 (Apple Git-154)
+

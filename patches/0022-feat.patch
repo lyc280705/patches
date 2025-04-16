@@ -1,0 +1,559 @@
+From aa4a3471e9551a254d44347d0812de1ce062f242 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 17:27:45 +0800
+Subject: [PATCH 22/85] =?UTF-8?q?feat-=E5=AE=9E=E7=8E=B0=E4=B8=AA=E4=BA=BA?=
+ =?UTF-8?q?=E4=BF=A1=E6=81=AF=E6=98=BE=E7=A4=BA=E5=92=8C=E4=BF=AE=E6=94=B9?=
+ =?UTF-8?q?=E5=8A=9F=E8=83=BD?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ backend/__pycache__/app.cpython-312.pyc       | Bin 1266 -> 1925 bytes
+ backend/app.py                                |  13 +-
+ backend/instance/app.db                       | Bin 16384 -> 16384 bytes
+ .../__pycache__/auth_routes.cpython-312.pyc   | Bin 4381 -> 6383 bytes
+ backend/routes/auth_routes.py                 |  45 ++++-
+ .../__pycache__/auth_service.cpython-312.pyc  | Bin 4098 -> 5941 bytes
+ backend/services/auth_service.py              |  47 ++++-
+ work/src/views/QMathify.vue                   | 182 +++++++++++++++++-
+ 8 files changed, 274 insertions(+), 13 deletions(-)
+
+diff --git a/backend/__pycache__/app.cpython-312.pyc b/backend/__pycache__/app.cpython-312.pyc
+index e89511e807ee0594788188bb69bf5010f42fecc0..86b918d46438fd75ca6226e1238d625c0852d492 100644
+GIT binary patch
+delta 1072
+zcmbVKO-vI(6rS0icKVM%p!^kxL;|$s0*MNOSn3aG3!xss1KD(!vZQp^*=-0LNI7Vt
+ziAKpD<lw=ZQHXLh@uo2`;nF5GG@F=k(<2HAi6>_%O+kqVH<@qVy#2m6Z{B-9ZTCIy
+zEtks<$oCz8N{lkA?gD(i`Ymylr+G$%BIMZ(%Q|fm0Dxc#%pH=8=MwVPdtm+OunbjK
+z$v@}TpF*EgJ#)g*3afNCRez<I#N!cfOWNlh%hX})x)QOxFHyXG!?8{kJrEp=UQfb|
+zW}Fet7MD^pVj?InYL;$J7P~tQtAxdbm{JVb8S9`78x|BPjpKr1R4Zv&mawW!$FaZ*
+zDOKc>N*tDN1PrmO$l7~D;F<a6V?Rsg+)+(3C5O55kf+M2{#$rLM~eMlI+o8^jteJ1
+zhc%)#48_Syl|V>JsaQ$|hLTBXArL*R2sZntHJ-}2E^xen6|LSBlF9^Pi?ZM!N~^P^
+zni{8yQtB_|XfgOLfslAbYq%DU`NwXP6`hFrhr>6+v9Lcn7P}FROprcUXNy-DG{^HD
+z&_JXwvXoK;#cY5+NT1KRxEWQz(^$Bh78F%$C0*iFVVaZWV1H7IlV%MBPf(mhsYD2@
+zfE`q^jl4PJ-A0W$)R=9$_%4)3mkWQo`?8lN^JwZczk4c=?i4(=4?KG$B+xTdCv@wt
+z30CS^>H@6R?Q~lYO&%c2xRNk%H37w(hL)BVY>v8NFXxP#iGwv6Z}rD?d)Hdsi^)wo
+z+t!oy_I@7z!i?{*Xq&Ccu{A#^hV|~zz*4(wTKg6Hd-~kSR}?HD$2RiikZ)~avoDK$
+zc{I3h0XD}I*F)DM&w&Hj8+P5m=~)>$@RaReidmNrwqOX-A0ZoZ=v~ZsmzfQ&F~LW`
+npm93&3Se{Ci<zVTd5KRag#p~Izhs)(Cg|B6(6^YgjLG>8<Zb+V
+
+delta 383
+zcmZqW|HR36nwOW00SHc59ZmnuG?DKHW8TE)=@M(0S2KZx85kHDO1L2`28Jx2$@>`P
+zcuM$D1QZzsCqH16w`ECT&Ed@Ds%2zksA0$whp9o(HH;~2YuK?GECDn@YH}Epp&Ex@
+z6=!mOURq|lUO{DuCgUxU;?jbG{GyWL_~fG0l+?VE%*34H$s(*;jJ%WWS+yqTv6?b+
+zO<uyPBFJ=$IkBLi2;`q)kn0sD`?FYxaRId@mZZjmq{M)ttRU&`$$wbY*%z2xWzqP;
+zHrbC&jq&N^QZ_{mUIs4d4+0E4{0&~;1rh9D#XLY=2aWWcw3rWRu{xPd-p3ZG4Kl3=
+zBvB*+ByKSmmFBHv_zYw+6p4ZaIBatBQ%ZAE?TX|lTd~WtiZSwkFqj<2uFN6_lm-Bs
+CS6Dm%
+
+diff --git a/backend/app.py b/backend/app.py
+index 87a66a7..ad619c2 100644
+--- a/backend/app.py
++++ b/backend/app.py
+@@ -6,9 +6,17 @@ def create_app():
+     app = Flask(__name__)
+     app.config.from_pyfile('config.py')
+     
+-    # 初始化CORS
+-    CORS(app, supports_credentials=True)
++    # 修改 CORS 配置，确保正确处理预检请求
++    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+     
++    @app.after_request
++    def after_request(response):
++        response.headers.add('Access-Control-Allow-Origin', '*')
++        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
++        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
++        return response
++
++
+     # 初始化数据库
+     db.init_app(app)
+     
+@@ -17,7 +25,6 @@ def create_app():
+     
+     # 在这里注册路由
+     with app.app_context():
+-        # 导入模块需要在app_context中进行，避免循环导入
+         from routes.auth_routes import auth_bp
+         app.register_blueprint(auth_bp, url_prefix='/api/auth')
+         
+diff --git a/backend/instance/app.db b/backend/instance/app.db
+index 9c427ccb37840d2a8542e16918f4cdb7410fc90c..2b2dec8db6a2b51588a116a7c9d6ca799fb842f9 100644
+GIT binary patch
+delta 170
+zcmWN}u?@m75CA~AN=+RE6b#^Z?DxAww4|b<<L%EY2ni_#H68&*LCnMm^kjg$T1~Cy
+z*_!6H+?(co{;eLn>DFKS>3%t$N;-_=)(5e+Sc=Nok;Kd;A^<qCnkaLJL8K@JR49dk
+zRMlew<>(!|gfIsK=j;cIOd`l#bP&NKIszt}LxN5Uc_LVdh0JdDjLB>8_VZo0n?LPr
+BFtGpt
+
+delta 170
+zcmWN}yA8rH5CBl6$N<zqK*0e1UF@sVA&~|NM8|z>BuXeK@dz*qVkSnQC-swFtxc`X
+zvuoPdd}!MD>9=@<!}&g5j@#RA6UJeGT}Mo8vQOEmBUKfE0zq;VBhn{>QH$CP=&a4i
+zz-WAgOnGt*E);Q=QYKPH=?yU?OvyPcSeS#4PK@^|h>=P^vlgZxfO0Atnf&Lw>{fsL
+Ch%wv%
+
+diff --git a/backend/routes/__pycache__/auth_routes.cpython-312.pyc b/backend/routes/__pycache__/auth_routes.cpython-312.pyc
+index 7eb0354fa4b623ecdbab67de35768f7046b9c796..3d6f1311f66d84954be34d13713bfc95a44b865c 100644
+GIT binary patch
+delta 2881
+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
+
+delta 1043
+zcmZ`&&1(};5Pxs8AK9;_X_6+^ez$(CHewGV7E$yd=s~Q|%Ob>WcCE4d5`CLedMb(+
+z!GraQUhK_Fse(}K&5Pj4lZcm<QapOGivNH!o5qHM3;8kgd-G;~GjFmpxjNeQ$+isw
+z-`a(bb06%LuF~=pCFBM1iBChqs7smTN-X83C~{ILGsRUBI~A%-b2XNB(@b}DX1GSe
+z%c03E*J8G7C%zJPv5cFcL?Qw8)u4M_!it2r*&uu8P|N;@;)yMfXnuN*zSi4;zVVQ(
+z??$*eyd>`1xe;?;l+_WHZ%1i%E9xmND1|n8G_&t&cgNM<rL5EQ1Isxn@tzJC4vpoR
+zDBzAP{?Lo!iZs2kE>Ve=#2eWuX&9)+vhOuL-UANLA>_qRc}W=qQ{M=c%M#6rO>Iam
+z;#r^groF88qd9<}0K^gxVug9l>TPZ!X(8AEj?9P9PSPF$E0(JbKZs;7hvDO+$mvl~
+z_bYh7kKqCQqIcq+QV=`oS9E;inZ8QZL|$H;HYd!M5QyR>Q8x#dOK2Vdh?QnzKB)5v
+zBo4RP+6t_NqjN0E_mmH!i}HCIK?jJXnjdS;M#ZmHn~s`jkFyIfzq-eQN`qGd=G8);
+z#|t9}SZS1(0V5Rvdun&3gpIjcolgQiCCb)UXe4DnrptSCF2GT2)`P`sUKA}hxPOWF
+z0>wM}Ll+wXG5?j1e}Y}H9gjE+Y-~aD%H7@UiQ>rW)G7Kheab0_oDrdNM)1soiE;3*
+zI>lJI6?)M;Pl4MioxHTk;FZGY1kQx3;$-n)H!jiM2)Q9{7RS`q8i+^5erk)i#lh>i
+zP08yf1L0V6jc_d1+JW?0$h;5+=lFTx;K4|=3GgdLDcvUJ&!oIX`nSpK7c#p|ZfudM
+Q@8Wprx$#@d)A1zDUq9>6;s5{u
+
+diff --git a/backend/routes/auth_routes.py b/backend/routes/auth_routes.py
+index 8c77679..dea5639 100644
+--- a/backend/routes/auth_routes.py
++++ b/backend/routes/auth_routes.py
+@@ -1,9 +1,10 @@
+-from flask import Blueprint, request, jsonify
++from flask import Blueprint, request, jsonify ,make_response
+ from models.user import User
+-from services.auth_service import register_user, authenticate_user, generate_token, reset_password
++from services.auth_service import register_user, authenticate_user, generate_token, reset_password , update_user_profile
+ from services.verification_service import generate_verification_code, save_verification_code
+ from services.email_service import send_verification_email
+-
++import jwt
++from flask import current_app
+ auth_bp = Blueprint('auth', __name__)
+ 
+ @auth_bp.route('/register', methods=['POST'])
+@@ -104,3 +105,41 @@ def reset_password_route():
+         return jsonify(result), 200
+     else:
+         return jsonify(result), 400
++
++# 在文件末尾添加
++
++@auth_bp.route('/update-profile', methods=['POST'])
++def update_profile():
++    """更新用户资料"""
++    if request.method == 'OPTIONS':
++        response = make_response()
++        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
++        response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
++        return response
++        
++    data = request.get_json()
++    # 从JWT令牌中获取用户ID
++    token = request.headers.get('Authorization', '').replace('Bearer ', '')
++    try:
++        payload = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
++        user_id = payload['user_id']
++    except (jwt.InvalidTokenError, jwt.ExpiredSignatureError):
++        return jsonify({'success': False, 'message': '无效或过期的令牌，请重新登录'}), 401
++    
++    current_password = data.get('current_password')
++    if not current_password:
++        return jsonify({'success': False, 'message': '请提供当前密码'}), 400
++    
++    # 调用更新用户资料服务
++    result = update_user_profile(
++        user_id=user_id,
++        current_password=current_password,
++        username=data.get('username'),
++        email=data.get('email'),
++        new_password=data.get('new_password')
++    )
++    
++    if result['success']:
++        return jsonify(result), 200
++    else:
++        return jsonify(result), 400
+\ No newline at end of file
+diff --git a/backend/services/__pycache__/auth_service.cpython-312.pyc b/backend/services/__pycache__/auth_service.cpython-312.pyc
+index a8a21189d774bf01a09578c3fd7027a34e346578..06220bcead7df87c1bfa6cc4e980e3e5764d7fc7 100644
+GIT binary patch
+delta 1840
+zcmbtUUrbY17{BM<_V(D@_7+<N`PWYCpoo8nxG8S<XVCa(5)3Q`G<Jl0rvd^yZ38B-
+zs&NJujhJf;L>6_~G7K9G(Wno`Eg8P}(km=wgolyP0#9Skhh=-&`A#Vix9nwK(%(J(
+z&hPuq@0{~}=YspeX4`YC)yz@5d}{P$UCK3EI%>R@t6CI`B3(o^@>!$TI@}!=&|S@L
+zSU^q<8Be1PBMrtjp8lCJZI@DMFj)hTrg^Z}@dgZ?6aoSTx7$rT+J`s|c}Lo?kKee3
+zIwwsnwPzcfYn1@cD8vI!+ex)aCAC4-A8c+=o5(J0-rR!nM{1-~e0aqwluOb93;=5Z
+zG6AvyasXTaZVFzJ$S_U;SVv*f(xkTfTWSM=)@GtGnPffn2Sf@~E44*2L=C9HB_>Zw
+zwD)Ykrq>xMFKH$^fIa@+CTLH@9a#e?G1FmeHwKIfQg}t^<14v#W4%d3yki$iGT5vk
+zF{_{sv7IMp+Ih;u$=u7|hPSEq6WR}=%Ox#)lcQjAz|~u{Y0+s1`U)qe3p;HMc^o$Y
+zXHBhM){rS<4*`M3MS*l_Kb$5rMWliRDoCJ$>`CwP_x}m9!%4`(KNY>n6qyzk(Y5_c
+zhrtvXh=b~JXnXk_H*<*W6mcS86&Hk>V^+ULo94G-MO0SNh)me7M=|#amE3wRn3ZIC
+zI8xeSdM(O<TtE*aE(mqZOp$_6BFx%N$t%3cea<Jxh@)p|0U>pKHK$lROrMx47r(8j
+zm1`5KxmM)0g;vuf@tgPKH@=&_-XHILIQQUU{6?=Y1Vx(g%sjdh`?e<>>+2_Q+bkmX
+zM2mG@i49$vy?uWEdhguOPzc%~5fJOX5_@=W?u&t$Cr_!Tibc#{7@Qp(Ug>8M@q2gT
+zeO<9jpT-6sL&Vd;`1Qvj=%vNQpWca|AEE+Fsls??ckHuU!~rTYD6G^y!-%mjhv)8p
+zRqPJs|Le5YXU*8Vnm~sT*1ohdIg$$i`<)a&I^7sl$s~VTA!*=cUHW=wYtz=WaH5$p
+zVULHsE<}jhwA`F4di-6;1BEbYsXJBMbW#oY&(tbvqQ{}0Sc@-pxg*q~z=IPCsKnnw
+znyDg{lv3JZ`U_m9{d|slC30bl{c3Sn@zs*9lAhc#Y2CTfpCx%B(;eAVqRYD@c=v+H
+zS?p0MN0)LUt}WxzRyMg;m-j{RzF!>a=idKK<gmSa|82w9);rc0&P_9t3@M{hmM&%W
+zRoyz;d$ixAXK%Uhe3(6){e7NZcyLTQ6qSzX(vk77R5{`DL<;xojsp?Pfr)f?r{S`7
+zA}zDi0(q_7sXd-s`MvosQat~WH)A;CQAjT=9h1tU(ji?sG%g)xY0GqnFJkdcq-M~x
+z=B2dG32cetwK`tw>M0n<xol!uN@IH~)#b7XE?Y2&#$!kuwxx!Bk&3El#c{pj_*lgW
+zUG_(?|Borj`H~YTV+xzEn!C(VoT=l?ahyGctr2_vH{1F@9(b!iFJjv^j*D2{YF)1R
+z3D^9!V1lqe1Mr^zSX@|Ez>OBH^6eBxx9{{73C}hoI(}AUr05mO%geoXtw^rgzk{*~
+zJj(>`nrr~@0_*}P0f5`R%MmEq#7mFgIn%6!8r2eVkow>W4{X<-%LOSfS3A%L=vDqk
+IbPO^6-v;UO*Z=?k
+
+delta 413
+zcmdn0*QCIAnwOW00SM|HkEZ|Rn#d=?m@-j4m8FtZlY8TgdS*t=$r3Cd7=<TuvSu=>
+zY%XT4U;=X9u$yv=05uhff(Wt6IvkqX3LvI1kSJyb5()|mMan?>mSAFONk(d3NoI0l
+zNoss)acWVK#^weNHzsX8kTiQiVr5Q#VoEU+SQA7KUwUd@Y7t0%Nq%-}UXj)0k6Z;T
+znm`p3ABt_R=Jsc*N3tC#TqF)6SU`jXh>!viG9W@0M96^%c_5+5R>Tit3xWtmAaRQ)
+zFSR_rAhEc(JijOf?EE4npm;GGkO2At2%t_XN-a(;fvaRHvYqVB_nt|Ue{zgih_gA!
+zJa!Pl0U}gDga(MP0ui=AVkJWn$o&w*IBatBQ%ZAE?TVa%VvImstUvjOm=5=6Az{W)
+HMzBf%#XMWV
+
+diff --git a/backend/services/auth_service.py b/backend/services/auth_service.py
+index dd3b4df..4d34a57 100644
+--- a/backend/services/auth_service.py
++++ b/backend/services/auth_service.py
+@@ -72,4 +72,49 @@ def reset_password(username, email, verification_code, new_password):
+     except Exception as e:
+         db.session.rollback()
+         print(f"密码重置失败: {str(e)}")
+-        return {'success': False, 'message': '密码重置失败，请稍后重试'}
+\ No newline at end of file
++        return {'success': False, 'message': '密码重置失败，请稍后重试'}
++    
++def update_user_profile(user_id, current_password, username=None, email=None, new_password=None):
++    """更新用户资料"""
++    # 查找用户
++    user = User.query.get(user_id)
++    if not user:
++        return {'success': False, 'message': '用户不存在'}
++    
++    # 验证当前密码
++    if not user.check_password(current_password):
++        return {'success': False, 'message': '当前密码错误'}
++    
++    changes_made = False
++    
++    # 更新用户名
++    if username and username != user.username:
++        # 检查用户名是否已被使用
++        if User.query.filter(User.id != user_id, User.username == username).first():
++            return {'success': False, 'message': '用户名已被使用'}
++        user.username = username
++        changes_made = True
++    
++    # 更新邮箱
++    if email and email != user.email:
++        # 检查邮箱是否已被使用
++        if User.query.filter(User.id != user_id, User.email == email).first():
++            return {'success': False, 'message': '邮箱已被使用'}
++        user.email = email
++        changes_made = True
++    
++    # 更新密码
++    if new_password:
++        user.set_password(new_password)
++        changes_made = True
++    
++    if not changes_made:
++        return {'success': False, 'message': '没有内容被修改'}
++    
++    try:
++        db.session.commit()
++        return {'success': True, 'message': '用户信息更新成功', 'user': user.to_dict()}
++    except Exception as e:
++        db.session.rollback()
++        print(f"更新用户信息失败: {str(e)}")
++        return {'success': False, 'message': '更新用户信息失败，请稍后重试'}
+\ No newline at end of file
+diff --git a/work/src/views/QMathify.vue b/work/src/views/QMathify.vue
+index 7826c67..9c544e8 100644
+--- a/work/src/views/QMathify.vue
++++ b/work/src/views/QMathify.vue
+@@ -83,12 +83,12 @@
+           <el-button type="primary" class="bo08" @mouseenter="handleButtonEnter" @mouseleave="handleButtonLeave" @click="togglePopover">
+             <div class="button-content">
+               <img alt="per" src="@/imgs/person.png" class="per-icon" />
+-              <span>个人信息</span>
++              <span>{{ currentUser ? currentUser.username : '个人信息' }}</span>
+             </div>
+           </el-button>
+         </div>
+         <div v-if="showPopover" class="popover" @mouseenter="handlePopoverEnter" @mouseleave="handlePopoverLeave">
+-          <el-button type="text" class="xiu">
++          <el-button type="text" class="xiu" @click="showProfileDialog = true">
+             <img alt="pen" src="@/imgs/pen.png" class="pen" />
+             修改个人信息</el-button>
+           <el-button type="text" @click="clearAllDialogs" class="shan">
+@@ -104,6 +104,36 @@
+             <img alt="loginout" src="@/imgs/loginout.png" class="loginout" />
+             退出登录</el-button>
+         </div>
++        <el-dialog
++          v-model="showProfileDialog"
++          title="修改个人信息"
++          width="30%"
++          :close-on-click-modal="false"
++        >
++          <el-form :model="userForm" ref="userFormRef" label-width="100px" :rules="userFormRules">
++            <el-form-item label="用户名" prop="username">
++              <el-input v-model="userForm.username" placeholder="请输入新用户名"></el-input>
++            </el-form-item>
++            <el-form-item label="邮箱" prop="email">
++              <el-input v-model="userForm.email" placeholder="请输入新邮箱"></el-input>
++            </el-form-item>
++            <el-form-item label="当前密码" prop="current_password">
++              <el-input v-model="userForm.current_password" type="password" placeholder="请输入当前密码" show-password></el-input>
++            </el-form-item>
++            <el-form-item label="新密码" prop="new_password">
++              <el-input v-model="userForm.new_password" type="password" placeholder="请输入新密码（可选）" show-password></el-input>
++            </el-form-item>
++            <el-form-item label="确认新密码" prop="confirm_password">
++              <el-input v-model="userForm.confirm_password" type="password" placeholder="请确认新密码" show-password></el-input>
++            </el-form-item>
++          </el-form>
++          <template #footer>
++            <span class="dialog-footer">
++              <el-button @click="showProfileDialog = false">取消</el-button>
++              <el-button type="primary" @click="updateUserProfile" :loading="updating">确认</el-button>
++            </span>
++          </template>
++        </el-dialog>
+       </div>
+     </div>
+ 
+@@ -120,8 +150,9 @@
+ </template>
+ 
+ <script setup>
+-import { ref, onMounted } from 'vue';
+-import { ElMessage } from "element-plus";
++import { ref, onMounted, onUnmounted, reactive } from 'vue';
++const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++import { ElMessage, ElForm } from "element-plus";
+ import { Memo, Edit, Delete } from '@element-plus/icons-vue'; // 引入图标
+ import ai from './ai.vue';
+ import { useRouter } from 'vue-router'; // 导入路由
+@@ -139,6 +170,103 @@ const isDialogListVisible = ref(false); // 对话列表显示状态
+ const showPopover = ref(false); // 悬浮卡片显示状态
+ const isPopoverHovered = ref(false); // 悬浮卡片悬停状态
+ const isButtonHovered = ref(false); // 个人信息按钮悬停状态
++const currentUser = ref(null);
++const showProfileDialog = ref(false);
++const updating = ref(false);
++const userFormRef = ref(null);
++// 用户表单数据
++const userForm = reactive({
++  username: '',
++  email: '',
++  current_password: '',
++  new_password: '',
++  confirm_password: ''
++});
++
++// 表单验证规则
++const userFormRules = {
++  username: [
++    { required: true, message: '请输入用户名', trigger: 'blur' },
++    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
++  ],
++  email: [
++    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
++    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
++  ],
++  current_password: [
++    { required: true, message: '请输入当前密码', trigger: 'blur' }
++  ],
++  confirm_password: [
++    { validator: (rule, value, callback) => {
++      if (userForm.new_password && value !== userForm.new_password) {
++        callback(new Error('两次输入密码不一致'));
++      } else {
++        callback();
++      }
++    }, trigger: 'blur' }
++  ]
++};
++
++// 加载用户信息
++const loadUserInfo = () => {
++  const userJson = localStorage.getItem('user');
++  if (userJson) {
++    try {
++      currentUser.value = JSON.parse(userJson);
++      // 初始化表单数据
++      userForm.username = currentUser.value.username;
++      userForm.email = currentUser.value.email;
++    } catch (error) {
++      console.error('解析用户信息失败:', error);
++    }
++  }
++};
++// 更新用户信息
++const updateUserProfile = async () => {
++  if (!userFormRef.value) return;
++  
++  await userFormRef.value.validate(async (valid) => {
++    if (!valid) return;
++    
++    // 如果没有输入新密码，则移除相关字段
++    const updateData = { ...userForm };
++    if (!updateData.new_password) {
++      delete updateData.new_password;
++    }
++    // 移除确认密码字段，后端不需要
++    delete updateData.confirm_password;
++    
++    updating.value = true;
++    try {
++      const response = await axios.post(`${API_BASE_URL}/update-profile`, updateData);
++      
++      if (response.data.success) {
++        ElMessage.success('个人信息更新成功');
++        
++        // 更新本地存储的用户信息
++        localStorage.setItem('user', JSON.stringify(response.data.user));
++        currentUser.value = response.data.user;
++        
++        // 清空密码字段
++        userForm.current_password = '';
++        userForm.new_password = '';
++        userForm.confirm_password = '';
++        
++        // 关闭对话框
++        showProfileDialog.value = false;
++      } else {
++        ElMessage.error(response.data.message || '更新失败');
++      }
++    } catch (error) {
++      console.error('更新用户信息失败:', error);
++      const errorMsg = error.response?.data?.message || '更新失败，请稍后重试';
++      ElMessage.error(errorMsg);
++    } finally {
++      updating.value = false;
++    }
++  });
++};
++
+ const logout = () => {
+   try {
+     // 清除所有认证信息
+@@ -400,6 +528,29 @@ const handlePopoverLeave = () => {
+ const togglePopover = () => {
+   showPopover.value = !showPopover.value;
+ };
++onMounted(() => {
++  // 设置拦截器并保存引用以便之后移除
++  const interceptorId = axios.interceptors.response.use(
++    response => response,
++    error => {
++      if (error.response && error.response.status === 401) {
++        // 清除认证信息
++        localStorage.removeItem('token');
++        localStorage.removeItem('user');
++        localStorage.removeItem('currentDialogId');
++        
++        ElMessage.error('无效或过期的令牌，请重新登录');
++        router.push('/login');
++      }
++      return Promise.reject(error);
++    }
++  );
++  
++  // 组件卸载时移除拦截器
++  onUnmounted(() => {
++    axios.interceptors.response.eject(interceptorId);
++  });
++});
+ onMounted(() => {
+   // 在组件挂载时检查用户是否已登录
+   const token = localStorage.getItem('token');
+@@ -408,7 +559,7 @@ onMounted(() => {
+     router.push('/login');
+     return;
+   }
+-  
++  loadUserInfo(); // 加载用户信息
+   loadRecentDialogs(); // 加载近期对话列表
+ });
+ </script>
+@@ -655,6 +806,26 @@ box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
+   width: 0; /* 隐藏垂直滚动条 */
+   height: 0; /* 隐藏水平滚动条 */
+ }
++/* 对话框样式 */
++.el-dialog__header {
++  font-weight: bold;
++  color: rgba(111, 58, 246, 1);
++}
++
++.el-form-item__label {
++  font-weight: 500;
++}
++
++/* 确认按钮样式，与系统风格一致 */
++.el-button--primary {
++  background: linear-gradient(135deg, rgba(170, 239, 242, 1) 0%, rgba(136, 191, 242, 0.95) 32.87%, rgba(162, 169, 252, 0.89) 74.12%, rgba(151, 107, 255, 0.8) 100%);
++  border: none;
++}
++
++/* 输入框聚焦时的样式 */
++.el-input__inner:focus {
++  border-color: rgba(151, 107, 255, 0.8);
++}
+ /* 对话项样式调整 */
+ .dialog-item {
+   display: flex;
+@@ -858,7 +1029,6 @@ html {
+ .bo04 {
+   left: 8px;
+   bottom: 40px;
+-  background: rgba(237, 230, 255, 0.81);
+ }
+ 
+ .bo05 {
+-- 
+2.39.5 (Apple Git-154)
+

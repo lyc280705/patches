@@ -1,0 +1,61 @@
+From e47886619dd0ce8bf31b9dbdf805c3b34b444eaf Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Wed, 5 Mar 2025 16:40:33 +0800
+Subject: [PATCH 36/85] =?UTF-8?q?style:search-suggestions=E5=B1=85?=
+ =?UTF-8?q?=E4=B8=AD?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index c66568c..0b458bb 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -177,10 +177,10 @@
+           <div v-else-if="hasSearched && !searching" class="no-results">
+             未找到匹配的对话记录
+             <div class="search-suggestion">
+-              建议尝试：
++              <p>搜索建议：</p>
+               <ul>
++                <li>使用对话标题搜索</li>
+                 <li>使用更简短的关键词</li>
+-                <li>尝试使用对话中的部分关键词</li>
+                 <li>检查拼写是否正确</li>
+               </ul>
+             </div>
+@@ -1032,15 +1032,25 @@ body, html {
+   margin-top: 10px;
+   font-size: 13px;
+   color: #606266;
++  text-align: left;
++}
++.search-suggestion p {
++  margin-top: 0;
++  margin-bottom: 8px;
++  font-weight: 500;
++  color: rgba(111, 58, 246, 0.8);
++  text-align: left;
+ }
+-
+ .search-suggestion ul {
+   padding-left: 20px;
+   margin-top: 5px;
++  margin-bottom: 0;
++  text-align: left;
+ }
+ 
+ .search-suggestion li {
+-  margin-bottom: 3px;
++  margin-bottom: 5px;
++  text-align: left;
+ }
+ .no-results {
+   margin-top: 16px;
+-- 
+2.39.5 (Apple Git-154)
+

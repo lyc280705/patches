@@ -1,0 +1,4177 @@
+From e2aa576e5587b1b4765592aeac65217709c5c9e9 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 28 Feb 2025 00:48:52 +0800
+Subject: [PATCH 05/85] =?UTF-8?q?edit-=E5=AE=8C=E6=88=90=E5=88=9D=E5=A7=8B?=
+ =?UTF-8?q?=E4=BF=AE=E6=94=B9=EF=BC=8Cbug=E8=BE=83=E5=A4=9A?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .DS_Store                   |  Bin 6148 -> 6148 bytes
+ work/package-lock.json      | 2073 ++++++++++++++++++++++++++++++++---
+ work/package.json           |    1 +
+ work/src/api/dify.js        |  143 ++-
+ work/src/views/QMathify.vue |  272 +++--
+ work/src/views/ai.vue       |  755 +++++++++++--
+ 6 files changed, 2871 insertions(+), 373 deletions(-)
+
+diff --git a/.DS_Store b/.DS_Store
+index 321ba579f17811086ac7b474777030dd3820ffab..2e4cb22047e83e6d7c4643852664cb00e9c7ee18 100644
+GIT binary patch
+delta 110
+zcmZoMXfc=|&Zs)EP}q!-fq{XAp`0O~p@<<nr8qe!DL+34BnSjd5Q+iB1!4gPxctV0
+sZtN2;By48q5a3``-FWaj^JIPzMNW{y1dyi5COpcU6GWCUPi$ZT0QRC72><{9
+
+delta 135
+zcmZoMXfc=|&e%3FQH+&?fq{WzVxovF6OaJ{AexbZL4bjwgdv}yAf-4tCn<koqPh%7
+zf}O#IA(f$+AsbmTKZjwWj`YTKSN6#UA}pJ^Ie0i2+cqYCXP(S2q9_W|rU1kVKnygO
+O;Q$abY<3jc&kO+j3mTmO
+
+diff --git a/work/package-lock.json b/work/package-lock.json
+index 29fc8cf..ab52632 100644
+--- a/work/package-lock.json
++++ b/work/package-lock.json
+@@ -27,6 +27,7 @@
+         "eslint-plugin-vue": "^9.32.0",
+         "jiti": "^2.4.2",
+         "jsdom": "^26.0.0",
++        "npm-run-all": "^4.1.5",
+         "npm-run-all2": "^7.0.2",
+         "prettier": "^3.5.1",
+         "typescript": "~5.7.3",
+@@ -705,9 +706,9 @@
+       }
+     },
+     "node_modules/@esbuild/aix-ppc64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.24.2.tgz",
+-      "integrity": "sha512-thpVCb/rhxE/BnMLQ7GReQLLN8q9qbHmI55F4489/ByVg2aQaQ6kbcLb6FHkocZzQhxc4gx0sCk0tJkKBFzDhA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.25.0.tgz",
++      "integrity": "sha512-O7vun9Sf8DFjH2UtqK8Ku3LkquL9SZL8OLY1T5NZkA34+wG3OQF7cl4Ql8vdNzM6fzBbYfLaiRLIOZ+2FOCgBQ==",
+       "cpu": [
+         "ppc64"
+       ],
+@@ -722,9 +723,9 @@
+       }
+     },
+     "node_modules/@esbuild/android-arm": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.24.2.tgz",
+-      "integrity": "sha512-tmwl4hJkCfNHwFB3nBa8z1Uy3ypZpxqxfTQOcHX+xRByyYgunVbZ9MzUUfb0RxaHIMnbHagwAxuTL+tnNM+1/Q==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.25.0.tgz",
++      "integrity": "sha512-PTyWCYYiU0+1eJKmw21lWtC+d08JDZPQ5g+kFyxP0V+es6VPPSUhM6zk8iImp2jbV6GwjX4pap0JFbUQN65X1g==",
+       "cpu": [
+         "arm"
+       ],
+@@ -739,9 +740,9 @@
+       }
+     },
+     "node_modules/@esbuild/android-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.24.2.tgz",
+-      "integrity": "sha512-cNLgeqCqV8WxfcTIOeL4OAtSmL8JjcN6m09XIgro1Wi7cF4t/THaWEa7eL5CMoMBdjoHOTh/vwTO/o2TRXIyzg==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.25.0.tgz",
++      "integrity": "sha512-grvv8WncGjDSyUBjN9yHXNt+cq0snxXbDxy5pJtzMKGmmpPxeAmAhWxXI+01lU5rwZomDgD3kJwulEnhTRUd6g==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -756,9 +757,9 @@
+       }
+     },
+     "node_modules/@esbuild/android-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.24.2.tgz",
+-      "integrity": "sha512-B6Q0YQDqMx9D7rvIcsXfmJfvUYLoP722bgfBlO5cGvNVb5V/+Y7nhBE3mHV9OpxBf4eAS2S68KZztiPaWq4XYw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.25.0.tgz",
++      "integrity": "sha512-m/ix7SfKG5buCnxasr52+LI78SQ+wgdENi9CqyCXwjVR2X4Jkz+BpC3le3AoBPYTC9NHklwngVXvbJ9/Akhrfg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -773,9 +774,9 @@
+       }
+     },
+     "node_modules/@esbuild/darwin-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.24.2.tgz",
+-      "integrity": "sha512-kj3AnYWc+CekmZnS5IPu9D+HWtUI49hbnyqk0FLEJDbzCIQt7hg7ucF1SQAilhtYpIujfaHr6O0UHlzzSPdOeA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.0.tgz",
++      "integrity": "sha512-mVwdUb5SRkPayVadIOI78K7aAnPamoeFR2bT5nszFUZ9P8UpK4ratOdYbZZXYSqPKMHfS1wdHCJk1P1EZpRdvw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -790,9 +791,9 @@
+       }
+     },
+     "node_modules/@esbuild/darwin-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.24.2.tgz",
+-      "integrity": "sha512-WeSrmwwHaPkNR5H3yYfowhZcbriGqooyu3zI/3GGpF8AyUdsrrP0X6KumITGA9WOyiJavnGZUwPGvxvwfWPHIA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.25.0.tgz",
++      "integrity": "sha512-DgDaYsPWFTS4S3nWpFcMn/33ZZwAAeAFKNHNa1QN0rI4pUjgqf0f7ONmXf6d22tqTY+H9FNdgeaAa+YIFUn2Rg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -807,9 +808,9 @@
+       }
+     },
+     "node_modules/@esbuild/freebsd-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.24.2.tgz",
+-      "integrity": "sha512-UN8HXjtJ0k/Mj6a9+5u6+2eZ2ERD7Edt1Q9IZiB5UZAIdPnVKDoG7mdTVGhHJIeEml60JteamR3qhsr1r8gXvg==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.25.0.tgz",
++      "integrity": "sha512-VN4ocxy6dxefN1MepBx/iD1dH5K8qNtNe227I0mnTRjry8tj5MRk4zprLEdG8WPyAPb93/e4pSgi1SoHdgOa4w==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -824,9 +825,9 @@
+       }
+     },
+     "node_modules/@esbuild/freebsd-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.24.2.tgz",
+-      "integrity": "sha512-TvW7wE/89PYW+IevEJXZ5sF6gJRDY/14hyIGFXdIucxCsbRmLUcjseQu1SyTko+2idmCw94TgyaEZi9HUSOe3Q==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.25.0.tgz",
++      "integrity": "sha512-mrSgt7lCh07FY+hDD1TxiTyIHyttn6vnjesnPoVDNmDfOmggTLXRv8Id5fNZey1gl/V2dyVK1VXXqVsQIiAk+A==",
+       "cpu": [
+         "x64"
+       ],
+@@ -841,9 +842,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-arm": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.24.2.tgz",
+-      "integrity": "sha512-n0WRM/gWIdU29J57hJyUdIsk0WarGd6To0s+Y+LwvlC55wt+GT/OgkwoXCXvIue1i1sSNWblHEig00GBWiJgfA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.25.0.tgz",
++      "integrity": "sha512-vkB3IYj2IDo3g9xX7HqhPYxVkNQe8qTK55fraQyTzTX/fxaDtXiEnavv9geOsonh2Fd2RMB+i5cbhu2zMNWJwg==",
+       "cpu": [
+         "arm"
+       ],
+@@ -858,9 +859,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.24.2.tgz",
+-      "integrity": "sha512-7HnAD6074BW43YvvUmE/35Id9/NB7BeX5EoNkK9obndmZBUk8xmJJeU7DwmUeN7tkysslb2eSl6CTrYz6oEMQg==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.25.0.tgz",
++      "integrity": "sha512-9QAQjTWNDM/Vk2bgBl17yWuZxZNQIF0OUUuPZRKoDtqF2k4EtYbpyiG5/Dk7nqeK6kIJWPYldkOcBqjXjrUlmg==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -875,9 +876,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-ia32": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.24.2.tgz",
+-      "integrity": "sha512-sfv0tGPQhcZOgTKO3oBE9xpHuUqguHvSo4jl+wjnKwFpapx+vUDcawbwPNuBIAYdRAvIDBfZVvXprIj3HA+Ugw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.25.0.tgz",
++      "integrity": "sha512-43ET5bHbphBegyeqLb7I1eYn2P/JYGNmzzdidq/w0T8E2SsYL1U6un2NFROFRg1JZLTzdCoRomg8Rvf9M6W6Gg==",
+       "cpu": [
+         "ia32"
+       ],
+@@ -892,9 +893,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-loong64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.24.2.tgz",
+-      "integrity": "sha512-CN9AZr8kEndGooS35ntToZLTQLHEjtVB5n7dl8ZcTZMonJ7CCfStrYhrzF97eAecqVbVJ7APOEe18RPI4KLhwQ==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.25.0.tgz",
++      "integrity": "sha512-fC95c/xyNFueMhClxJmeRIj2yrSMdDfmqJnyOY4ZqsALkDrrKJfIg5NTMSzVBr5YW1jf+l7/cndBfP3MSDpoHw==",
+       "cpu": [
+         "loong64"
+       ],
+@@ -909,9 +910,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-mips64el": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.24.2.tgz",
+-      "integrity": "sha512-iMkk7qr/wl3exJATwkISxI7kTcmHKE+BlymIAbHO8xanq/TjHaaVThFF6ipWzPHryoFsesNQJPE/3wFJw4+huw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.25.0.tgz",
++      "integrity": "sha512-nkAMFju7KDW73T1DdH7glcyIptm95a7Le8irTQNO/qtkoyypZAnjchQgooFUDQhNAy4iu08N79W4T4pMBwhPwQ==",
+       "cpu": [
+         "mips64el"
+       ],
+@@ -926,9 +927,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-ppc64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.24.2.tgz",
+-      "integrity": "sha512-shsVrgCZ57Vr2L8mm39kO5PPIb+843FStGt7sGGoqiiWYconSxwTiuswC1VJZLCjNiMLAMh34jg4VSEQb+iEbw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.25.0.tgz",
++      "integrity": "sha512-NhyOejdhRGS8Iwv+KKR2zTq2PpysF9XqY+Zk77vQHqNbo/PwZCzB5/h7VGuREZm1fixhs4Q/qWRSi5zmAiO4Fw==",
+       "cpu": [
+         "ppc64"
+       ],
+@@ -943,9 +944,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-riscv64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.24.2.tgz",
+-      "integrity": "sha512-4eSFWnU9Hhd68fW16GD0TINewo1L6dRrB+oLNNbYyMUAeOD2yCK5KXGK1GH4qD/kT+bTEXjsyTCiJGHPZ3eM9Q==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.25.0.tgz",
++      "integrity": "sha512-5S/rbP5OY+GHLC5qXp1y/Mx//e92L1YDqkiBbO9TQOvuFXM+iDqUNG5XopAnXoRH3FjIUDkeGcY1cgNvnXp/kA==",
+       "cpu": [
+         "riscv64"
+       ],
+@@ -960,9 +961,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-s390x": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.24.2.tgz",
+-      "integrity": "sha512-S0Bh0A53b0YHL2XEXC20bHLuGMOhFDO6GN4b3YjRLK//Ep3ql3erpNcPlEFed93hsQAjAQDNsvcK+hV90FubSw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.25.0.tgz",
++      "integrity": "sha512-XM2BFsEBz0Fw37V0zU4CXfcfuACMrppsMFKdYY2WuTS3yi8O1nFOhil/xhKTmE1nPmVyvQJjJivgDT+xh8pXJA==",
+       "cpu": [
+         "s390x"
+       ],
+@@ -977,9 +978,9 @@
+       }
+     },
+     "node_modules/@esbuild/linux-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.24.2.tgz",
+-      "integrity": "sha512-8Qi4nQcCTbLnK9WoMjdC9NiTG6/E38RNICU6sUNqK0QFxCYgoARqVqxdFmWkdonVsvGqWhmm7MO0jyTqLqwj0Q==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.25.0.tgz",
++      "integrity": "sha512-9yl91rHw/cpwMCNytUDxwj2XjFpxML0y9HAOH9pNVQDpQrBxHy01Dx+vaMu0N1CKa/RzBD2hB4u//nfc+Sd3Cw==",
+       "cpu": [
+         "x64"
+       ],
+@@ -994,9 +995,9 @@
+       }
+     },
+     "node_modules/@esbuild/netbsd-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.24.2.tgz",
+-      "integrity": "sha512-wuLK/VztRRpMt9zyHSazyCVdCXlpHkKm34WUyinD2lzK07FAHTq0KQvZZlXikNWkDGoT6x3TD51jKQ7gMVpopw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.25.0.tgz",
++      "integrity": "sha512-RuG4PSMPFfrkH6UwCAqBzauBWTygTvb1nxWasEJooGSJ/NwRw7b2HOwyRTQIU97Hq37l3npXoZGYMy3b3xYvPw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1011,9 +1012,9 @@
+       }
+     },
+     "node_modules/@esbuild/netbsd-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.24.2.tgz",
+-      "integrity": "sha512-VefFaQUc4FMmJuAxmIHgUmfNiLXY438XrL4GDNV1Y1H/RW3qow68xTwjZKfj/+Plp9NANmzbH5R40Meudu8mmw==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.25.0.tgz",
++      "integrity": "sha512-jl+qisSB5jk01N5f7sPCsBENCOlPiS/xptD5yxOx2oqQfyourJwIKLRA2yqWdifj3owQZCL2sn6o08dBzZGQzA==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1028,9 +1029,9 @@
+       }
+     },
+     "node_modules/@esbuild/openbsd-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.24.2.tgz",
+-      "integrity": "sha512-YQbi46SBct6iKnszhSvdluqDmxCJA+Pu280Av9WICNwQmMxV7nLRHZfjQzwbPs3jeWnuAhE9Jy0NrnJ12Oz+0A==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.25.0.tgz",
++      "integrity": "sha512-21sUNbq2r84YE+SJDfaQRvdgznTD8Xc0oc3p3iW/a1EVWeNj/SdUCbm5U0itZPQYRuRTW20fPMWMpcrciH2EJw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1045,9 +1046,9 @@
+       }
+     },
+     "node_modules/@esbuild/openbsd-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.24.2.tgz",
+-      "integrity": "sha512-+iDS6zpNM6EnJyWv0bMGLWSWeXGN/HTaF/LXHXHwejGsVi+ooqDfMCCTerNFxEkM3wYVcExkeGXNqshc9iMaOA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.25.0.tgz",
++      "integrity": "sha512-2gwwriSMPcCFRlPlKx3zLQhfN/2WjJ2NSlg5TKLQOJdV0mSxIcYNTMhk3H3ulL/cak+Xj0lY1Ym9ysDV1igceg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1062,9 +1063,9 @@
+       }
+     },
+     "node_modules/@esbuild/sunos-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.24.2.tgz",
+-      "integrity": "sha512-hTdsW27jcktEvpwNHJU4ZwWFGkz2zRJUz8pvddmXPtXDzVKTTINmlmga3ZzwcuMpUvLw7JkLy9QLKyGpD2Yxig==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.25.0.tgz",
++      "integrity": "sha512-bxI7ThgLzPrPz484/S9jLlvUAHYMzy6I0XiU1ZMeAEOBcS0VePBFxh1JjTQt3Xiat5b6Oh4x7UC7IwKQKIJRIg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1079,9 +1080,9 @@
+       }
+     },
+     "node_modules/@esbuild/win32-arm64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.24.2.tgz",
+-      "integrity": "sha512-LihEQ2BBKVFLOC9ZItT9iFprsE9tqjDjnbulhHoFxYQtQfai7qfluVODIYxt1PgdoyQkz23+01rzwNwYfutxUQ==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.25.0.tgz",
++      "integrity": "sha512-ZUAc2YK6JW89xTbXvftxdnYy3m4iHIkDtK3CLce8wg8M2L+YZhIvO1DKpxrd0Yr59AeNNkTiic9YLf6FTtXWMw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1096,9 +1097,9 @@
+       }
+     },
+     "node_modules/@esbuild/win32-ia32": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.24.2.tgz",
+-      "integrity": "sha512-q+iGUwfs8tncmFC9pcnD5IvRHAzmbwQ3GPS5/ceCyHdjXubwQWI12MKWSNSMYLJMq23/IUCvJMS76PDqXe1fxA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.25.0.tgz",
++      "integrity": "sha512-eSNxISBu8XweVEWG31/JzjkIGbGIJN/TrRoiSVZwZ6pkC6VX4Im/WV2cz559/TXLcYbcrDN8JtKgd9DJVIo8GA==",
+       "cpu": [
+         "ia32"
+       ],
+@@ -1113,9 +1114,9 @@
+       }
+     },
+     "node_modules/@esbuild/win32-x64": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.24.2.tgz",
+-      "integrity": "sha512-7VTgWzgMGvup6aSqDPLiW5zHaxYJGTO4OokMjIlrCtf+VpEL+cXKtCvg723iguPYI5oaUNdS+/V7OU2gvXVWEg==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.25.0.tgz",
++      "integrity": "sha512-ZENoHJBxA20C2zFzh6AI4fT6RraMzjYw4xKWemRTRmRVtN9c5DcH9r/f2ihEkMjOW5eGgrwCslG/+Y/3bL+DHQ==",
+       "cpu": [
+         "x64"
+       ],
+@@ -2859,6 +2860,45 @@
+       "dev": true,
+       "license": "Python-2.0"
+     },
++    "node_modules/array-buffer-byte-length": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/array-buffer-byte-length/-/array-buffer-byte-length-1.0.2.tgz",
++      "integrity": "sha512-LHE+8BuR7RYGDKvnrmcuSq3tDcKv9OFEXQt/HpbZhY7V6h0zlUXutnAD82GiFx9rdieCMjkvtcsPqBwgUl1Iiw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "is-array-buffer": "^3.0.5"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/arraybuffer.prototype.slice": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/arraybuffer.prototype.slice/-/arraybuffer.prototype.slice-1.0.4.tgz",
++      "integrity": "sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "array-buffer-byte-length": "^1.0.1",
++        "call-bind": "^1.0.8",
++        "define-properties": "^1.2.1",
++        "es-abstract": "^1.23.5",
++        "es-errors": "^1.3.0",
++        "get-intrinsic": "^1.2.6",
++        "is-array-buffer": "^3.0.4"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/assertion-error": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/assertion-error/-/assertion-error-2.0.1.tgz",
+@@ -2869,6 +2909,16 @@
+         "node": ">=12"
+       }
+     },
++    "node_modules/async-function": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/async-function/-/async-function-1.0.0.tgz",
++      "integrity": "sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/async-validator": {
+       "version": "4.2.5",
+       "resolved": "https://registry.npmjs.org/async-validator/-/async-validator-4.2.5.tgz",
+@@ -2882,6 +2932,22 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/available-typed-arrays": {
++      "version": "1.0.7",
++      "resolved": "https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.7.tgz",
++      "integrity": "sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "possible-typed-array-names": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/balanced-match": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
+@@ -3000,6 +3066,25 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/call-bind": {
++      "version": "1.0.8",
++      "resolved": "https://registry.npmjs.org/call-bind/-/call-bind-1.0.8.tgz",
++      "integrity": "sha512-oKlSFMcMwpUg2ednkhQ454wfWiU/ul3CkJe/PEHcTKuiX6RpbehUiFMXu13HalGZxfUwCQzZG747YXBn1im9ww==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind-apply-helpers": "^1.0.0",
++        "es-define-property": "^1.0.0",
++        "get-intrinsic": "^1.2.4",
++        "set-function-length": "^1.2.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/call-bind-apply-helpers": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+@@ -3014,6 +3099,23 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/call-bound": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.3.tgz",
++      "integrity": "sha512-YTd+6wGlNlPxSuri7Y6X8tY2dmm12UMH66RpKMhiX6rsk5wXXnYgbUcOt8kiS31/AjfoTOvCsE+w8nZQLQnzHA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind-apply-helpers": "^1.0.1",
++        "get-intrinsic": "^1.2.6"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/callsites": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz",
+@@ -3279,6 +3381,60 @@
+         "node": ">=18"
+       }
+     },
++    "node_modules/data-view-buffer": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/data-view-buffer/-/data-view-buffer-1.0.2.tgz",
++      "integrity": "sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "es-errors": "^1.3.0",
++        "is-data-view": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/data-view-byte-length": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/data-view-byte-length/-/data-view-byte-length-1.0.2.tgz",
++      "integrity": "sha512-tuhGbE6CfTM9+5ANGf+oQb72Ky/0+s3xKUpHvShfiz2RxMFgFPjsXuRLBVMtvMs15awe45SRb83D6wH4ew6wlQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "es-errors": "^1.3.0",
++        "is-data-view": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/inspect-js"
++      }
++    },
++    "node_modules/data-view-byte-offset": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/data-view-byte-offset/-/data-view-byte-offset-1.0.1.tgz",
++      "integrity": "sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "es-errors": "^1.3.0",
++        "is-data-view": "^1.0.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/dayjs": {
+       "version": "1.11.13",
+       "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.11.13.tgz",
+@@ -3364,6 +3520,24 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/define-data-property": {
++      "version": "1.1.4",
++      "resolved": "https://registry.npmjs.org/define-data-property/-/define-data-property-1.1.4.tgz",
++      "integrity": "sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "es-define-property": "^1.0.0",
++        "es-errors": "^1.3.0",
++        "gopd": "^1.0.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/define-lazy-prop": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/define-lazy-prop/-/define-lazy-prop-3.0.0.tgz",
+@@ -3377,6 +3551,24 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/define-properties": {
++      "version": "1.2.1",
++      "resolved": "https://registry.npmjs.org/define-properties/-/define-properties-1.2.1.tgz",
++      "integrity": "sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "define-data-property": "^1.0.1",
++        "has-property-descriptors": "^1.0.0",
++        "object-keys": "^1.1.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/delayed-stream": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz",
+@@ -3496,6 +3688,16 @@
+         "url": "https://github.com/fb55/entities?sponsor=1"
+       }
+     },
++    "node_modules/error-ex": {
++      "version": "1.3.2",
++      "resolved": "https://registry.npmjs.org/error-ex/-/error-ex-1.3.2.tgz",
++      "integrity": "sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "is-arrayish": "^0.2.1"
++      }
++    },
+     "node_modules/error-stack-parser-es": {
+       "version": "0.1.5",
+       "resolved": "https://registry.npmjs.org/error-stack-parser-es/-/error-stack-parser-es-0.1.5.tgz",
+@@ -3506,6 +3708,72 @@
+         "url": "https://github.com/sponsors/antfu"
+       }
+     },
++    "node_modules/es-abstract": {
++      "version": "1.23.9",
++      "resolved": "https://registry.npmjs.org/es-abstract/-/es-abstract-1.23.9.tgz",
++      "integrity": "sha512-py07lI0wjxAC/DcfK1S6G7iANonniZwTISvdPzk9hzeH0IZIshbuuFxLIU96OyF89Yb9hiqWn8M/bY83KY5vzA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "array-buffer-byte-length": "^1.0.2",
++        "arraybuffer.prototype.slice": "^1.0.4",
++        "available-typed-arrays": "^1.0.7",
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.3",
++        "data-view-buffer": "^1.0.2",
++        "data-view-byte-length": "^1.0.2",
++        "data-view-byte-offset": "^1.0.1",
++        "es-define-property": "^1.0.1",
++        "es-errors": "^1.3.0",
++        "es-object-atoms": "^1.0.0",
++        "es-set-tostringtag": "^2.1.0",
++        "es-to-primitive": "^1.3.0",
++        "function.prototype.name": "^1.1.8",
++        "get-intrinsic": "^1.2.7",
++        "get-proto": "^1.0.0",
++        "get-symbol-description": "^1.1.0",
++        "globalthis": "^1.0.4",
++        "gopd": "^1.2.0",
++        "has-property-descriptors": "^1.0.2",
++        "has-proto": "^1.2.0",
++        "has-symbols": "^1.1.0",
++        "hasown": "^2.0.2",
++        "internal-slot": "^1.1.0",
++        "is-array-buffer": "^3.0.5",
++        "is-callable": "^1.2.7",
++        "is-data-view": "^1.0.2",
++        "is-regex": "^1.2.1",
++        "is-shared-array-buffer": "^1.0.4",
++        "is-string": "^1.1.1",
++        "is-typed-array": "^1.1.15",
++        "is-weakref": "^1.1.0",
++        "math-intrinsics": "^1.1.0",
++        "object-inspect": "^1.13.3",
++        "object-keys": "^1.1.1",
++        "object.assign": "^4.1.7",
++        "own-keys": "^1.0.1",
++        "regexp.prototype.flags": "^1.5.3",
++        "safe-array-concat": "^1.1.3",
++        "safe-push-apply": "^1.0.0",
++        "safe-regex-test": "^1.1.0",
++        "set-proto": "^1.0.0",
++        "string.prototype.trim": "^1.2.10",
++        "string.prototype.trimend": "^1.0.9",
++        "string.prototype.trimstart": "^1.0.8",
++        "typed-array-buffer": "^1.0.3",
++        "typed-array-byte-length": "^1.0.3",
++        "typed-array-byte-offset": "^1.0.4",
++        "typed-array-length": "^1.0.7",
++        "unbox-primitive": "^1.1.0",
++        "which-typed-array": "^1.1.18"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/es-define-property": {
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
+@@ -3562,10 +3830,28 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/es-to-primitive": {
++      "version": "1.3.0",
++      "resolved": "https://registry.npmjs.org/es-to-primitive/-/es-to-primitive-1.3.0.tgz",
++      "integrity": "sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "is-callable": "^1.2.7",
++        "is-date-object": "^1.0.5",
++        "is-symbol": "^1.0.4"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/esbuild": {
+-      "version": "0.24.2",
+-      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.24.2.tgz",
+-      "integrity": "sha512-+9egpBW8I3CD5XPe0n6BfT5fxLzxrlDzqydF3aviG+9ni1lDC/OvMHcxqEFV0+LANZG5R1bFMWfUrjVsdwxJvA==",
++      "version": "0.25.0",
++      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.0.tgz",
++      "integrity": "sha512-BXq5mqc8ltbaN34cDqWuYKyNhX8D/Z0J1xdtdQ8UcIIIyJyz+ZMKUt58tF3SrZ85jcfN/PZYhjR5uDQAYNVbuw==",
+       "dev": true,
+       "hasInstallScript": true,
+       "license": "MIT",
+@@ -3576,31 +3862,31 @@
+         "node": ">=18"
+       },
+       "optionalDependencies": {
+-        "@esbuild/aix-ppc64": "0.24.2",
+-        "@esbuild/android-arm": "0.24.2",
+-        "@esbuild/android-arm64": "0.24.2",
+-        "@esbuild/android-x64": "0.24.2",
+-        "@esbuild/darwin-arm64": "0.24.2",
+-        "@esbuild/darwin-x64": "0.24.2",
+-        "@esbuild/freebsd-arm64": "0.24.2",
+-        "@esbuild/freebsd-x64": "0.24.2",
+-        "@esbuild/linux-arm": "0.24.2",
+-        "@esbuild/linux-arm64": "0.24.2",
+-        "@esbuild/linux-ia32": "0.24.2",
+-        "@esbuild/linux-loong64": "0.24.2",
+-        "@esbuild/linux-mips64el": "0.24.2",
+-        "@esbuild/linux-ppc64": "0.24.2",
+-        "@esbuild/linux-riscv64": "0.24.2",
+-        "@esbuild/linux-s390x": "0.24.2",
+-        "@esbuild/linux-x64": "0.24.2",
+-        "@esbuild/netbsd-arm64": "0.24.2",
+-        "@esbuild/netbsd-x64": "0.24.2",
+-        "@esbuild/openbsd-arm64": "0.24.2",
+-        "@esbuild/openbsd-x64": "0.24.2",
+-        "@esbuild/sunos-x64": "0.24.2",
+-        "@esbuild/win32-arm64": "0.24.2",
+-        "@esbuild/win32-ia32": "0.24.2",
+-        "@esbuild/win32-x64": "0.24.2"
++        "@esbuild/aix-ppc64": "0.25.0",
++        "@esbuild/android-arm": "0.25.0",
++        "@esbuild/android-arm64": "0.25.0",
++        "@esbuild/android-x64": "0.25.0",
++        "@esbuild/darwin-arm64": "0.25.0",
++        "@esbuild/darwin-x64": "0.25.0",
++        "@esbuild/freebsd-arm64": "0.25.0",
++        "@esbuild/freebsd-x64": "0.25.0",
++        "@esbuild/linux-arm": "0.25.0",
++        "@esbuild/linux-arm64": "0.25.0",
++        "@esbuild/linux-ia32": "0.25.0",
++        "@esbuild/linux-loong64": "0.25.0",
++        "@esbuild/linux-mips64el": "0.25.0",
++        "@esbuild/linux-ppc64": "0.25.0",
++        "@esbuild/linux-riscv64": "0.25.0",
++        "@esbuild/linux-s390x": "0.25.0",
++        "@esbuild/linux-x64": "0.25.0",
++        "@esbuild/netbsd-arm64": "0.25.0",
++        "@esbuild/netbsd-x64": "0.25.0",
++        "@esbuild/openbsd-arm64": "0.25.0",
++        "@esbuild/openbsd-x64": "0.25.0",
++        "@esbuild/sunos-x64": "0.25.0",
++        "@esbuild/win32-arm64": "0.25.0",
++        "@esbuild/win32-ia32": "0.25.0",
++        "@esbuild/win32-x64": "0.25.0"
+       }
+     },
+     "node_modules/escalade": {
+@@ -4110,6 +4396,22 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/for-each": {
++      "version": "0.3.5",
++      "resolved": "https://registry.npmjs.org/for-each/-/for-each-0.3.5.tgz",
++      "integrity": "sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "is-callable": "^1.2.7"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/foreground-child": {
+       "version": "3.3.0",
+       "resolved": "https://registry.npmjs.org/foreground-child/-/foreground-child-3.3.0.tgz",
+@@ -4183,6 +4485,37 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/function.prototype.name": {
++      "version": "1.1.8",
++      "resolved": "https://registry.npmjs.org/function.prototype.name/-/function.prototype.name-1.1.8.tgz",
++      "integrity": "sha512-e5iwyodOHhbMr/yNrc7fDYG4qlbIvI5gajyzPnb5TCwyhjApznQh1BMFou9b30SevY43gCJKXycoCBjMbsuW0Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.3",
++        "define-properties": "^1.2.1",
++        "functions-have-names": "^1.2.3",
++        "hasown": "^2.0.2",
++        "is-callable": "^1.2.7"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/functions-have-names": {
++      "version": "1.2.3",
++      "resolved": "https://registry.npmjs.org/functions-have-names/-/functions-have-names-1.2.3.tgz",
++      "integrity": "sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==",
++      "dev": true,
++      "license": "MIT",
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/gensync": {
+       "version": "1.0.0-beta.2",
+       "resolved": "https://registry.npmjs.org/gensync/-/gensync-1.0.0-beta.2.tgz",
+@@ -4249,6 +4582,24 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/get-symbol-description": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/get-symbol-description/-/get-symbol-description-1.1.0.tgz",
++      "integrity": "sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "es-errors": "^1.3.0",
++        "get-intrinsic": "^1.2.6"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/glob": {
+       "version": "10.4.5",
+       "resolved": "https://registry.npmjs.org/glob/-/glob-10.4.5.tgz",
+@@ -4296,6 +4647,23 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/globalthis": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/globalthis/-/globalthis-1.0.4.tgz",
++      "integrity": "sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "define-properties": "^1.2.1",
++        "gopd": "^1.0.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/gopd": {
+       "version": "1.2.0",
+       "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
+@@ -4323,6 +4691,19 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/has-bigints": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/has-bigints/-/has-bigints-1.1.0.tgz",
++      "integrity": "sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/has-flag": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz",
+@@ -4333,6 +4714,35 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/has-property-descriptors": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/has-property-descriptors/-/has-property-descriptors-1.0.2.tgz",
++      "integrity": "sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "es-define-property": "^1.0.0"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/has-proto": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/has-proto/-/has-proto-1.2.0.tgz",
++      "integrity": "sha512-KIL7eQPfHQRC8+XluaIw7BHUwwqL19bQn4hzNgdr+1wXoU0KKj6rufu47lhY7KbJR2C6T6+PfyN0Ea7wkSS+qQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "dunder-proto": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/has-symbols": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz",
+@@ -4391,8 +4801,15 @@
+       "integrity": "sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==",
+       "license": "MIT"
+     },
+-    "node_modules/html-encoding-sniffer": {
+-      "version": "4.0.0",
++    "node_modules/hosted-git-info": {
++      "version": "2.8.9",
++      "resolved": "https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-2.8.9.tgz",
++      "integrity": "sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==",
++      "dev": true,
++      "license": "ISC"
++    },
++    "node_modules/html-encoding-sniffer": {
++      "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/html-encoding-sniffer/-/html-encoding-sniffer-4.0.0.tgz",
+       "integrity": "sha512-Y22oTqIU4uuPgEemfz7NDJz6OeKf12Lsu+QC+s3BVpda64lTiMYCyGwg5ki4vFxkMwQdeZDl2adZoqUgdFuTgQ==",
+       "dev": true,
+@@ -4512,6 +4929,82 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/internal-slot": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/internal-slot/-/internal-slot-1.1.0.tgz",
++      "integrity": "sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0",
++        "hasown": "^2.0.2",
++        "side-channel": "^1.1.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/is-array-buffer": {
++      "version": "3.0.5",
++      "resolved": "https://registry.npmjs.org/is-array-buffer/-/is-array-buffer-3.0.5.tgz",
++      "integrity": "sha512-DDfANUiiG2wC1qawP66qlTugJeL5HyzMpfr8lLK+jMQirGzNod0B12cFB/9q838Ru27sBwfw78/rdoU7RERz6A==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.3",
++        "get-intrinsic": "^1.2.6"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-arrayish": {
++      "version": "0.2.1",
++      "resolved": "https://registry.npmjs.org/is-arrayish/-/is-arrayish-0.2.1.tgz",
++      "integrity": "sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/is-async-function": {
++      "version": "2.1.1",
++      "resolved": "https://registry.npmjs.org/is-async-function/-/is-async-function-2.1.1.tgz",
++      "integrity": "sha512-9dgM/cZBnNvjzaMYHVoxxfPj2QXt22Ev7SuuPrs+xav0ukGB0S6d4ydZdEiM48kLx5kDV+QBPrpVnFyefL8kkQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "async-function": "^1.0.0",
++        "call-bound": "^1.0.3",
++        "get-proto": "^1.0.1",
++        "has-tostringtag": "^1.0.2",
++        "safe-regex-test": "^1.1.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-bigint": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/is-bigint/-/is-bigint-1.1.0.tgz",
++      "integrity": "sha512-n4ZT37wG78iz03xPRKJrHTdZbe3IicyucEtdRsV5yglwc3GyUfbAfpSeD0FJ41NbUNSt5wbhqfp1fS+BgnvDFQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "has-bigints": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-binary-path": {
+       "version": "2.1.0",
+       "resolved": "https://registry.npmjs.org/is-binary-path/-/is-binary-path-2.1.0.tgz",
+@@ -4525,6 +5018,87 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/is-boolean-object": {
++      "version": "1.2.2",
++      "resolved": "https://registry.npmjs.org/is-boolean-object/-/is-boolean-object-1.2.2.tgz",
++      "integrity": "sha512-wa56o2/ElJMYqjCjGkXri7it5FbebW5usLw/nPmCMs5DeZ7eziSYZhSmPRn0txqeW4LnAmQQU7FgqLpsEFKM4A==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "has-tostringtag": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-callable": {
++      "version": "1.2.7",
++      "resolved": "https://registry.npmjs.org/is-callable/-/is-callable-1.2.7.tgz",
++      "integrity": "sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-core-module": {
++      "version": "2.16.1",
++      "resolved": "https://registry.npmjs.org/is-core-module/-/is-core-module-2.16.1.tgz",
++      "integrity": "sha512-UfoeMA6fIJ8wTYFEUjelnaGI67v6+N7qXJEvQuIGa99l4xsCruSYOVSQ0uPANn4dAzm8lkYPaKLrrijLq7x23w==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "hasown": "^2.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-data-view": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/is-data-view/-/is-data-view-1.0.2.tgz",
++      "integrity": "sha512-RKtWF8pGmS87i2D6gqQu/l7EYRlVdfzemCJN/P3UOs//x1QE7mfhvzHIApBTRf7axvT6DMGwSwBXYCT0nfB9xw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "get-intrinsic": "^1.2.6",
++        "is-typed-array": "^1.1.13"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-date-object": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/is-date-object/-/is-date-object-1.1.0.tgz",
++      "integrity": "sha512-PwwhEakHVKTdRNVOw+/Gyh0+MzlCl4R6qKvkhuvLtPMggI1WAHt9sOwZxQLSGpUaDnrdyDsomoRgNnCfKNSXXg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "has-tostringtag": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-docker": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/is-docker/-/is-docker-3.0.0.tgz",
+@@ -4551,6 +5125,22 @@
+         "node": ">=0.10.0"
+       }
+     },
++    "node_modules/is-finalizationregistry": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/is-finalizationregistry/-/is-finalizationregistry-1.1.1.tgz",
++      "integrity": "sha512-1pC6N8qWJbWoPtEjgcL2xyhQOP491EQjeUo3qTKcmV8YSDDJrOepfG8pcC7h/QgnQHYSv0mJ3Z/ZWxmatVrysg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-fullwidth-code-point": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz",
+@@ -4561,6 +5151,25 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/is-generator-function": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/is-generator-function/-/is-generator-function-1.1.0.tgz",
++      "integrity": "sha512-nPUB5km40q9e8UfN/Zc24eLlzdSf9OfKByBw9CIdw4H1giPMeA0OIJvbchsCu4npfI2QcMVBsGEBHKZ7wLTWmQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "get-proto": "^1.0.0",
++        "has-tostringtag": "^1.0.2",
++        "safe-regex-test": "^1.1.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-glob": {
+       "version": "4.0.3",
+       "resolved": "https://registry.npmjs.org/is-glob/-/is-glob-4.0.3.tgz",
+@@ -4593,6 +5202,19 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/is-map": {
++      "version": "2.0.3",
++      "resolved": "https://registry.npmjs.org/is-map/-/is-map-2.0.3.tgz",
++      "integrity": "sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-number": {
+       "version": "7.0.0",
+       "resolved": "https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz",
+@@ -4603,6 +5225,23 @@
+         "node": ">=0.12.0"
+       }
+     },
++    "node_modules/is-number-object": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/is-number-object/-/is-number-object-1.1.1.tgz",
++      "integrity": "sha512-lZhclumE1G6VYD8VHe35wFaIif+CTy5SJIi5+3y4psDgWu4wPDoBhF8NxUOinEc7pHgiTsT6MaBb92rKhhD+Xw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "has-tostringtag": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-plain-obj": {
+       "version": "4.1.0",
+       "resolved": "https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-4.1.0.tgz",
+@@ -4623,6 +5262,54 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/is-regex": {
++      "version": "1.2.1",
++      "resolved": "https://registry.npmjs.org/is-regex/-/is-regex-1.2.1.tgz",
++      "integrity": "sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "gopd": "^1.2.0",
++        "has-tostringtag": "^1.0.2",
++        "hasown": "^2.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-set": {
++      "version": "2.0.3",
++      "resolved": "https://registry.npmjs.org/is-set/-/is-set-2.0.3.tgz",
++      "integrity": "sha512-iPAjerrse27/ygGLxw+EBR9agv9Y6uLeYVJMu+QNCoouJ1/1ri0mGrcWpfCqFZuzzx3WjtwxG098X+n4OuRkPg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-shared-array-buffer": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/is-shared-array-buffer/-/is-shared-array-buffer-1.0.4.tgz",
++      "integrity": "sha512-ISWac8drv4ZGfwKl5slpHG9OwPNty4jOWPRIhBpxOoD+hqITiwuipOQ2bNthAzwA3B4fIjO4Nln74N0S9byq8A==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-stream": {
+       "version": "4.0.1",
+       "resolved": "https://registry.npmjs.org/is-stream/-/is-stream-4.0.1.tgz",
+@@ -4636,6 +5323,57 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/is-string": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/is-string/-/is-string-1.1.1.tgz",
++      "integrity": "sha512-BtEeSsoaQjlSPBemMQIrY1MY0uM6vnS1g5fmufYOtnxLGUZM2178PKbhsk7Ffv58IX+ZtcvoGwccYsh0PglkAA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "has-tostringtag": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-symbol": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/is-symbol/-/is-symbol-1.1.1.tgz",
++      "integrity": "sha512-9gGx6GTtCQM73BgmHQXfDmLtfjjTUDSyoxTCbp5WtoixAhfgsDirWIcVQ/IHpvI5Vgd5i/J5F7B9cN/WlVbC/w==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "has-symbols": "^1.1.0",
++        "safe-regex-test": "^1.1.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-typed-array": {
++      "version": "1.1.15",
++      "resolved": "https://registry.npmjs.org/is-typed-array/-/is-typed-array-1.1.15.tgz",
++      "integrity": "sha512-p3EcsicXjit7SaskXHs1hA91QxgTw46Fv6EFKKGS5DRFLD8yKnohjF3hxoju94b/OcMZoQukzpPpBE9uLVKzgQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "which-typed-array": "^1.1.16"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-unicode-supported": {
+       "version": "2.1.0",
+       "resolved": "https://registry.npmjs.org/is-unicode-supported/-/is-unicode-supported-2.1.0.tgz",
+@@ -4649,6 +5387,52 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/is-weakmap": {
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/is-weakmap/-/is-weakmap-2.0.2.tgz",
++      "integrity": "sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-weakref": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/is-weakref/-/is-weakref-1.1.1.tgz",
++      "integrity": "sha512-6i9mGWSlqzNMEqpCp93KwRS1uUOodk2OJ6b+sq7ZPDSy2WuI5NFIxp/254TytR8ftefexkWn5xNiHUNpPOfSew==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/is-weakset": {
++      "version": "2.0.4",
++      "resolved": "https://registry.npmjs.org/is-weakset/-/is-weakset-2.0.4.tgz",
++      "integrity": "sha512-mfcwb6IzQyOKTs84CQMrOwW4gQcaTOAWJ0zzJCl2WSPDrWk/OzDaImWFH3djXhb24g4eudZfLRozAvPGw4d9hQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "get-intrinsic": "^1.2.6"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-what": {
+       "version": "4.1.16",
+       "resolved": "https://registry.npmjs.org/is-what/-/is-what-4.1.16.tgz",
+@@ -4677,6 +5461,13 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/isarray": {
++      "version": "2.0.5",
++      "resolved": "https://registry.npmjs.org/isarray/-/isarray-2.0.5.tgz",
++      "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/isexe": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
+@@ -4833,6 +5624,13 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/json-parse-better-errors": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz",
++      "integrity": "sha512-mrqyZKfX5EhL7hvqcV6WG1yYjnjeuYDzDhhcAAUrq8Po85NBQBJP+ZDUT75qZQ98IkUoBqdkExkukOU7Ts2wrw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/json-parse-even-better-errors": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/json-parse-even-better-errors/-/json-parse-even-better-errors-4.0.0.tgz",
+@@ -4914,6 +5712,22 @@
+         "node": ">= 0.8.0"
+       }
+     },
++    "node_modules/load-json-file": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/load-json-file/-/load-json-file-4.0.0.tgz",
++      "integrity": "sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "graceful-fs": "^4.1.2",
++        "parse-json": "^4.0.0",
++        "pify": "^3.0.0",
++        "strip-bom": "^3.0.0"
++      },
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/local-pkg": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/local-pkg/-/local-pkg-1.0.0.tgz",
+@@ -5153,66 +5967,310 @@
+       ],
+       "license": "MIT",
+       "bin": {
+-        "nanoid": "bin/nanoid.cjs"
++        "nanoid": "bin/nanoid.cjs"
++      },
++      "engines": {
++        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++      }
++    },
++    "node_modules/natural-compare": {
++      "version": "1.4.0",
++      "resolved": "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz",
++      "integrity": "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/nice-try": {
++      "version": "1.0.5",
++      "resolved": "https://registry.npmjs.org/nice-try/-/nice-try-1.0.5.tgz",
++      "integrity": "sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/node-releases": {
++      "version": "2.0.19",
++      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-2.0.19.tgz",
++      "integrity": "sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/nopt": {
++      "version": "8.1.0",
++      "resolved": "https://registry.npmjs.org/nopt/-/nopt-8.1.0.tgz",
++      "integrity": "sha512-ieGu42u/Qsa4TFktmaKEwM6MQH0pOWnaB3htzh0JRtx84+Mebc0cbZYN5bC+6WTZ4+77xrL9Pn5m7CV6VIkV7A==",
++      "dev": true,
++      "license": "ISC",
++      "dependencies": {
++        "abbrev": "^3.0.0"
++      },
++      "bin": {
++        "nopt": "bin/nopt.js"
++      },
++      "engines": {
++        "node": "^18.17.0 || >=20.5.0"
++      }
++    },
++    "node_modules/normalize-package-data": {
++      "version": "2.5.0",
++      "resolved": "https://registry.npmjs.org/normalize-package-data/-/normalize-package-data-2.5.0.tgz",
++      "integrity": "sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==",
++      "dev": true,
++      "license": "BSD-2-Clause",
++      "dependencies": {
++        "hosted-git-info": "^2.1.4",
++        "resolve": "^1.10.0",
++        "semver": "2 || 3 || 4 || 5",
++        "validate-npm-package-license": "^3.0.1"
++      }
++    },
++    "node_modules/normalize-package-data/node_modules/semver": {
++      "version": "5.7.2",
++      "resolved": "https://registry.npmjs.org/semver/-/semver-5.7.2.tgz",
++      "integrity": "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==",
++      "dev": true,
++      "license": "ISC",
++      "bin": {
++        "semver": "bin/semver"
++      }
++    },
++    "node_modules/normalize-path": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz",
++      "integrity": "sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
++    "node_modules/normalize-wheel-es": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/normalize-wheel-es/-/normalize-wheel-es-1.2.0.tgz",
++      "integrity": "sha512-Wj7+EJQ8mSuXr2iWfnujrimU35R2W4FAErEyTmJoJ7ucwTn2hOUSsRehMb5RSYkxXGTM7Y9QpvPmp++w5ftoJw==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/npm-normalize-package-bin": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/npm-normalize-package-bin/-/npm-normalize-package-bin-4.0.0.tgz",
++      "integrity": "sha512-TZKxPvItzai9kN9H/TkmCtx/ZN/hvr3vUycjlfmH0ootY9yFBzNOpiXAdIn1Iteqsvk4lQn6B5PTrt+n6h8k/w==",
++      "dev": true,
++      "license": "ISC",
++      "engines": {
++        "node": "^18.17.0 || >=20.5.0"
++      }
++    },
++    "node_modules/npm-run-all": {
++      "version": "4.1.5",
++      "resolved": "https://registry.npmjs.org/npm-run-all/-/npm-run-all-4.1.5.tgz",
++      "integrity": "sha512-Oo82gJDAVcaMdi3nuoKFavkIHBRVqQ1qvMb+9LHk/cF4P6B2m8aP04hGf7oL6wZ9BuGwX1onlLhpuoofSyoQDQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "ansi-styles": "^3.2.1",
++        "chalk": "^2.4.1",
++        "cross-spawn": "^6.0.5",
++        "memorystream": "^0.3.1",
++        "minimatch": "^3.0.4",
++        "pidtree": "^0.3.0",
++        "read-pkg": "^3.0.0",
++        "shell-quote": "^1.6.1",
++        "string.prototype.padend": "^3.0.0"
++      },
++      "bin": {
++        "npm-run-all": "bin/npm-run-all/index.js",
++        "run-p": "bin/run-p/index.js",
++        "run-s": "bin/run-s/index.js"
++      },
++      "engines": {
++        "node": ">= 4"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/ansi-styles": {
++      "version": "3.2.1",
++      "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-3.2.1.tgz",
++      "integrity": "sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "color-convert": "^1.9.0"
++      },
++      "engines": {
++        "node": ">=4"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/brace-expansion": {
++      "version": "1.1.11",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.11.tgz",
++      "integrity": "sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "balanced-match": "^1.0.0",
++        "concat-map": "0.0.1"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/chalk": {
++      "version": "2.4.2",
++      "resolved": "https://registry.npmjs.org/chalk/-/chalk-2.4.2.tgz",
++      "integrity": "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "ansi-styles": "^3.2.1",
++        "escape-string-regexp": "^1.0.5",
++        "supports-color": "^5.3.0"
++      },
++      "engines": {
++        "node": ">=4"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/color-convert": {
++      "version": "1.9.3",
++      "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-1.9.3.tgz",
++      "integrity": "sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "color-name": "1.1.3"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/color-name": {
++      "version": "1.1.3",
++      "resolved": "https://registry.npmjs.org/color-name/-/color-name-1.1.3.tgz",
++      "integrity": "sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/npm-run-all/node_modules/cross-spawn": {
++      "version": "6.0.6",
++      "resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-6.0.6.tgz",
++      "integrity": "sha512-VqCUuhcd1iB+dsv8gxPttb5iZh/D0iubSP21g36KXdEuf6I5JiioesUVjpCdHV9MZRUfVFlvwtIUyPfxo5trtw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "nice-try": "^1.0.4",
++        "path-key": "^2.0.1",
++        "semver": "^5.5.0",
++        "shebang-command": "^1.2.0",
++        "which": "^1.2.9"
++      },
++      "engines": {
++        "node": ">=4.8"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/escape-string-regexp": {
++      "version": "1.0.5",
++      "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz",
++      "integrity": "sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.8.0"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/has-flag": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/has-flag/-/has-flag-3.0.0.tgz",
++      "integrity": "sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=4"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/minimatch": {
++      "version": "3.1.2",
++      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.1.2.tgz",
++      "integrity": "sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==",
++      "dev": true,
++      "license": "ISC",
++      "dependencies": {
++        "brace-expansion": "^1.1.7"
++      },
++      "engines": {
++        "node": "*"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/path-key": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/path-key/-/path-key-2.0.1.tgz",
++      "integrity": "sha512-fEHGKCSmUSDPv4uoj8AlD+joPlq3peND+HRYyxFz4KPw4z926S/b8rIuFs2FYJg3BwsxJf6A9/3eIdLaYC+9Dw==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=4"
++      }
++    },
++    "node_modules/npm-run-all/node_modules/pidtree": {
++      "version": "0.3.1",
++      "resolved": "https://registry.npmjs.org/pidtree/-/pidtree-0.3.1.tgz",
++      "integrity": "sha512-qQbW94hLHEqCg7nhby4yRC7G2+jYHY4Rguc2bjw7Uug4GIJuu1tvf2uHaZv5Q8zdt+WKJ6qK1FOI6amaWUo5FA==",
++      "dev": true,
++      "license": "MIT",
++      "bin": {
++        "pidtree": "bin/pidtree.js"
+       },
+       "engines": {
+-        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++        "node": ">=0.10"
+       }
+     },
+-    "node_modules/natural-compare": {
+-      "version": "1.4.0",
+-      "resolved": "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz",
+-      "integrity": "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==",
+-      "dev": true,
+-      "license": "MIT"
+-    },
+-    "node_modules/node-releases": {
+-      "version": "2.0.19",
+-      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-2.0.19.tgz",
+-      "integrity": "sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==",
++    "node_modules/npm-run-all/node_modules/semver": {
++      "version": "5.7.2",
++      "resolved": "https://registry.npmjs.org/semver/-/semver-5.7.2.tgz",
++      "integrity": "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==",
+       "dev": true,
+-      "license": "MIT"
++      "license": "ISC",
++      "bin": {
++        "semver": "bin/semver"
++      }
+     },
+-    "node_modules/nopt": {
+-      "version": "8.1.0",
+-      "resolved": "https://registry.npmjs.org/nopt/-/nopt-8.1.0.tgz",
+-      "integrity": "sha512-ieGu42u/Qsa4TFktmaKEwM6MQH0pOWnaB3htzh0JRtx84+Mebc0cbZYN5bC+6WTZ4+77xrL9Pn5m7CV6VIkV7A==",
++    "node_modules/npm-run-all/node_modules/shebang-command": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-1.2.0.tgz",
++      "integrity": "sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==",
+       "dev": true,
+-      "license": "ISC",
++      "license": "MIT",
+       "dependencies": {
+-        "abbrev": "^3.0.0"
+-      },
+-      "bin": {
+-        "nopt": "bin/nopt.js"
++        "shebang-regex": "^1.0.0"
+       },
+       "engines": {
+-        "node": "^18.17.0 || >=20.5.0"
++        "node": ">=0.10.0"
+       }
+     },
+-    "node_modules/normalize-path": {
+-      "version": "3.0.0",
+-      "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz",
+-      "integrity": "sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==",
++    "node_modules/npm-run-all/node_modules/shebang-regex": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/shebang-regex/-/shebang-regex-1.0.0.tgz",
++      "integrity": "sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ==",
+       "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.10.0"
+       }
+     },
+-    "node_modules/normalize-wheel-es": {
+-      "version": "1.2.0",
+-      "resolved": "https://registry.npmjs.org/normalize-wheel-es/-/normalize-wheel-es-1.2.0.tgz",
+-      "integrity": "sha512-Wj7+EJQ8mSuXr2iWfnujrimU35R2W4FAErEyTmJoJ7ucwTn2hOUSsRehMb5RSYkxXGTM7Y9QpvPmp++w5ftoJw==",
+-      "license": "BSD-3-Clause"
++    "node_modules/npm-run-all/node_modules/supports-color": {
++      "version": "5.5.0",
++      "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-5.5.0.tgz",
++      "integrity": "sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "has-flag": "^3.0.0"
++      },
++      "engines": {
++        "node": ">=4"
++      }
+     },
+-    "node_modules/npm-normalize-package-bin": {
+-      "version": "4.0.0",
+-      "resolved": "https://registry.npmjs.org/npm-normalize-package-bin/-/npm-normalize-package-bin-4.0.0.tgz",
+-      "integrity": "sha512-TZKxPvItzai9kN9H/TkmCtx/ZN/hvr3vUycjlfmH0ootY9yFBzNOpiXAdIn1Iteqsvk4lQn6B5PTrt+n6h8k/w==",
++    "node_modules/npm-run-all/node_modules/which": {
++      "version": "1.3.1",
++      "resolved": "https://registry.npmjs.org/which/-/which-1.3.1.tgz",
++      "integrity": "sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==",
+       "dev": true,
+       "license": "ISC",
+-      "engines": {
+-        "node": "^18.17.0 || >=20.5.0"
++      "dependencies": {
++        "isexe": "^2.0.0"
++      },
++      "bin": {
++        "which": "bin/which"
+       }
+     },
+     "node_modules/npm-run-all2": {
+@@ -5331,6 +6389,50 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/object-inspect": {
++      "version": "1.13.4",
++      "resolved": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
++      "integrity": "sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/object-keys": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/object-keys/-/object-keys-1.1.1.tgz",
++      "integrity": "sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/object.assign": {
++      "version": "4.1.7",
++      "resolved": "https://registry.npmjs.org/object.assign/-/object.assign-4.1.7.tgz",
++      "integrity": "sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.3",
++        "define-properties": "^1.2.1",
++        "es-object-atoms": "^1.0.0",
++        "has-symbols": "^1.1.0",
++        "object-keys": "^1.1.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/open": {
+       "version": "10.1.0",
+       "resolved": "https://registry.npmjs.org/open/-/open-10.1.0.tgz",
+@@ -5368,6 +6470,24 @@
+         "node": ">= 0.8.0"
+       }
+     },
++    "node_modules/own-keys": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/own-keys/-/own-keys-1.0.1.tgz",
++      "integrity": "sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "get-intrinsic": "^1.2.6",
++        "object-keys": "^1.1.1",
++        "safe-push-apply": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/p-limit": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/p-limit/-/p-limit-3.1.0.tgz",
+@@ -5420,6 +6540,20 @@
+         "node": ">=6"
+       }
+     },
++    "node_modules/parse-json": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/parse-json/-/parse-json-4.0.0.tgz",
++      "integrity": "sha512-aOIos8bujGN93/8Ox/jPLh7RwVnPEysynVFE+fQZyg6jKELEHwzgKdLRFHUgXJL6kylijVSBC4BvN9OmsB48Rw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "error-ex": "^1.3.1",
++        "json-parse-better-errors": "^1.0.1"
++      },
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/parse-ms": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/parse-ms/-/parse-ms-4.0.0.tgz",
+@@ -5473,6 +6607,13 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/path-parse": {
++      "version": "1.0.7",
++      "resolved": "https://registry.npmjs.org/path-parse/-/path-parse-1.0.7.tgz",
++      "integrity": "sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/path-scurry": {
+       "version": "1.11.1",
+       "resolved": "https://registry.npmjs.org/path-scurry/-/path-scurry-1.11.1.tgz",
+@@ -5490,6 +6631,19 @@
+         "url": "https://github.com/sponsors/isaacs"
+       }
+     },
++    "node_modules/path-type": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/path-type/-/path-type-3.0.0.tgz",
++      "integrity": "sha512-T2ZUsdZFHgA3u4e5PfPbjd7HDDpxPnQb5jN0SrDsjNSuVXHJqtwTnWqG0B1jZrgmJ/7lj1EmVIByWt1gxGkWvg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "pify": "^3.0.0"
++      },
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/pathe": {
+       "version": "2.0.3",
+       "resolved": "https://registry.npmjs.org/pathe/-/pathe-2.0.3.tgz",
+@@ -5545,6 +6699,16 @@
+         "node": ">=0.10"
+       }
+     },
++    "node_modules/pify": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/pify/-/pify-3.0.0.tgz",
++      "integrity": "sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/pinia": {
+       "version": "3.0.1",
+       "resolved": "https://registry.npmjs.org/pinia/-/pinia-3.0.1.tgz",
+@@ -5578,10 +6742,20 @@
+         "pathe": "^2.0.1"
+       }
+     },
++    "node_modules/possible-typed-array-names": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/possible-typed-array-names/-/possible-typed-array-names-1.1.0.tgz",
++      "integrity": "sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/postcss": {
+-      "version": "8.5.2",
+-      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.2.tgz",
+-      "integrity": "sha512-MjOadfU3Ys9KYoX0AdkBlFEF1Vx37uCCeN4ZHnmwm9FfpbsGWMZeBLMmmpY+6Ocqod7mkdZ0DT31OlbsFrLlkA==",
++      "version": "8.5.3",
++      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.3.tgz",
++      "integrity": "sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==",
+       "funding": [
+         {
+           "type": "opencollective",
+@@ -5727,6 +6901,21 @@
+         "node": "^18.17.0 || >=20.5.0"
+       }
+     },
++    "node_modules/read-pkg": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/read-pkg/-/read-pkg-3.0.0.tgz",
++      "integrity": "sha512-BLq/cCO9two+lBgiTYNqD6GdtK8s4NpaWrl6/rCO9w0TUS8oJl7cmToOZfRYllKTISY6nt1U7jQ53brmKqY6BA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "load-json-file": "^4.0.0",
++        "normalize-package-data": "^2.3.2",
++        "path-type": "^3.0.0"
++      },
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/readdirp": {
+       "version": "3.6.0",
+       "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-3.6.0.tgz",
+@@ -5740,6 +6929,71 @@
+         "node": ">=8.10.0"
+       }
+     },
++    "node_modules/reflect.getprototypeof": {
++      "version": "1.0.10",
++      "resolved": "https://registry.npmjs.org/reflect.getprototypeof/-/reflect.getprototypeof-1.0.10.tgz",
++      "integrity": "sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "define-properties": "^1.2.1",
++        "es-abstract": "^1.23.9",
++        "es-errors": "^1.3.0",
++        "es-object-atoms": "^1.0.0",
++        "get-intrinsic": "^1.2.7",
++        "get-proto": "^1.0.1",
++        "which-builtin-type": "^1.2.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/regexp.prototype.flags": {
++      "version": "1.5.4",
++      "resolved": "https://registry.npmjs.org/regexp.prototype.flags/-/regexp.prototype.flags-1.5.4.tgz",
++      "integrity": "sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "define-properties": "^1.2.1",
++        "es-errors": "^1.3.0",
++        "get-proto": "^1.0.1",
++        "gopd": "^1.2.0",
++        "set-function-name": "^2.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/resolve": {
++      "version": "1.22.10",
++      "resolved": "https://registry.npmjs.org/resolve/-/resolve-1.22.10.tgz",
++      "integrity": "sha512-NPRy+/ncIMeDlTAsuqwKIiferiawhefFJtkNSW0qZJEqMEb+qBt/77B/jGeeek+F0uOeN05CDa6HXbbIgtVX4w==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "is-core-module": "^2.16.0",
++        "path-parse": "^1.0.7",
++        "supports-preserve-symlinks-flag": "^1.0.0"
++      },
++      "bin": {
++        "resolve": "bin/resolve"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/resolve-from": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/resolve-from/-/resolve-from-4.0.0.tgz",
+@@ -5850,6 +7104,61 @@
+         "queue-microtask": "^1.2.2"
+       }
+     },
++    "node_modules/safe-array-concat": {
++      "version": "1.1.3",
++      "resolved": "https://registry.npmjs.org/safe-array-concat/-/safe-array-concat-1.1.3.tgz",
++      "integrity": "sha512-AURm5f0jYEOydBj7VQlVvDrjeFgthDdEF5H1dP+6mNpoXOMo1quQqJ4wvJDyRZ9+pO3kGWoOdmV08cSv2aJV6Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.2",
++        "get-intrinsic": "^1.2.6",
++        "has-symbols": "^1.1.0",
++        "isarray": "^2.0.5"
++      },
++      "engines": {
++        "node": ">=0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/safe-push-apply": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/safe-push-apply/-/safe-push-apply-1.0.0.tgz",
++      "integrity": "sha512-iKE9w/Z7xCzUMIZqdBsp6pEQvwuEebH4vdpjcDWnyzaI6yl6O9FHvVpmGelvEHNsoY6wGblkxR6Zty/h00WiSA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0",
++        "isarray": "^2.0.5"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/safe-regex-test": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/safe-regex-test/-/safe-regex-test-1.1.0.tgz",
++      "integrity": "sha512-x/+Cz4YrimQxQccJf5mKEbIa1NzeCRNI5Ecl/ekmlYaampdNLPalVyIcCZNNH3MvmqBugV5TMYZXv0ljslUlaw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "es-errors": "^1.3.0",
++        "is-regex": "^1.2.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/safer-buffer": {
+       "version": "2.1.2",
+       "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
+@@ -5887,7 +7196,56 @@
+         "semver": "bin/semver.js"
+       },
+       "engines": {
+-        "node": ">=10"
++        "node": ">=10"
++      }
++    },
++    "node_modules/set-function-length": {
++      "version": "1.2.2",
++      "resolved": "https://registry.npmjs.org/set-function-length/-/set-function-length-1.2.2.tgz",
++      "integrity": "sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "define-data-property": "^1.1.4",
++        "es-errors": "^1.3.0",
++        "function-bind": "^1.1.2",
++        "get-intrinsic": "^1.2.4",
++        "gopd": "^1.0.1",
++        "has-property-descriptors": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/set-function-name": {
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/set-function-name/-/set-function-name-2.0.2.tgz",
++      "integrity": "sha512-7PGFlmtwsEADb0WYyvCMa1t+yke6daIG4Wirafur5kcf+MhUnPms1UeR0CKQdTZD81yESwMHbtn+TR+dMviakQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "define-data-property": "^1.1.4",
++        "es-errors": "^1.3.0",
++        "functions-have-names": "^1.2.3",
++        "has-property-descriptors": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/set-proto": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/set-proto/-/set-proto-1.0.0.tgz",
++      "integrity": "sha512-RJRdvCo6IAnPdsvP/7m6bsQqNnn1FCBX5ZNtFL98MmFF/4xAIJTIg1YbHW5DC2W5SKZanrC6i4HsJqlajw/dZw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "dunder-proto": "^1.0.1",
++        "es-errors": "^1.3.0",
++        "es-object-atoms": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
+       }
+     },
+     "node_modules/shebang-command": {
+@@ -5926,6 +7284,82 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/side-channel": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/side-channel/-/side-channel-1.1.0.tgz",
++      "integrity": "sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0",
++        "object-inspect": "^1.13.3",
++        "side-channel-list": "^1.0.0",
++        "side-channel-map": "^1.0.1",
++        "side-channel-weakmap": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/side-channel-list": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/side-channel-list/-/side-channel-list-1.0.0.tgz",
++      "integrity": "sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0",
++        "object-inspect": "^1.13.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/side-channel-map": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/side-channel-map/-/side-channel-map-1.0.1.tgz",
++      "integrity": "sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "es-errors": "^1.3.0",
++        "get-intrinsic": "^1.2.5",
++        "object-inspect": "^1.13.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/side-channel-weakmap": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/side-channel-weakmap/-/side-channel-weakmap-1.0.2.tgz",
++      "integrity": "sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "es-errors": "^1.3.0",
++        "get-intrinsic": "^1.2.5",
++        "object-inspect": "^1.13.3",
++        "side-channel-map": "^1.0.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/siginfo": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/siginfo/-/siginfo-2.0.0.tgz",
+@@ -5970,6 +7404,42 @@
+         "node": ">=0.10.0"
+       }
+     },
++    "node_modules/spdx-correct": {
++      "version": "3.2.0",
++      "resolved": "https://registry.npmjs.org/spdx-correct/-/spdx-correct-3.2.0.tgz",
++      "integrity": "sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "spdx-expression-parse": "^3.0.0",
++        "spdx-license-ids": "^3.0.0"
++      }
++    },
++    "node_modules/spdx-exceptions": {
++      "version": "2.5.0",
++      "resolved": "https://registry.npmjs.org/spdx-exceptions/-/spdx-exceptions-2.5.0.tgz",
++      "integrity": "sha512-PiU42r+xO4UbUS1buo3LPJkjlO7430Xn5SVAhdpzzsPHsjbYVflnnFdATgabnLude+Cqu25p6N+g2lw/PFsa4w==",
++      "dev": true,
++      "license": "CC-BY-3.0"
++    },
++    "node_modules/spdx-expression-parse": {
++      "version": "3.0.1",
++      "resolved": "https://registry.npmjs.org/spdx-expression-parse/-/spdx-expression-parse-3.0.1.tgz",
++      "integrity": "sha512-cbqHunsQWnJNE6KhVSMsMeH5H/L9EpymbzqTQ3uLwNCLZ1Q481oWaofqH7nO6V07xlXwY6PhQdQ2IedWx/ZK4Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "spdx-exceptions": "^2.1.0",
++        "spdx-license-ids": "^3.0.0"
++      }
++    },
++    "node_modules/spdx-license-ids": {
++      "version": "3.0.21",
++      "resolved": "https://registry.npmjs.org/spdx-license-ids/-/spdx-license-ids-3.0.21.tgz",
++      "integrity": "sha512-Bvg/8F5XephndSK3JffaRqdT+gyhfqIPwDHpX80tJrF8QQRYMo8sNMeaZ2Dp5+jhwKnUmIOyFFQfHRkjJm5nXg==",
++      "dev": true,
++      "license": "CC0-1.0"
++    },
+     "node_modules/speakingurl": {
+       "version": "14.0.1",
+       "resolved": "https://registry.npmjs.org/speakingurl/-/speakingurl-14.0.1.tgz",
+@@ -6057,6 +7527,84 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/string.prototype.padend": {
++      "version": "3.1.6",
++      "resolved": "https://registry.npmjs.org/string.prototype.padend/-/string.prototype.padend-3.1.6.tgz",
++      "integrity": "sha512-XZpspuSB7vJWhvJc9DLSlrXl1mcA2BdoY5jjnS135ydXqLoqhs96JjDtCkjJEQHvfqZIp9hBuBMgI589peyx9Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.7",
++        "define-properties": "^1.2.1",
++        "es-abstract": "^1.23.2",
++        "es-object-atoms": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/string.prototype.trim": {
++      "version": "1.2.10",
++      "resolved": "https://registry.npmjs.org/string.prototype.trim/-/string.prototype.trim-1.2.10.tgz",
++      "integrity": "sha512-Rs66F0P/1kedk5lyYyH9uBzuiI/kNRmwJAR9quK6VOtIpZ2G+hMZd+HQbbv25MgCA6gEffoMZYxlTod4WcdrKA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.2",
++        "define-data-property": "^1.1.4",
++        "define-properties": "^1.2.1",
++        "es-abstract": "^1.23.5",
++        "es-object-atoms": "^1.0.0",
++        "has-property-descriptors": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/string.prototype.trimend": {
++      "version": "1.0.9",
++      "resolved": "https://registry.npmjs.org/string.prototype.trimend/-/string.prototype.trimend-1.0.9.tgz",
++      "integrity": "sha512-G7Ok5C6E/j4SGfyLCloXTrngQIQU3PWtXGst3yM7Bea9FRURf1S42ZHlZZtsNque2FN2PoUhfZXYLNWwEr4dLQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.2",
++        "define-properties": "^1.2.1",
++        "es-object-atoms": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/string.prototype.trimstart": {
++      "version": "1.0.8",
++      "resolved": "https://registry.npmjs.org/string.prototype.trimstart/-/string.prototype.trimstart-1.0.8.tgz",
++      "integrity": "sha512-UXSH262CSZY1tfu3G3Secr6uGLCFVPMhIqHjlgCUtCCcgihYc/xKs9djMTMUOb2j1mVSeU8EU6NWc/iQKU6Gfg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.7",
++        "define-properties": "^1.2.1",
++        "es-object-atoms": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/strip-ansi": {
+       "version": "7.1.0",
+       "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-7.1.0.tgz",
+@@ -6097,6 +7645,16 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/strip-bom": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/strip-bom/-/strip-bom-3.0.0.tgz",
++      "integrity": "sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/strip-final-newline": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/strip-final-newline/-/strip-final-newline-4.0.0.tgz",
+@@ -6168,6 +7726,19 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/supports-preserve-symlinks-flag": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz",
++      "integrity": "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/svg-tags": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/svg-tags/-/svg-tags-1.0.0.tgz",
+@@ -6402,6 +7973,84 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/typed-array-buffer": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/typed-array-buffer/-/typed-array-buffer-1.0.3.tgz",
++      "integrity": "sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "es-errors": "^1.3.0",
++        "is-typed-array": "^1.1.14"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/typed-array-byte-length": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/typed-array-byte-length/-/typed-array-byte-length-1.0.3.tgz",
++      "integrity": "sha512-BaXgOuIxz8n8pIq3e7Atg/7s+DpiYrxn4vdot3w9KbnBhcRQq6o3xemQdIfynqSeXeDrF32x+WvfzmOjPiY9lg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.8",
++        "for-each": "^0.3.3",
++        "gopd": "^1.2.0",
++        "has-proto": "^1.2.0",
++        "is-typed-array": "^1.1.14"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/typed-array-byte-offset": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/typed-array-byte-offset/-/typed-array-byte-offset-1.0.4.tgz",
++      "integrity": "sha512-bTlAFB/FBYMcuX81gbL4OcpH5PmlFHqlCCpAl8AlEzMz5k53oNDvN8p1PNOWLEmI2x4orp3raOFB51tv9X+MFQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "available-typed-arrays": "^1.0.7",
++        "call-bind": "^1.0.8",
++        "for-each": "^0.3.3",
++        "gopd": "^1.2.0",
++        "has-proto": "^1.2.0",
++        "is-typed-array": "^1.1.15",
++        "reflect.getprototypeof": "^1.0.9"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/typed-array-length": {
++      "version": "1.0.7",
++      "resolved": "https://registry.npmjs.org/typed-array-length/-/typed-array-length-1.0.7.tgz",
++      "integrity": "sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bind": "^1.0.7",
++        "for-each": "^0.3.3",
++        "gopd": "^1.0.1",
++        "is-typed-array": "^1.1.13",
++        "possible-typed-array-names": "^1.0.0",
++        "reflect.getprototypeof": "^1.0.6"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/typescript": {
+       "version": "5.7.3",
+       "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.7.3.tgz",
+@@ -6446,6 +8095,25 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/unbox-primitive": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.1.0.tgz",
++      "integrity": "sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.3",
++        "has-bigints": "^1.0.2",
++        "has-symbols": "^1.1.0",
++        "which-boxed-primitive": "^1.1.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/undici-types": {
+       "version": "6.20.0",
+       "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-6.20.0.tgz",
+@@ -6712,15 +8380,26 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/validate-npm-package-license": {
++      "version": "3.0.4",
++      "resolved": "https://registry.npmjs.org/validate-npm-package-license/-/validate-npm-package-license-3.0.4.tgz",
++      "integrity": "sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "spdx-correct": "^3.0.0",
++        "spdx-expression-parse": "^3.0.0"
++      }
++    },
+     "node_modules/vite": {
+-      "version": "6.1.0",
+-      "resolved": "https://registry.npmjs.org/vite/-/vite-6.1.0.tgz",
+-      "integrity": "sha512-RjjMipCKVoR4hVfPY6GQTgveinjNuyLw+qruksLDvA5ktI1150VmcMBKmQaEWJhg/j6Uaf6dNCNA0AfdzUb/hQ==",
++      "version": "6.2.0",
++      "resolved": "https://registry.npmjs.org/vite/-/vite-6.2.0.tgz",
++      "integrity": "sha512-7dPxoo+WsT/64rDcwoOjk76XHj+TqNTIvHKcuMQ1k4/SeHDaQt5GFAeLYzrimZrMpn/O6DtdI03WUjdxuPM0oQ==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "esbuild": "^0.24.2",
+-        "postcss": "^8.5.1",
++        "esbuild": "^0.25.0",
++        "postcss": "^8.5.3",
+         "rollup": "^4.30.1"
+       },
+       "bin": {
+@@ -7191,6 +8870,94 @@
+         "node": ">= 8"
+       }
+     },
++    "node_modules/which-boxed-primitive": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/which-boxed-primitive/-/which-boxed-primitive-1.1.1.tgz",
++      "integrity": "sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "is-bigint": "^1.1.0",
++        "is-boolean-object": "^1.2.1",
++        "is-number-object": "^1.1.1",
++        "is-string": "^1.1.1",
++        "is-symbol": "^1.1.1"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/which-builtin-type": {
++      "version": "1.2.1",
++      "resolved": "https://registry.npmjs.org/which-builtin-type/-/which-builtin-type-1.2.1.tgz",
++      "integrity": "sha512-6iBczoX+kDQ7a3+YJBnh3T+KZRxM/iYNPXicqk66/Qfm1b93iu+yOImkg0zHbj5LNOcNv1TEADiZ0xa34B4q6Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "call-bound": "^1.0.2",
++        "function.prototype.name": "^1.1.6",
++        "has-tostringtag": "^1.0.2",
++        "is-async-function": "^2.0.0",
++        "is-date-object": "^1.1.0",
++        "is-finalizationregistry": "^1.1.0",
++        "is-generator-function": "^1.0.10",
++        "is-regex": "^1.2.1",
++        "is-weakref": "^1.0.2",
++        "isarray": "^2.0.5",
++        "which-boxed-primitive": "^1.1.0",
++        "which-collection": "^1.0.2",
++        "which-typed-array": "^1.1.16"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/which-collection": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/which-collection/-/which-collection-1.0.2.tgz",
++      "integrity": "sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "is-map": "^2.0.3",
++        "is-set": "^2.0.3",
++        "is-weakmap": "^2.0.2",
++        "is-weakset": "^2.0.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/which-typed-array": {
++      "version": "1.1.18",
++      "resolved": "https://registry.npmjs.org/which-typed-array/-/which-typed-array-1.1.18.tgz",
++      "integrity": "sha512-qEcY+KJYlWyLH9vNbsr6/5j59AXk5ni5aakf8ldzBvGde6Iz4sxZGkJyWSAueTG7QhOvNRYb1lDdFmL5Td0QKA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "available-typed-arrays": "^1.0.7",
++        "call-bind": "^1.0.8",
++        "call-bound": "^1.0.3",
++        "for-each": "^0.3.3",
++        "gopd": "^1.2.0",
++        "has-tostringtag": "^1.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/why-is-node-running": {
+       "version": "2.3.0",
+       "resolved": "https://registry.npmjs.org/why-is-node-running/-/why-is-node-running-2.3.0.tgz",
+diff --git a/work/package.json b/work/package.json
+index affd0fb..63fe547 100644
+--- a/work/package.json
++++ b/work/package.json
+@@ -33,6 +33,7 @@
+     "eslint-plugin-vue": "^9.32.0",
+     "jiti": "^2.4.2",
+     "jsdom": "^26.0.0",
++    "npm-run-all": "^4.1.5",
+     "npm-run-all2": "^7.0.2",
+     "prettier": "^3.5.1",
+     "typescript": "~5.7.3",
+diff --git a/work/src/api/dify.js b/work/src/api/dify.js
+index 46977cb..cab2a7c 100644
+--- a/work/src/api/dify.js
++++ b/work/src/api/dify.js
+@@ -12,6 +12,7 @@ const getUserId = () => {
+   return userId;
+ };
+ 
++// 验证是否为有效的UUID
+ // 验证是否为有效的UUID
+ function isValidUUID(str) {
+   // 简单检查是否符合UUID格式
+@@ -20,35 +21,41 @@ function isValidUUID(str) {
+ }
+ 
+ // 发送对话消息 - 流式响应
+-export const sendChatMessage = async (message, conversationId = null, onMessage = null, onEnd = null, onError = null) => {
+-  const user = getUserId();
+-  
+-  try {
+-    // 处理 conversationId，确保只在有效时传递
+-    const payload = {
+-      query: message,
+-      inputs: {},
+-      user: user,
+-      response_mode: 'streaming',
+-    };
++export const sendChatMessage = async (message, conversationId = null, onMessage = null, onEnd = null, onError = null, files = null) => {
++    const user = getUserId();
+     
+-    // 只有当 conversationId 有效且不是时间戳形式时才添加到请求
+-    if (conversationId && isValidUUID(conversationId)) {
+-      payload.conversation_id = conversationId;
+-    }
+-    
+-    const response = await fetch(`${API_BASE_URL}/chat-messages`, {
+-      method: 'POST',
+-      headers: {
+-        'Authorization': `Bearer ${API_KEY}`,
+-        'Content-Type': 'application/json',
+-      },
+-      body: JSON.stringify(payload),
+-    });
++    try {
++      // 处理 conversationId，确保只在有效时传递
++      const payload = {
++        query: message,
++        inputs: {},
++        user: user,
++        response_mode: 'streaming',
++      };
++      
++      // 只有当 conversationId 有效且不是时间戳形式时才添加到请求
++      if (conversationId && isValidUUID(conversationId)) {
++        payload.conversation_id = conversationId;
++      }
++      
++      // 添加文件ID（如果提供）- 修复这里的files参数引用
++      if (files && Array.isArray(files) && files.length > 0) {
++        payload.files = files;
++      }
++      
++      const response = await fetch(`${API_BASE_URL}/chat-messages`, {
++        method: 'POST',
++        headers: {
++          'Authorization': `Bearer ${API_KEY}`,
++          'Content-Type': 'application/json',
++        },
++        body: JSON.stringify(payload),
++      });
++  
+ 
+     if (!response.ok) {
+       const errorData = await response.json();
+-      throw new Error(errorData.message || '发送消息失败');
++      throw new Error(errorData.message || '请求失败');
+     }
+ 
+     // 处理流式响应
+@@ -57,55 +64,66 @@ export const sendChatMessage = async (message, conversationId = null, onMessage
+     let buffer = '';
+     let messageId = null;
+     let responseConversationId = null;
++    let taskId = null;
+     let fullAnswer = '';
+ 
+     while (true) {
+       const { done, value } = await reader.read();
+-      if (done) break;
++      if (done) {
++        break;
++      }
+       
+       buffer += decoder.decode(value, { stream: true });
+       const lines = buffer.split('\n\n');
+       buffer = lines.pop() || '';
+       
+       for (const line of lines) {
+-        if (!line.startsWith('data: ')) continue;
+-        
+-        try {
+-          const jsonStr = line.slice(6); // Remove the 'data: ' prefix
+-          const data = JSON.parse(jsonStr);
+-          
+-          if (data.event === 'message') {
+-            messageId = data.message_id;
+-            responseConversationId = data.conversation_id;
+-            fullAnswer += data.answer;
++        if (line.startsWith('data: ')) {
++          try {
++            const data = JSON.parse(line.substring(6));
+             
+-            if (onMessage) {
+-              onMessage(data.answer, messageId, responseConversationId);
+-            }
+-          } else if (data.event === 'message_end') {
+-            if (onEnd) {
+-              onEnd(messageId, responseConversationId, data.metadata, fullAnswer);
+-            }
+-          } else if (data.event === 'error') {
+-            if (onError) {
+-              onError(data.message || '处理消息时出错');
++            if (data.event === 'message') {
++              // 获取任务ID, 但不要在这里触发onMessage
++              if (!taskId && data.task_id) {
++                taskId = data.task_id;
++              }
++              
++              messageId = data.message_id || messageId;
++              responseConversationId = data.conversation_id || responseConversationId;
++              
++              fullAnswer += data.answer || '';
++              // 传递所有需要的参数
++              if (onMessage) onMessage(fullAnswer, taskId);
++            } else if (data.event === 'message_end') {
++              messageId = data.message_id || messageId;
++              responseConversationId = data.conversation_id || responseConversationId;
++              
++              // 确保回调参数顺序正确
++              if (onEnd) onEnd(fullAnswer, messageId, responseConversationId);
++              break;
++            } else if (data.event === 'error') {
++              const error = new Error(data.message || '未知错误');
++              error.status = data.status;
++              error.code = data.code;
++              
++              if (onError) onError(error);
++              throw error;
+             }
++          } catch (e) {
++            console.error('解析事件数据失败:', e, line);
+           }
+-        } catch (e) {
+-          console.error('解析SSE数据失败:', e);
+         }
+       }
+     }
+     
+     return {
+       messageId,
+-      conversationId: responseConversationId
++      conversationId: responseConversationId,
++      taskId
+     };
+   } catch (error) {
+     console.error('发送消息出错:', error);
+-    if (onError) {
+-      onError(error.message);
+-    }
++    if (onError) onError(error);
+     throw error;
+   }
+ };
+@@ -115,11 +133,13 @@ export const getConversationHistory = async (conversationId, user = null, firstI
+   const userId = user || getUserId();
+   
+   // 确保 conversationId 有效
+-  if (!conversationId || !isValidUUID(conversationId)) {
+-    throw new Error('无效的会话ID');
++  if (!conversationId) {
++    throw new Error('会话ID不能为空');
+   }
+   
+   try {
++    console.log("正在请求历史消息, ID:", conversationId);
++    
+     const url = new URL(`${API_BASE_URL}/messages`);
+     url.searchParams.append('conversation_id', conversationId);
+     url.searchParams.append('user', userId);
+@@ -134,11 +154,20 @@ export const getConversationHistory = async (conversationId, user = null, firstI
+     });
+     
+     if (!response.ok) {
+-      const errorData = await response.json();
+-      throw new Error(errorData.message || '获取历史消息失败');
++      const errorText = await response.text();
++      console.error("API返回错误:", errorText);
++      
++      try {
++        const errorData = JSON.parse(errorText);
++        throw new Error(errorData.message || `获取历史消息失败，状态码: ${response.status}`);
++      } catch (e) {
++        throw new Error(`获取历史消息失败，状态码: ${response.status}`);
++      }
+     }
+     
+-    return await response.json();
++    const data = await response.json();
++    console.log("获取到历史数据:", data);
++    return data;
+   } catch (error) {
+     console.error('获取历史消息出错:', error);
+     throw error;
+diff --git a/work/src/views/QMathify.vue b/work/src/views/QMathify.vue
+index e7f3df5..66bdc52 100644
+--- a/work/src/views/QMathify.vue
++++ b/work/src/views/QMathify.vue
+@@ -1,5 +1,4 @@
+ <template>
+-
+   <div class="container">
+     <!-- 边栏 -->
+     <div
+@@ -59,19 +58,23 @@
+ 
+         <!-- 近期对话列表 -->
+         <div v-if="isDialogListVisible" class="recent-dialog-list">
+-          <div v-for="(dialog, index) in dialogs" :key="index" class="dialog-item">
+-            <span @click="loadDialog(dialog.id)">{{ dialog.name }}</span>
++          <div 
++            v-for="(dialog, index) in dialogs" 
++            :key="dialog.id"
++            :class="['dialog-item', { 'dialog-active': currentDialogId === dialog.id }]"
++            @click="loadDialog(dialog.id)"
++          >
++            <span class="dialog-name">{{ dialog.name }}</span>
+             <div class="icon-container">
+               <el-icon class="edit-icon" @click.stop="renameDialog(index)">
+                 <Edit />
+               </el-icon>
+-              <el-icon class="delete-icon" @click.stop="deletedialog(dialog.id)">
++              <el-icon class="delete-icon" @click.stop="deleteDialog(dialog.id)">
+                 <Delete />
+               </el-icon>
+             </div>
+           </div>
+         </div>
+-        <div>
+           <el-button type="primary" class="bo08" @mouseenter="handleButtonEnter" @mouseleave="handleButtonLeave" @click="togglePopover">
+             <div class="button-content">
+               <img alt="per" src="@/imgs/person.png" class="per-icon" />
+@@ -96,12 +99,16 @@
+               退出登录</el-button>
+           </div>
+         </div>
+-      </div>
+     </div>
+ 
+     <!-- 页面内容 -->
+     <div class="ai" :class="{ 'content-shifted': isSidebarOpen }">
+-      <ai ref="aiComponent" :dialogs="dialogs" @add-to-recent-dialogs="addToRecentDialogs" />
++      <ai 
++        ref="aiComponent" 
++        :dialogs="dialogs" 
++        @add-to-recent-dialogs="addToRecentDialogs"
++        @update-dialog-title="updateDialogTitle"
++      />
+     </div>
+   </div>
+ </template>
+@@ -110,7 +117,11 @@ import { ref,onMounted } from 'vue';
+ import { ElMessage } from "element-plus";
+ import { Memo, Edit, Delete } from '@element-plus/icons-vue'; // 引入图标
+ import ai from './ai.vue';
+-
++import {
++  getConversations,
++  deleteConversation,
++  renameConversation,
++} from '@/api/dify';
+ // 状态管理
+ const isSidebarOpen = ref(false); // 侧栏展开状态
+ const isDialogListVisible = ref(false); // 对话列表显示状态
+@@ -121,71 +132,180 @@ const isButtonHovered = ref(false); // 个人信息按钮悬停状态
+ // 对话管理
+ const dialogs = ref([]); // 近期对话列表
+ const aiComponent = ref(null); // ai 组件的引用
++// 优化更新对话标题的处理函数
++const updateDialogTitle = (dialog) => {
++  if (!dialog || !dialog.id) return;
++  
++  console.log("更新对话标题:", dialog);
++  
++  const dialogIndex = dialogs.value.findIndex(d => d.id === dialog.id);
++  if (dialogIndex !== -1) {
++    // 只在标题确实不同时更新，避免不必要的UI刷新
++    if (dialogs.value[dialogIndex].name !== dialog.name) {
++      console.log(`对话 ${dialog.id} 标题从 "${dialogs.value[dialogIndex].name}" 更新为 "${dialog.name}"`);
++      dialogs.value[dialogIndex].name = dialog.name;
++    }
++  } else {
++    console.warn("找不到要更新标题的对话:", dialog.id);
++  }
++};
+ const loadRecentDialogs = async () => {
+   try {
+-    const conversations = await getConversations();
+-    dialogs.value = conversations.map((conv) => ({
+-      id: conv.id,
+-      name: conv.name,
+-    }));
++    const response = await getConversations();
++    if (response && response.data) {
++      dialogs.value = response.data.map(conv => ({
++        id: conv.id,
++        name: conv.name || '未命名对话'
++      }));
++    }
+   } catch (error) {
+-    ElMessage.error(`加载对话列表失败: ${error.message}`);
+-  }
+-};
+-// 加载对话
+-const loadDialog = (id) => {
+-  if (aiComponent.value) {
+-    aiComponent.value.loadDialogFromLocal(id);
+-    localStorage.setItem('currentDialogId', id); // 更新当前对话ID
++    console.error("加载对话列表失败:", error);
++    ElMessage.error("加载对话列表失败");
+   }
+ };
+ 
+-// 删除对话
+-const deletedialog = (id) => {
+-  if (aiComponent.value) {
+-    aiComponent.value.deleteDialogFromLocal(id);
+-    dialogs.value = dialogs.value.filter((dialog) => dialog.id !== id);
+-    if (localStorage.getItem('currentDialogId') === id) {
+-      localStorage.removeItem('currentDialogId'); // 清理当前对话ID
++// 完善deleteDialog函数
++const deleteDialog = async (id) => {
++  try {
++    await deleteConversation(id);
++    // 从列表中移除
++    dialogs.value = dialogs.value.filter(dialog => dialog.id !== id);
++    ElMessage.success('对话删除成功');
++    
++    // 如果删除的是当前打开的对话，则创建新对话
++    const currentDialogId = localStorage.getItem('currentDialogId');
++    if (currentDialogId === id && aiComponent.value) {
++      aiComponent.value.handleNewDialog();
+     }
++  } catch (error) {
++    console.error("删除对话失败:", error);
++    ElMessage.error("删除对话失败");
+   }
+ };
+-
+-// 清空所有对话
+-const clearAllDialogs = () => {
+-  if (aiComponent.value) {
+-    aiComponent.value.clearAllDialogs();
+-    dialogs.value = [];
++// 完全重写加载对话函数，确保可靠切换
++const loadDialog = async (id) => {
++  if (!id) {
++    console.error("无效ID");
++    ElMessage.error("无效的对话ID");
++    return;
++  }
++  
++  // 即使加载失败，也要先记住当前选择的对话ID
++  currentDialogId.value = id;
++  localStorage.setItem('currentDialogId', id);
++  
++  try {
++    if (aiComponent.value) {
++      console.log("尝试加载对话:", id);
++      
++      // 设置当前活跃对话样式
++      await aiComponent.value.loadDialogFromLocal(id);
++      
++      // 无论成功与否都不改变顺序
++      ElMessage.success('对话加载成功');
++    } else {
++      console.error("AI组件未初始化");
++      ElMessage.error("系统未就绪，请刷新页面");
++    }
++  } catch (error) {
++    console.error("加载对话失败:", error);
++    ElMessage.error("加载对话失败，但已选择该对话");
++    
++    // 即使加载失败也保持当前选择的对话ID
++    // 这样用户可以看到选择了哪个对话，即使内容加载失败
+   }
+ };
+-
+-// 新建对话
++// 添加新建对话函数
+ const handleNewDialog = () => {
+   if (aiComponent.value) {
++    // 清除本地存储中的当前对话ID
++    localStorage.removeItem('currentDialogId');
++    currentDialogId.value = null;
++    
++    // 创建新对话
+     aiComponent.value.handleNewDialog();
++    
++    // 通知用户
++    ElMessage.success('已创建新对话');
+   }
+ };
+ 
+-// 添加对话到近期列表
+-const addToRecentDialogs = (message) => {
+-  const dialogName = message.slice(0, 7); // 取前七个字
+-  const dialogId = Date.now().toString(); // 生成唯一ID
+-  dialogs.value.unshift({ id: dialogId, name: dialogName }); // 添加到近期对话列表
+-  localStorage.setItem('currentDialogId', dialogId); // 更新当前对话ID
++// 定义currentDialogId变量
++const currentDialogId = ref(null); // 添加这一行
++
++// 优化添加到最近对话列表的方法
++const addToRecentDialogs = (dialog) => {
++  // 确保dialog是对象格式
++  if (typeof dialog === 'string') {
++    // 如果传入的是字符串，创建对话对象
++    dialog = {
++      id: Date.now().toString(),
++      name: dialog.length > 20 ? dialog.substring(0, 20) + '...' : dialog
++    };
++  }
++  
++  // 检查是否已存在相同ID的对话
++  const existingIndex = dialogs.value.findIndex(d => d.id === dialog.id);
++  
++  if (existingIndex !== -1) {
++    // 已存在相同ID的对话，只更新名称，不改变位置
++    dialogs.value[existingIndex].name = dialog.name || dialogs.value[existingIndex].name;
++  } else {
++    // 不存在相同ID的对话，添加到列表顶部（只有新对话才会被添加到顶部）
++    dialogs.value.unshift({
++      id: dialog.id,
++      name: dialog.name || '未命名对话'
++    });
++  }
++  
++  // 保存当前对话ID
++  if (dialog.id) {
++    localStorage.setItem('currentDialogId', dialog.id);
++    currentDialogId.value = dialog.id;
++  }
++};
++// 完善clearAllDialogs函数
++const clearAllDialogs = async () => {
++  try {
++    // 逐个删除所有对话
++    for (const dialog of dialogs.value) {
++      try {
++        await deleteConversation(dialog.id);
++      } catch (err) {
++        console.error(`删除对话 ${dialog.id} 失败:`, err);
++      }
++    }
++    
++    // 清空本地列表
++    dialogs.value = [];
++    ElMessage.success('所有对话已清空');
++    
++    // 创建新对话
++    if (aiComponent.value) {
++      aiComponent.value.handleNewDialog();
++    }
++  } catch (error) {
++    console.error("清空对话失败:", error);
++    ElMessage.error("清空对话失败");
++  }
+ };
+ 
++// 修复renameDialog函数
+ const renameDialog = async (index) => {
+   const newValue = prompt('请输入新的名称', dialogs.value[index].name);
+-  if (newValue !== null) {
++  if (newValue !== null && newValue.trim() !== '') {
+     try {
+-      await renameConversation(dialogs.value[index].id, newValue);
++      const dialogId = dialogs.value[index].id;
++      await renameConversation(dialogId, newValue, false);
+       dialogs.value[index].name = newValue;
+-      ElMessage.success('对话重命名成功');
++      ElMessage.success('对话已重命名');
+     } catch (error) {
+-      ElMessage.error(`重命名对话失败: ${error.message}`);
++      console.error("重命名对话失败:", error);
++      ElMessage.error("重命名对话失败");
+     }
+   }
+ };
++
+ // 删除所有对话记录
+ const deleteAllDialogs = () => {
+   dialogs.value = [];
+@@ -383,7 +503,7 @@ onMounted(() => {
+   top: 650px;
+   width: 180px;
+   height: 50px;
+-  position:fixed; /* 绝对定位 */
++  position:absolute; /* 绝对定位 */
+   background: rgba(248, 245, 255, 0.81);
+   color: rgba(111, 58, 246, 1);
+   display: flex;
+@@ -398,11 +518,11 @@ onMounted(() => {
+   top: 400px;
+   left: 40px;
+   width: 140px;
+-height: 180px;
+-opacity: 1;
+-border-radius: 10px;
+-background: rgba(255, 255, 255, 1);
+-box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
++  height: 180px;
++  opacity: 1;
++  border-radius: 10px;
++  background: rgba(255, 255, 255, 1);
++  box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
+   border: 1px solid #ccc;
+   padding-top: 25px;
+   padding-left: 10px;
+@@ -455,40 +575,54 @@ box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
+ 
+ /* 近期对话列表样式 */
+ .recent-dialog-list {
+-  margin-top:10px;
+-  padding-left: 30px;
++  margin-top: 10px;
+   position: absolute;
+   top: 300px;
+-  max-height:200px; /* 根据实际调整 */
++  max-height: 200px;
+   overflow-y: auto;
+   overflow-x: hidden;
+-
+-  width: 180px;
+-height: 200px;
+-opacity: 1;
+-border-radius: 10px;
+-background: rgba(249, 246, 255, 1);
++  width: 200px; /* 增加宽度，从190px改为200px */
++  height: 200px;
++  opacity: 1;
++  border-radius: 10px;
++  background: rgba(249, 246, 255, 1);
++  left: 10px; /* 添加左偏移，使其居中 */
+ }
+ 
++/* 对话项样式调整 */
+ .dialog-item {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+-  padding-top: 14px ;
++  padding: 8px 4px; /* 减小内边距 */
+   color: rgba(111, 58, 246, 1);
+   cursor: pointer;
+-  position: relative;
+-  left: -9px;
+-  
+-  width: 170px;
+-
++  border-radius: 4px;
++  margin-bottom: 4px;
++  width: 95%; /* 增加宽度占比，从93%改为95% */
++  margin-left: 2px; /* 添加左边距 */
++  margin-right: 2px; /* 添加右边距 */
++}
++/* 活跃对话样式 */
++.dialog-active {
++  background-color: rgba(226, 214, 255, 1);
++  font-weight: bold;
+ }
+ 
++.dialog-name {
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  max-width: 70%;
++}
+ 
+ .dialog-item:hover {
+   background-color: rgba(237, 230, 255, 0.81);
+-  border-radius: 4px;
+-  width: 175px;
++}
++
++.icon-container {
++  display: flex;
++  gap: 8px;
+ }
+ .edit-icon,
+ .delete-icon {
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index cb09b2f..fdbf4e7 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -51,6 +51,9 @@
+     <el-icon class="close-icon" @click="dislikeMessage(index)">
+       <CircleClose/>
+     </el-icon>
++    <el-icon class="stop-responding-icon" @click="stopResponding(index)">
++      <VideoPause />
++    </el-icon>
+   </div>
+   
+         <!-- 显示图片预览 -->
+@@ -60,6 +63,36 @@
+           alt="Uploaded Image"
+           class="uploaded-image"
+         />
++        <!-- 文件上传标识 -->
++        <div v-if="message.fileId" class="file-upload-indicator">
++          <el-icon v-if="message.fileType === 'image'"><Picture /></el-icon>
++          <el-icon v-else><Document /></el-icon>
++          <span>{{ message.fileName || '已上传文件' }}</span>
++        </div>
++        <!-- 显示文件附件 -->
++        <div v-if="message.files && message.files.length > 0" class="message-files">
++          <div v-for="(file, fileIndex) in message.files" :key="fileIndex" class="message-file">
++            <img 
++              v-if="file.type === 'image'" 
++              :src="file.url" 
++              :alt="'附件 ' + (fileIndex + 1)" 
++              class="file-image" 
++              @click="openImageInNewTab(file.url)"
++            />
++            <div v-else class="file-link">
++              <el-icon><Document /></el-icon>
++              <a :href="file.url" target="_blank" rel="noopener noreferrer">
++                查看文件附件
++              </a>
++            </div>
++          </div>
++        </div>
++        <div v-if="message.fileUrl && !message.imageUrl" class="file-link">
++          <el-icon><Document /></el-icon>
++          <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
++            {{ message.fileName || '查看文件' }}
++          </a>
++        </div>
+         <!-- 显示文件名称 -->
+         <div v-if="message.fileName" class="file-name">
+           文件: {{ message.fileName }}
+@@ -140,7 +173,7 @@
+ <script setup>
+ import { ref, onMounted, watch, nextTick } from 'vue';
+ import { ElMessage } from "element-plus";
+-import { Picture, FolderOpened, ChatDotRound,CopyDocument ,Refresh, CircleCheck,CircleClose } from '@element-plus/icons-vue';
++import { Picture, FolderOpened, ChatDotRound,CopyDocument ,Refresh, CircleCheck,CircleClose,VideoPause } from '@element-plus/icons-vue';
+ import {
+   sendChatMessage,
+   getConversationHistory,
+@@ -149,8 +182,10 @@ import {
+   renameConversation,
+   sendFeedback,
+   uploadFile,
++  stopResponse
+ } from '@/api/dify'; 
+-const emit = defineEmits(['add-to-recent-dialogs']);
++// 添加更新对话标题的事件
++const emit = defineEmits(['add-to-recent-dialogs', 'update-dialog-title']);
+ const chatMessagesRef = ref(null);
+ const messageList = ref([]);
+ const inputMessage = ref('');
+@@ -158,6 +193,38 @@ const imageInput = ref(null);
+ const fileInput = ref(null);
+ const isFirstInput = ref(true);
+ const currentDialogId = ref(null);
++const isGenerating = ref(false);
++const currentTaskId = ref(null);
++// 添加文件和图片上传触发函数
++const triggerImageInput = () => {
++  imageInput.value.click();
++};
++
++const triggerFileInput = () => {
++  fileInput.value.click();
++};
++
++
++// 添加停止生成函数
++const stopResponding = async () => {
++  if (currentTaskId.value) {
++    try {
++      await stopResponse(currentTaskId.value);
++      isGenerating.value = false;
++      currentTaskId.value = null;
++      ElMessage.success('已停止生成');
++    } catch (error) {
++      ElMessage.error('停止生成失败');
++      console.error('停止生成失败:', error);
++    }
++  }
++};
++// 验证是否为有效的UUID
++const isValidUUID = (str) => {
++  // 简单检查是否符合UUID格式
++  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
++  return typeof str === 'string' && uuidRegex.test(str);
++};
+ // 判断是否为问候语
+ const isGreeting = (content) => {
+   const greetingText = '亲爱的用户,你好!我是你的智能数学助手QMathify。我可以帮助你解答数学问题,包括但不限于：代数问题求解，概率统计计算 数学知识归纳....请告诉我你的问题，我会为你解答。';
+@@ -174,12 +241,92 @@ const copyMessage = (text) => {
+     });
+ };
+ // 重新生成 AI 回答
+-const regenerateResponse = (index) => {
++const regenerateResponse = async (index) => {
+   const message = messageList.value[index];
+   if (message.type === 'ai') {
+-    // 模拟重新生成回答
+-    const newResponse = '这是重新生成的 AI 回复示例。';
+-    messageList.value[index].content = newResponse;
++    // 查找上一个用户消息作为重新生成的输入
++    let userMessage = '';
++    for (let i = index - 1; i >= 0; i--) {
++      if (messageList.value[i].type === 'user') {
++        userMessage = messageList.value[i].content;
++        break;
++      }
++    }
++
++    if (userMessage) {
++      // 将AI响应改为"思考中"状态
++      messageList.value[index] = {
++        type: 'thinking',
++        thinkingContent: `重新思考中...`,
++        content: '',
++      };
++
++      try {
++        // 调用API重新生成回答，注意参数匹配
++        await sendChatMessage(
++          userMessage,
++          currentDialogId.value,
++          // 消息流式回调 - 修改参数格式
++          (text, tid) => {
++            if (messageList.value[index].type === 'thinking') {
++              messageList.value[index] = {
++                type: 'ai',
++                content: text
++              };
++            } else {
++              messageList.value[index].content = text;
++            }
++            
++            // 更新任务ID
++            if (tid && !currentTaskId.value) {
++              currentTaskId.value = tid;
++            }
++          },
++          // 完成回调 - 修改参数格式
++          (fullAnswer, msgId, convId) => {
++            if (messageList.value[index].type === 'thinking') {
++              messageList.value[index] = {
++                type: 'ai',
++                content: fullAnswer,
++                messageId: msgId
++              };
++            } else {
++              messageList.value[index].content = fullAnswer;
++              messageList.value[index].messageId = msgId;
++            }
++            
++            // 结束生成状态
++            isGenerating.value = false;
++            currentTaskId.value = null;
++          },
++          // 错误回调
++          (error) => {
++            messageList.value[index] = {
++              type: 'ai',
++              content: `重新生成回答失败: ${error.message}`
++            };
++            ElMessage.error(`重新生成回答失败: ${error.message}`);
++            
++            // 重置状态
++            isGenerating.value = false;
++            currentTaskId.value = null;
++          }
++        );
++      } catch (error) {
++        console.error('重新生成回答失败:', error);
++        messageList.value[index] = {
++          type: 'ai',
++          content: '重新生成回答失败，请稍后再试。'
++        };
++        ElMessage.error(`重新生成回答失败: ${error.message}`);
++        
++        // 重置状态
++        isGenerating.value = false;
++        currentTaskId.value = null;
++      }
++    } else {
++      ElMessage.warning('找不到对应的用户问题，无法重新生成回答');
++    }
+   }
+ };
+ const likeMessage = async (index) => {
+@@ -193,7 +340,10 @@ const likeMessage = async (index) => {
+     }
+   }
+ };
+-
++// 添加到script部分
++const openImageInNewTab = (url) => {
++  window.open(url, '_blank');
++};
+ const dislikeMessage = async (index) => {
+   const message = messageList.value[index];
+   if (message.type === 'ai' && message.messageId) {
+@@ -216,14 +366,140 @@ const saveDialogToLocal = () => {
+ };
+ const loadDialogFromLocal = async (id) => {
+   try {
+-    const history = await getConversationHistory(id);
+-    messageList.value = history.messages.map((msg) => ({
+-      type: msg.role === 'user' ? 'user' : 'ai',
+-      content: msg.content,
+-    }));
+-    currentDialogId.value = id;
++    console.log("加载对话:", id);
++    
++    // 检查是否是有效ID
++    if (!id) {
++      console.log("无ID，创建新对话");
++      handleNewDialog();
++      return true;
++    }
++
++    // 尝试获取对话信息，包括服务器生成的标题
++    try {
++      const conversations = await getConversations();
++      const conversation = conversations.data.find(conv => conv.id === id);
++      if (conversation && conversation.name) {
++        console.log("获取到服务器标题:", conversation.name);
++        // 通知父组件使用服务器标题
++        emit('update-dialog-title', {
++          id: id,
++          name: conversation.name
++        });
++      }
++    } catch (err) {
++      console.error("获取对话标题失败:", err);
++    }
++
++    // 尝试加载历史记录
++    try {
++      const history = await getConversationHistory(id);
++      console.log("获取到历史数据:", history);
++      
++      // 处理API返回的数据
++      if (history && Array.isArray(history.data) && history.data.length > 0) {
++        // 清空当前消息列表
++        messageList.value = [];
++        
++        // 处理历史消息 - 根据API文档格式解析
++        history.data.forEach(msg => {
++          // 1. 添加用户消息 (如果存在query)
++          if (msg.query) {
++            const userMessage = {
++              type: 'user',
++              content: msg.query,
++              messageId: msg.id + '_user'
++            };
++            
++            // 处理用户上传的文件
++            if (msg.inputs && msg.inputs.files && Array.isArray(msg.inputs.files) && msg.inputs.files.length > 0) {
++              userMessage.fileId = msg.inputs.files[0];
++              userMessage.fileSent = true;
++            }
++            
++            messageList.value.push(userMessage);
++          }
++          
++          // 2. 添加AI消息 (如果存在answer)
++          if (msg.answer) {
++            const aiMessage = {
++              type: 'ai',
++              content: msg.answer,
++              messageId: msg.id
++            };
++            
++            messageList.value.push(aiMessage);
++          }
++          
++          // 3. 处理文件附件
++          if (msg.message_files && msg.message_files.length > 0) {
++            msg.message_files.forEach(file => {
++              // 保存文件URL，确保能够显示
++              const fileInfo = {
++                id: file.id,
++                type: file.type,
++                url: file.url,
++                belongs_to: file.belongs_to
++              };
++              
++              // 关联到对应消息
++              if (file.belongs_to === 'assistant') {
++                const lastAiMsg = [...messageList.value].reverse().find(m => m.type === 'ai');
++                if (lastAiMsg) {
++                  if (!lastAiMsg.files) lastAiMsg.files = [];
++                  lastAiMsg.files.push(fileInfo);
++                }
++              } else {
++                const lastUserMsg = [...messageList.value].reverse().find(m => m.type === 'user');
++                if (lastUserMsg) {
++                  if (!lastUserMsg.files) lastUserMsg.files = [];
++                  lastUserMsg.files.push(fileInfo);
++                  
++                  // 如果是图片，也设置imageUrl便于显示
++                  if (file.type === 'image') {
++                    lastUserMsg.imageUrl = file.url;
++                  }
++                }
++              }
++            });
++          }
++        });
++        
++        // 更新对话ID和状态
++        currentDialogId.value = id;
++        isFirstInput.value = false;
++        return true;
++      } else {
++        console.log("历史数据为空或格式不匹配，创建带默认消息的新对话");
++        // 创建带默认欢迎消息的对话
++        messageList.value = [{
++          type: 'ai',
++          content: '亲爱的用户,你好!我是你的智能数学助手QMathify。我可以帮助你解答数学问题,包括但不限于：代数问题求解，概率统计计算 数学知识归纳....请告诉我你的问题，我会为你解答。'
++        }];
++        
++        // 重要：保留传入的对话ID
++        currentDialogId.value = id;
++        isFirstInput.value = true;
++        return true;
++      }
++    } catch (error) {
++      console.error("获取历史消息失败:", error);
++      
++      // 创建带默认欢迎消息的对话，但保留ID
++      messageList.value = [{
++        type: 'ai',
++        content: '亲爱的用户,你好!我是你的智能数学助手QMathify。我可以帮助你解答数学问题,包括但不限于：代数问题求解，概率统计计算 数学知识归纳....请告诉我你的问题，我会为你解答。'
++      }];
++      
++      currentDialogId.value = id;
++      isFirstInput.value = true;
++      return true;
++    }
+   } catch (error) {
+-    ElMessage.error(`加载历史消息失败: ${error.message}`);
++    console.error("加载对话整体失败:", error);
++    ElMessage.error(`加载对话失败: ${error.message}`);
++    
++    return false;
+   }
+ };
+ const deleteDialogFromLocal = (id) => {
+@@ -246,120 +522,348 @@ const scrollToBottom = () => {
+   if (chatMessagesRef.value) {
+     chatMessagesRef.value.scrollTop = chatMessagesRef.value.scrollHeight;
+   }
+-};const sendMessage = async () => {
++};
++
++// 修改发送消息函数，添加任务ID捕获
++// 修改发送消息函数，添加任务ID捕获
++// 修改send Message函数解决流式生成问题
++// 添加到sendMessage函数中，在构建payload前
++const sendMessage = async () => {
+   const trimmedMessage = inputMessage.value.trim();
+   if (trimmedMessage) {
+-    // 添加用户消息到消息列表
++    // 查找最近的文件上传消息，如果存在
++    const lastFileUpload = [...messageList.value].reverse().find(
++      msg => msg.type === 'user' && msg.fileId && !msg.fileSent
++    );
++    
++    let files = null;
++    if (lastFileUpload && lastFileUpload.fileId) {
++      // 构建正确的文件对象结构
++      files = [{
++        type: lastFileUpload.fileType === 'image' ? 'image' : 'document',
++        transfer_method: "local_file",
++        upload_file_id: lastFileUpload.fileId
++      }];
++      
++      console.log("发送文件参数:", files);
++      
++      // 标记文件已被发送
++      lastFileUpload.fileSent = true;
++    }
++    
++    // 添加用户消息到列表
+     messageList.value.push({
+       type: 'user',
+-      content: trimmedMessage,
++      content: trimmedMessage
+     });
+-    inputMessage.value = ''; // 清空输入框
+- // 触发 addToRecentDialogs 事件
+- emit('add-to-recent-dialogs', trimmedMessage);
+ 
+-    // 添加“思考中”状态
+-    messageList.value.push({
+-      type: 'thinking',
+-      thinkingContent: `正在深度思考 "${trimmedMessage}"...`,
+-      content: '',
+-    });
++    inputMessage.value = '';
++    scrollToBottom();
++
++    // 设置生成状态为true
++    isGenerating.value = true;
+ 
+     try {
+-      // 调用 API 发送消息
++      // 添加AI思考中状态
++      messageList.value.push({
++        type: 'thinking',
++        content: '思考中...'
++      });
++      scrollToBottom();
++      
++      console.log("发送消息", {
++        message: trimmedMessage,
++        conversationId: currentDialogId.value,
++        files: files
++      });
++      
++      // 调用API发送消息，直接传递文件ID数组作为第6个参数
+       await sendChatMessage(
+         trimmedMessage,
+         currentDialogId.value,
+-        (answer, messageId, conversationId) => {
+-          // 更新 AI 回复内容
+-          const thinkingIndex = messageList.value.findIndex(
+-            (msg) => msg.type === 'thinking'
+-          );
+-          if (thinkingIndex !== -1) {
+-            messageList.value[thinkingIndex] = {
++        (text, tid) => {
++          // 更新任务ID用于停止生成
++          if (tid && !currentTaskId.value) {
++            currentTaskId.value = tid;
++          }
++          
++          // 移除思考中状态或更新现有AI回复
++          const thinkingMsgIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (thinkingMsgIndex !== -1) {
++            // 替换思考中消息为AI回复
++            messageList.value.splice(thinkingMsgIndex, 1, {
+               type: 'ai',
+-              content: answer,
+-              messageId,
+-            };
++              content: text
++            });
++          } else {
++            // 查找并更新现有AI回复
++            const aiMsg = messageList.value[messageList.value.length - 1];
++            if (aiMsg && aiMsg.type === 'ai') {
++              aiMsg.content = text;
++            } else {
++              // 如果没有找到现有消息，添加新的
++              messageList.value.push({
++                type: 'ai',
++                content: text
++              });
++            }
+           }
++          scrollToBottom();
+         },
+-        (messageId, conversationId, metadata, fullAnswer) => {
+-          // 对话结束，保存对话 ID
+-          currentDialogId.value = conversationId;
+-          saveDialogToLocal();
++        (fullAnswer, msgId, convId) => {
++          // 回答结束时
++          isGenerating.value = false;
++          currentTaskId.value = null;
++          
++          // 更新对话ID
++          if (convId) {
++            const wasFirstMessage = isFirstInput.value;
++            currentDialogId.value = convId;
++            
++            // 如果是首次输入，添加到对话列表并尝试获取服务器标题
++            if (wasFirstMessage) {
++              isFirstInput.value = false;
++              
++              // 先添加带临时标题的对话
++              emit('add-to-recent-dialogs', {
++                id: convId,
++                name: '新对话' // 临时标题
++              });
++              
++              // 保存到本地存储
++              localStorage.setItem('currentDialogId', convId);
++              
++              // 获取服务器返回的正确对话标题
++              setTimeout(async () => {
++                try {
++                  const conversations = await getConversations();
++                  const conversation = conversations.data.find(conv => conv.id === convId);
++                  if (conversation && conversation.name) {
++                    console.log("更新对话标题:", conversation.name);
++                    // 通知父组件更新对话标题
++                    emit('update-dialog-title', {
++                      id: convId,
++                      name: conversation.name
++                    });
++                  }
++                } catch (err) {
++                  console.error("获取对话标题失败:", err);
++                }
++              }, 1000); // 延迟1秒，确保服务器已处理完成
++            }
++          }
++          
++          // 处理思考中状态
++          const remainingThinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (remainingThinkingIndex !== -1) {
++            messageList.value.splice(remainingThinkingIndex, 1, {
++              type: 'ai',
++              content: fullAnswer,
++              messageId: msgId
++            });
++          }
++          
++          // 确保最终消息有正确的messageId
++          const finalAiMsg = messageList.value.find(msg => msg.type === 'ai' && !msg.messageId);
++          if (finalAiMsg && msgId) {
++            finalAiMsg.messageId = msgId;
++          }
+         },
+         (error) => {
+           // 处理错误
+-          ElMessage.error(`发送消息失败: ${error}`);
+-        }
++          isGenerating.value = false;
++          currentTaskId.value = null;
++          ElMessage.error('发送消息失败：' + error.message);
++          
++          // 移除思考中状态
++          const thinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (thinkingIndex !== -1) {
++            messageList.value.splice(thinkingIndex, 1, {
++              type: 'ai',
++              content: '回答生成失败，请重试。'
++            });
++          }
++        },
++        files // 传递文件ID数组作为第6个参数
+       );
+     } catch (error) {
+-      ElMessage.error(`发送消息失败: ${error.message}`);
++      isGenerating.value = false;
++      currentTaskId.value = null;
++      ElMessage.error('发送消息失败');
++      console.error('发送消息失败:', error);
++      
++      // 移除思考中状态
++      const thinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++      if (thinkingIndex !== -1) {
++        messageList.value.splice(thinkingIndex, 1, {
++          type: 'ai',
++          content: '发送消息失败，请重试。'
++        });
++      }
+     }
+-  } else {
+-    ElMessage.warning('请输入消息内容');
+   }
+ };
+-// 模拟调用后端接口
+-const fetchAIResponse = async (message) => {
+-  // 这里可以替换为实际的后端接口调用
+-  return new Promise((resolve) => {
+-    setTimeout(() => {
+-      resolve(`这是 AI 对 "${message}" 的深度思考回复。`);
+-    }, 1000); // 模拟 1 秒的接口响应时间
+-  });
+-};
++// 移除临时ID，简化新建对话函数
+ const handleNewDialog = () => {
+   messageList.value = [];
+-  currentDialogId.value = null;
++  currentDialogId.value = null; // 重要：置空ID，确保服务器生成新ID
+   isFirstInput.value = true;
++  
++  // 添加欢迎消息
+   messageList.value.push({
+     type: 'ai',
+     content: '亲爱的用户,你好!我是你的智能数学助手QMathify。我可以帮助你解答数学问题,包括但不限于：代数问题求解，概率统计计算 数学知识归纳....请告诉我你的问题，我会为你解答。'
+   });
+ };
+-const triggerImageInput = () => {
+-  fileInput.value.click();
+-};
+-const triggerFileInput = () => {
+-  fileInput.value.click();
++
++// 修复图片上传函数
++// 修复图片上传函数
++const handleImageUpload = async (e) => {
++  const file = e.target.files[0];
++  if (!file) return;
++
++  // 检查文件类型
++  if (!file.type.startsWith('image/')) {
++    ElMessage.error('请上传图片文件');
++    imageInput.value.value = '';
++    return;
++  }
++
++  // 检查文件大小（限制为10MB）
++  if (file.size > 10 * 1024 * 1024) {
++    ElMessage.error('图片大小不能超过10MB');
++    imageInput.value.value = '';
++    return;
++  }
++
++  try {
++    // 先显示上传中状态
++    messageList.value.push({
++      type: 'user',
++      content: '上传图片中...',
++      fileName: file.name,
++    });
++    
++    scrollToBottom();
++
++    // 上传文件到服务器
++    const result = await uploadFile(file);
++    console.log("图片上传结果:", result);
++
++    // 根据API文档，上传成功后返回的是文件ID和其他元数据
++    if (!result || !result.id) {
++      throw new Error('服务器没有返回有效的文件ID');
++    }
++    
++    // 上传成功后，更新消息内容
++    const lastIndex = messageList.value.length - 1;
++    messageList.value[lastIndex] = {
++      type: 'user',
++      content: `我上传了一张图片: ${file.name}`,
++      fileId: result.id,
++      fileName: file.name,
++      fileType: 'image',
++      // 保存文件元数据，供历史记录恢复使用
++      fileMetadata: {
++        id: result.id,
++        name: result.name,
++        extension: result.extension,
++        mime_type: result.mime_type
++      }
++    };
++    
++    ElMessage.success('图片上传成功');
++    
++    // 自动在输入框中添加提示文本
++    inputMessage.value = `我刚刚上传了一张图片(${file.name})，请分析一下`;
++  } catch (error) {
++    console.error("图片上传失败:", error);
++    
++    // 移除上传中状态消息或更新为错误消息
++    const lastIndex = messageList.value.length - 1;
++    if (lastIndex >= 0 && messageList.value[lastIndex].content === '上传图片中...') {
++      messageList.value.splice(lastIndex, 1);
++    }
++    
++    ElMessage.error(`图片上传失败: ${error.message}`);
++  } finally {
++    // 清空文件输入，允许用户重新选择同一文件
++    imageInput.value.value = '';
++  }
+ };
++
++// 修复文件上传函数
+ const handleFileUpload = async (e) => {
+-    const file = e.target.files[0];
+-    if (file) {
+-        try {
+-            const result = await uploadFile(file);
+-            // 这里可以处理上传成功后的逻辑，比如显示提示信息
+-            ElMessage.success('文件上传成功');
+-            // 可以根据接口返回的结果，添加文件相关信息到消息列表
+-            messageList.value.push({
+-                type: 'file',
+-                fileName: file.name,
+-                // 假设接口返回了文件的URL，可添加到消息列表用于展示
+-                fileUrl: result.fileUrl 
+-            });
+-        } catch (error) {
+-            ElMessage.error(`文件上传失败: ${error.message}`);
+-        }
++  const file = e.target.files[0];
++  if (!file) return;
++
++  // 检查文件类型
++  const allowedTypes = ['.doc', '.docx', '.pdf', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
++  const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
++  if (!allowedTypes.some(type => file.type.includes(type) || fileExtension === type)) {
++    ElMessage.error('请上传Word或PDF文件');
++    fileInput.value.value = '';
++    return;
++  }
++
++  // 检查文件大小（限制为10MB）
++  if (file.size > 10 * 1024 * 1024) {
++    ElMessage.error('文件大小不能超过10MB');
++    fileInput.value.value = '';
++    return;
++  }
++
++  try {
++    // 先显示上传中状态
++    messageList.value.push({
++      type: 'user',
++      content: '上传文件中...',
++      fileName: file.name,
++    });
++    
++    scrollToBottom();
++
++    // 上传文件到服务器
++    const result = await uploadFile(file);
++    console.log("文件上传结果:", result);
++
++    // 根据API文档，上传成功后返回的是文件ID和其他元数据
++    if (!result || !result.id) {
++      throw new Error('服务器没有返回有效的文件ID');
+     }
+-};
+-const handleImageUpload = async (e) => {
+-    const file = e.target.files[0];
+-    if (file) {
+-        try {
+-            const result = await uploadFile(file);
+-            ElMessage.success('图片上传成功');
+-            // 假设接口返回了图片的URL，添加到消息列表用于展示
+-            messageList.value.push({
+-                type: 'image',
+-                imageUrl: result.imageUrl 
+-            });
+-        } catch (error) {
+-            ElMessage.error(`图片上传失败: ${error.message}`);
+-        }
++    
++    // 上传成功后，修改消息内容，保存文件ID用于后续API调用
++    const lastIndex = messageList.value.length - 1;
++    messageList.value[lastIndex] = {
++      type: 'user',
++      content: `我上传了一个文件: ${file.name}`,
++      fileId: result.id,
++      fileName: file.name,
++      fileType: 'document'
++    };
++    
++    ElMessage.success('文件上传成功');
++    
++    // 自动在输入框中添加提示文本
++    inputMessage.value = `我上传了一个文件（${file.name}），请分析一下内容`;
++    // 可选：自动发送
++    // sendMessage();
++    
++  } catch (error) {
++    console.error("文件上传失败:", error);
++    
++    // 移除上传中状态消息或更新为错误消息
++    const lastIndex = messageList.value.length - 1;
++    if (lastIndex >= 0 && messageList.value[lastIndex].content === '上传文件中...') {
++      messageList.value.splice(lastIndex, 1);
+     }
++    
++    ElMessage.error(`文件上传失败: ${error.message}`);
++  } finally {
++    // 清空文件输入，允许用户重新选择同一文件
++    fileInput.value.value = '';
++  }
+ };
+-
+ onMounted(() => {
+  
+     handleNewDialog();
+@@ -451,7 +955,8 @@ defineExpose({
+ .copy-icon,
+ .refresh-icon,
+ .check-icon,
+-.close-icon {
++.close-icon,
++.stop-responding-icon {
+   cursor: pointer;
+   color: #666; /* 默认颜色 */
+   font-size: 20px;
+@@ -472,6 +977,10 @@ defineExpose({
+ 
+ .close-icon:hover {
+   color: #909399; /* 不喜欢图标悬停颜色 */}
++
++.stop-responding-icon:hover {
++  color: #e63c3c; /* 停止回答图标悬停颜色 */
++}
+ .four{width: 180px;
+   height: 57px;
+ position: absolute;
+@@ -573,6 +1082,64 @@ right: 0px;
+   border-radius: 17px; /* 比实际边框大2px */
+   z-index: -1;
+ }
++/* 添加到style部分 */
++.message-files {
++  margin-top: 10px;
++  display: flex;
++  flex-wrap: wrap;
++  gap: 8px;
++}
++
++.message-file {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++}
++
++.file-image {
++  max-width: 200px;
++  max-height: 150px;
++  border-radius: 4px;
++  cursor: pointer;
++}
++
++.file-image:hover {
++  opacity: 0.9;
++}
++
++.file-link {
++  display: flex;
++  align-items: center;
++  gap: 5px;
++  padding: 5px 10px;
++  background-color: #f0f2f5;
++  border-radius: 4px;
++  cursor: pointer;
++}
++
++.file-link a {
++  color: #409eff;
++  text-decoration: none;
++}
++
++.file-link a:hover {
++  text-decoration: underline;
++}
++/* 添加到样式部分 */
++.file-upload-indicator {
++  display: flex;
++  align-items: center;
++  padding: 8px;
++  margin-top: 8px;
++  background: #f0f2f5;
++  border-radius: 4px;
++  font-size: 14px;
++}
++
++.file-upload-indicator .el-icon {
++  margin-right: 8px;
++  color: #909399;
++}
+ /* 头像样式 */
+ .aitou {
+   width: 40px; /* 头像大小 */
+-- 
+2.39.5 (Apple Git-154)
+

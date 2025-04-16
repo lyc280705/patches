@@ -1,0 +1,102 @@
+From b7f442bf858f08fe406e79c489ac6f381c465405 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 7 Mar 2025 20:52:21 +0800
+Subject: [PATCH 45/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=82=AC=E6=B5=AE?=
+ =?UTF-8?q?=E6=8C=89=E9=92=AE=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 53 +++++++++++++++++----------------
+ 1 file changed, 28 insertions(+), 25 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index bbbc2d2..3135639 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -99,32 +99,32 @@
+             <span>{{ currentUser ? currentUser.username : '个人信息' }}</span>
+             </div>
+           </el-button>
++            <!-- 将悬浮卡片移到这里，作为按钮的兄弟元素 -->
++          <div v-if="showPopover" class="popover" @mouseenter="handlePopoverEnter" @mouseleave="handlePopoverLeave">
++            <div class="popover-item" @click="showProfileDialog = true">
++              <img class="pen" src="@/imgs/pen.png" />
++              <span class="xiu">修改个人信息</span>
++            </div>
++            <div class="popover-item">
++              <img class="delete" src="@/imgs/delete.png" />
++              <span class="shan" @click="clearAllDialogs">清空全部对话</span>
++            </div>
++            <div class="popover-item">
++              <img class="set" src="@/imgs/set.png" />
++              <span class="she">设置</span>
++            </div>
++            <div class="popover-item">
++              <img class="call" src="@/imgs/call.png" />
++              <span class="jiao">联系我们</span>
++            </div>
++            <div class="popover-item" @click="logout">
++              <img class="loginout" src="@/imgs/loginout.png" />
++              <span class="tui">退出登录</span>
++            </div>
++          </div>
+         </div>
+       </div>
+     </div>
+-    <!-- 个人信息悬浮卡片 -->
+-    <div v-if="showPopover" class="popover" @mouseenter="handlePopoverEnter" @mouseleave="handlePopoverLeave">
+-      <div class="popover-item" @click="showProfileDialog = true">
+-        <img class="pen" src="@/imgs/pen.png" />
+-        <span class="xiu">修改个人信息</span>
+-      </div>
+-      <div class="popover-item">
+-        <img class="delete" src="@/imgs/delete.png" />
+-        <span class="shan" @click="clearAllDialogs">清空全部对话</span>
+-      </div>
+-      <div class="popover-item">
+-        <img class="set" src="@/imgs/set.png" />
+-        <span class="she">设置</span>
+-      </div>
+-      <div class="popover-item">
+-        <img class="call" src="@/imgs/call.png" />
+-        <span class="jiao">联系我们</span>
+-      </div>
+-      <div class="popover-item" @click="logout">
+-        <img class="loginout" src="@/imgs/loginout.png" />
+-        <span class="tui">退出登录</span>
+-      </div>
+-    </div>
+ 
+     <!-- 个人信息编辑对话框 -->
+     <el-dialog
+@@ -1069,13 +1069,15 @@ body.sidebar-open-mobile {
+   margin-top: auto;
+   margin-bottom: 1.5rem;
+   width: 100%;
++  position: relative;  /* 相对定位 */
+ }
+ 
+ /* 个人信息悬浮卡片 */
+ .popover {
+   position: absolute;
+-  bottom: 7rem;
+-  left: 3rem;
++  bottom: 100%;  /* 定位到按钮上方 */
++  left: 50%;     /* 水平居中对齐 */
++  transform: translateX(-50%);  /* 水平居中对齐 */
+   width: 210px;
+   background: rgba(255, 255, 255, 1);
+   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+@@ -1083,6 +1085,7 @@ body.sidebar-open-mobile {
+   border-radius: 10px;
+   padding: 0.5rem;
+   z-index: 1010;
++  margin-bottom: 10px;  /* 与按钮保持间距 */
+ }
+ 
+ .popover-item {
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,1087 @@
+From 3f06b61ec794b01df244916d69fe03b728a801e8 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 30 Mar 2025 12:30:31 +0800
+Subject: [PATCH 66/85] =?UTF-8?q?fix-=E5=BC=95=E5=AF=BC=E9=A1=B5=E9=9D=A2?=
+ =?UTF-8?q?=E4=BF=AE=E5=A4=8D?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/api/dify03.js      |   2 +-
+ frontend/src/views/point01.vue  | 892 ++++++++++++--------------------
+ frontend/src/views/point02.vue  |   7 +
+ frontend/src/views/point03.vue  |  13 +-
+ frontend/src/views/question.vue |  12 +-
+ 5 files changed, 357 insertions(+), 569 deletions(-)
+
+diff --git a/frontend/src/api/dify03.js b/frontend/src/api/dify03.js
+index dc19910..48f2ca6 100644
+--- a/frontend/src/api/dify03.js
++++ b/frontend/src/api/dify03.js
+@@ -1,5 +1,5 @@
+ const API_BASE_URL = ' http://121.40.214.128/v1';
+-const API_KEY = 'app-IIzdZFROTi7AEuBSotTesCqB'; // Replace with your actual API key
++const API_KEY = 'app-53Rjhj3UMdWPZUVyK6I5TU0u'; // Replace with your actual API key
+ 
+ // 用户ID生成或获取
+ const getUserId = () => {
+diff --git a/frontend/src/views/point01.vue b/frontend/src/views/point01.vue
+index cc5b58f..b3533ee 100644
+--- a/frontend/src/views/point01.vue
++++ b/frontend/src/views/point01.vue
+@@ -1,649 +1,425 @@
+ <template>
+-  <div>
+-  
+-    <div class="chat-container" :class="{ 'content-shifted': isSidebarOpen }" >
+-  
+-      <!-- 消息显示区域 -->
+-      <div class="chat-messages" ref="chatMessagesRef">
+-     
+-          <!-- AI 消息显示头像 -->
+-          <img
+-            class="aitou"
+-            src="@/imgs/bot.png"
+-            alt="AI Avatar"
+-          />
++  <div class="container">
++    <div class="chat-container">
++      <!-- 顶部标题和头像 -->
++      <div class="header">
++        <img class="avatar" src="@/imgs/bot.png" alt="AI Avatar" />
++        <div class="title-container">
++          <span class="title-main">你好,我是QMathify!</span>
++          <span class="title-sub">作为你的智能数学问答助手，我可以帮你解决数学各方面问题。</span>
++        </div>
++      </div>
++
++      <!-- 功能卡片容器 -->
++      <div class="boxes-container">
++        <!-- 问题对话卡片 -->
++        <div class="box" @click="isSmallScreen ? goToPage01() : null">
++          <div class="box-header">
++            <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">问题对话实时解答</h3>
++            <p class="box-desc">小学、初中、高中所有数学问题都能详细分析、智能解答，你可以问我：</p>
+           </div>
+-          <div class="title-container">
+-        <span class="title-main">你好,我是QMathify!</span>
+-        <span class="title-sub">作为你的智能数学问答助手，我可以帮你解决数学各方面问题。</span>
+-      </div><div class="box01"  >
+-            <span class="font01" :ref="`font01_01`" :class="{ 'clickable': isSmallScreen }" @click="goToPage01WhenSmall"  >问题对话实时解答</span>
+-            <span class="font02">小学、初中、高中所有数学问题都能详细分析、智能解答，你可以问我：</span>
+-            <el-button type="primary"  class="bo01"  @click="goToPage01"  v-show="!isSmallScreen">
++          
++          <div class="box-actions">
++            <el-button type="primary" class="action-button" @click="goToPage01" v-show="!isSmallScreen">
+               开始
+             </el-button>
+-            <el-button type="primary" class="bo02" @click="handleBo02Click">
+-  什么是全概率公式？它和贝叶斯公式有何关系？
+-</el-button>
+-            <el-button type="primary"  class="bo03" @click="handleBo03Click" >
+-              当a=14,b=-5时,代数式2a+3b的值等于多少?            </el-button>
++            <div style="display: flex; flex-direction: column; gap: 10px;" class="example-buttons">
++              <el-button type="primary" class="example-button" @click="handleBo02Click">
++                什么是全概率公式？它和贝叶斯公式有何关系？
++              </el-button>
++              <el-button type="primary" class="example-button" @click="handleBo03Click">
++                当a=14,b=-5时,代数式2a+3b的值等于多少?
++              </el-button>
++            </div>
+           </div>
+-          <div class="box02"  >
+-            <span class="font01" :ref="`font01_02`" :class="{ 'clickable': isSmallScreen }" @click="goToPage02WhenSmall" >启发提问引导思考</span>
+-            <span class="font02">根据你给的题目，我会递进反问你相关知识点，暂时不给出答案，引导你思考。</span>
+-            <el-button type="primary"  v-show="!isSmallScreen" class="bo04"  @click="goToPage02">
++        </div>
++
++        <!-- 启发提问卡片 -->
++        <div class="box" @click="isSmallScreen ? goToPage02() : null">
++          <div class="box-header">
++            <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">启发提问引导思考</h3>
++            <p class="box-desc">根据你给的题目，我会递进反问你相关知识点，暂时不给出答案，引导你思考。</p>
++          </div>
++          
++          <div class="box-actions">
++            <el-button type="primary" class="action-button" @click="goToPage02" v-show="!isSmallScreen">
+               开始
+             </el-button>
+-            <el-button type="primary"  class="bo05"  @click="handleBo05Click"  >
+-              圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积？<br>
+-              反问：圆的面积公式是什么？
+-            </el-button>
+-           </div>
+-           <div class="box03"  >
+-            <span class="font01" :ref="`font01_01`" :class="{ 'clickable': isSmallScreen }" @click="goToPage03WhenSmall"  >推荐题目加深思考</span>
+-            <span class="font02">根据所给知识点或问题生成相关题目，沉浸式思考，在线答题练习，你可以问我：</span>
+-            <el-button type="primary"  class="bo06"  @click="goToPage03"  v-show="!isSmallScreen">
++            <div style="display: flex; flex-direction: column; gap: 10px;" class="example-buttons">
++              <el-button type="primary" class="example-button" @click="handleBo05Click">
++                圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积是多少？
++              </el-button>
++            </div>
++          </div>
++        </div>
++
++        <!-- 推荐题目卡片 -->
++        <div class="box" @click="isSmallScreen ? goToPage03() : null">
++          <div class="box-header">
++            <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">推荐题目加深思考</h3>
++            <p class="box-desc">根据所给知识点或问题生成相关题目，沉浸式思考，在线答题练习，你可以问我：</p>
++          </div>
++          
++          <div class="box-actions">
++            <el-button type="primary" class="action-button" @click="goToPage03" v-show="!isSmallScreen">
+               开始
+             </el-button>
+-            <el-button type="primary" class="bo07" @click="handleBo07Click">
+-              生成一元二次方程相关问题。
+-</el-button>
+-            <el-button type="primary"  class="bo08" @click="handleBo08Click" >
+-              “一种小麦出粉率为85%,要磨13.6吨面粉，需要这样的小麦多少吨？”类似题。       </el-button>
++            <div style="display: flex; flex-direction: column; gap: 10px;" class="example-buttons">
++              <el-button type="primary" class="example-button" @click="handleBo07Click">
++                生成一元二次方程相关问题。
++              </el-button>
++              <el-button type="primary" class="example-button" @click="handleBo08Click">
++                一种小麦出粉率为85%,要磨13.6吨面粉，需要这样的小麦多少吨？类似题。
++              </el-button>
++            </div>
+           </div>
+         </div>
+-  
+       </div>
+-    </template>
+-    <script setup> 
+-  import { ref, onMounted, watch} from 'vue';
+-  import { Memo} from '@element-plus/icons-vue'; // 引入图标
+-  
+-  const isSidebarOpen = ref(false); // 侧栏展开状态
+-  const isSmallScreen = ref(false); // 标识是否为小屏幕
+-  // 侧栏管理
+-  const toggleSidebar = () => {
+-    isSidebarOpen.value = !isSidebarOpen.value;
+-  };
+-  const goToPage01 = () => {
++    </div>
++  </div>
++</template>
++
++<script setup> 
++import { ref, onMounted } from 'vue';
++
++const isSidebarOpen = ref(false);
++const isSmallScreen = ref(false);
++
++const goToPage01 = () => {
+   window.location.href = '/QMathify';
+ };
++
+ const goToPage02 = () => {
+   window.location.href = '/Leading';
+ };
++
+ const goToPage03 = () => {
+   window.location.href = '/question';
+ };
+-const goToPage01WhenSmall = () => {
+-  if (isSmallScreen.value) {
+-    goToPage01();
+-  }
+-};
+ 
+-const goToPage02WhenSmall = () => {
+-  if (isSmallScreen.value) {
+-    goToPage02();
+-  }
+-};
+-const goToPage03WhenSmall = () => {
+-  if (isSmallScreen.value) {
+-    goToPage03();
+-  }
+-};
+ const handleBo02Click = () => {
+-  const question = "什么是全概率公式？它和贝叶斯公式有何关系？"; // 获取按钮的文字内容
+-  // 将问题内容存储到localStorage中
++  const question = "什么是全概率公式？它和贝叶斯公式有何关系？";
+   localStorage.setItem('bo02Question', question);
+-  // 跳转到 /QMathify 页面
+   window.location.href = `/QMathify`;
+ };
++
+ const handleBo03Click = () => {
+-  const question = " 当a=14,b=-5时,代数式2a+3b的值等于多少?  "; // 获取按钮的文字内容
+-  // 将问题内容存储到localStorage中
++  const question = "当a=14,b=-5时,代数式2a+3b的值等于多少？";
+   localStorage.setItem('bo03Question', question);
+-  // 跳转到 /QMathify 页面
+   window.location.href = `/QMathify`;
+ };
++
+ const handleBo05Click = () => {
+-  const question = "  圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积？  "; // 获取按钮的文字内容
+-  // 将问题内容存储到localStorage中
++  const question = "圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积？";
+   localStorage.setItem('bo05Question', question);
+   window.location.href = `/Leading`;
+ };
++
+ const handleBo07Click = () => {
+-  const question = "  生成一元二次方程相关问题。 "; // 获取按钮的文字内容
+-  // 将问题内容存储到localStorage中
++  const question = "生成一元二次方程相关问题。";
+   localStorage.setItem('bo07Question', question);
+   window.location.href = `/question`;
+ };
++
+ const handleBo08Click = () => {
+-  const question = "  “一种小麦出粉率为85%,要磨13.6吨面粉，需要这样的小麦多少吨？”类似题。  "; // 获取按钮的文字内容
+-  // 将问题内容存储到localStorage中
++  const question = "一种小麦出粉率为85%,要磨13.6吨面粉，需要这样的小麦多少吨？";
+   localStorage.setItem('bo08Question', question);
+   window.location.href = `/question`;
+ };
++
+ onMounted(() => {
+   checkScreenSize();
+   window.addEventListener('resize', checkScreenSize);
+ });
+ 
+-watch(() => isSmallScreen.value, () => {
+-  const font01_01 = document.querySelector('[ref="font01_01"]');
+-  const font01_02 = document.querySelector('[ref="font01_02"]');
+-  if (isSmallScreen.value) {
+-    font01_01.style.cursor = 'pointer';
+-    font01_02.style.cursor = 'pointer';
+-  } else {
+-    font01_01.style.cursor = 'default';
+-    font01_02.style.cursor = 'default';
+-  }
+-});
+-
+ const checkScreenSize = () => {
+-  const width = window.innerWidth;
+-  isSmallScreen.value = width <1425; 
++  isSmallScreen.value = window.innerWidth < 992;
+ };
+-  </script>
+-    <style scoped> 
+-  .menu-icon {
+-    color: rgba(164, 128, 252, 1);
+-    position: absolute;
+-    top: 15px;
+-    right: 5px;
+-    font-size: 14px;
+-    cursor: pointer;
+-  }
+-  .chat-container {
+-    position: absolute;
+-    width: 80%;
+-    height: 86%;
+-    align-items: center;
+-    justify-content: center;
+-    opacity: 1;
+-    border-radius: 20px;
+-    margin: 0 auto; /* 居中显示 */
+-    background: linear-gradient(
+-      132.73deg,
+-      rgba(194, 247, 252, 0.2) 0%,
+-      rgba(177, 223, 252, 0.2) 29.73%,
+-      rgba(194, 210, 255, 0.2) 57.22%,
+-      rgba(194, 175, 240, 0.2) 100%
+-    );
+-    top: 9%;
+-    bottom: 0%;
+-    overflow-y: hidden;
+-    overflow-x: hidden;
+-    left: 13%;
+-    transition: left 0.3s ease; /* 添加过渡动画 */
+-      /* 新增样式，根据侧栏状态调整 */
+-  /*width: calc(100% - 0px);*/
+-  }
+-  .box01,.box02{
+-    padding: 10px; /* 添加内边距 */
+-  box-sizing: border-box; /* 确保内边距不会增加容器大小 */
+-  overflow: hidden; /* 防止内容超出 */
+-  }
+-  .box01{
+-    top:2%;
+-    left:15.2%;
+-    position: relative;
+-    width: 33%;
+-  height: 31%;
+-  opacity: 1;
+-  border-radius: 20px;
+-  background: rgba(255, 255, 255, 1);
+-  border: 1px solid rgba(182, 182, 250, 1);
+-  box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);}
+-  .box03{
+-    top:-25%;
+-    left:15.2%;
+-    position: relative;
+-    width: 33%;
+-  height: 31%;
+-  opacity: 1;
+-  border-radius: 20px;
+-  background: rgba(255, 255, 255, 1);
+-  border: 1px solid rgba(182, 182, 250, 1);
+-  box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);}
+-  .font01 {
+-    font-size: 22px;
+-    font-weight: 600;
+-    position: relative;
+-    left: 4%;
+-    top: 5%;
+-    }
+-    .font02 {
+-      font-size: 14px;
+-    position: relative;
+-    left: 4%;
+-    top: 8%;
+-    color: grey;
+-    display: block;
+-  margin-right:3% ;}
+-  .clickable {
+-  cursor: pointer;
++</script>
++
++<style scoped>
++/* 基本容器样式 */
++.container {
++  width: 100%;
++  min-height: 100vh;
++  display: flex;
++  justify-content: center;
++  align-items: center;
++  padding: 20px;
++  box-sizing: border-box;
+ }
+-.clickable:hover {
+-  text-decoration: underline; /* 鼠标悬浮时显示下划线 */
+-  color: purple; /* 鼠标悬浮时文字变紫色 */
+-}
+-  .box02{
+-    top:-29%;
+-    left:51.2%;
+-    position: relative;
+-    width: 33%;
+-  height: 31%;
+-  opacity: 1;
++
++.chat-container {
++  width: 100%;
++  max-width: 1400px;
++  background: linear-gradient(
++    132.73deg,
++    rgba(194, 247, 252, 0.2) 0%,
++    rgba(177, 223, 252, 0.2) 29.73%,
++    rgba(194, 210, 255, 0.2) 57.22%,
++    rgba(194, 175, 240, 0.2) 100%
++  );
+   border-radius: 20px;
+-  background: rgba(255, 255, 255, 1);
+-  border: 1px solid rgba(182, 182, 250, 1);
+-  box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);}
+-  .box03 .font01 {
+-           position: relative;
+-           left: 7%;
+-           top: 8%;
+-        }
+-        .box03 .font02 {
+-           position: relative;
+-           left: 2%;
+-           top: 10%;
+-           display: block;
+-           margin-right: 6% ;
+-           margin-left: 5%;
+-        }
+-  .bo02, .bo03, .bo05 ,.bo07,.bo08{
+-  white-space: normal; /* 允许文字换行 */
+-  padding: 10px; /* 添加内边距 */
+-  box-sizing: border-box; /* 确保内边距不会增加按钮大小 */
+-  line-height: 1.5; /* 调整行间距 */
+-}
+-  .content-shifted {
+-    margin-left: 178px;
+-    position: absolute; /* 保持绝对定位 */
+-    left: calc(15.6% + 280px); /* 初始位置 + 侧栏宽度 */
+-  
+-  }
+-  
+-.bo01, .bo04,.bo06{
+-  position: absolute;
+-  bottom: 10px; /* 固定在底部 */
+-  right: 10px; /* 固定在右侧 */
+-  opacity: 1;
+-  border: none;
+-  border-radius: 10px;
+-  background: linear-gradient(90deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);
+-  width: auto; /* 宽度自适应 */
+-  padding: 10px 20px; /* 调整内边距 */
+-}
+-  .bo01{position: relative;
+-    top: -30%;
+-    left: 71%;
+-    opacity: 1;
+-    border: none;
+-border-radius: 10px;
+-background: linear-gradient(90deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);}
+-.bo02{
+-  position: relative;
+-    left: -2%;
+-    top: -5%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 17%;
+-    color: black;
+-    border: none;
+-} 
+-.bo03{    position: relative;
+-    left: -2%;
+-    top: -1%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 17%;
+-    color: black;
+-    border: none;
+-} 
+-.bo04{position: relative;
+-    top: -30%;
+-    left: 71%;
+-    opacity: 1;
+-    border: none;
+-border-radius: 10px;
+-background: linear-gradient(90deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);}
+-.bo05{    position: relative;
+-    left: -2%;
+-    top: -5%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 50%;
+-    color: black;
+-    border: none;
+-    text-align: left;
+-      white-space: pre-line; /* 保留换行符 */
+-      padding: 10px; /* 可根据需要调整内边距 */
+-      line-height: 1.5; /* 调整行间距，可根据需要修改该值 */
+-} 
+-.bo06{position: relative;
+-    top: -24%;
+-    left: 70%;
+-    opacity: 1;
+-    border: none;
+-border-radius: 10px;
+-background: linear-gradient(90deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);}
+-
+-.bo07{
+-  position: relative;
+-    left: -2%;
+-    top: 2%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 17%;
+-    color: black;
+-    border: none;
+-} 
+-.bo08{
+-  position: relative;
+-    left: -2%;
+-    top: 7%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 17%;
+-    color: black;
+-    border: none;
+-} 
+-.aitou {
+-    width: 45px; /* 头像大小 */
+-    height: 45px;
+-    border-radius: 50%; /* 圆形头像 */
+-    position: absolute;
+-    left: 8%;
+-    top: 9.5%;
+-    transform: translateY(0); /* 移除 translateY(-50%)，因为不再需要垂直居中 */
+-  }
+-  
++  padding: 40px 20px;
++  box-sizing: border-box;
++  display: flex;
++  flex-direction: column;
++  gap: 30px;
++}
++
++/* 头部样式 */
++.header {
++  display: flex;
++  align-items: center;
++  padding: 0 20px;
++  gap: 20px;
++}
++
++.avatar {
++  width: 60px;
++  height: 60px;
++  border-radius: 50%;
++  object-fit: cover;
++}
++
+ .title-container {
+-  position: relative;
+-  top: -2%;
+-  margin-left: 16%; /* 与头像对齐 */
+-  margin-top: 8.4%; /* 调整顶部间距 */
++  display: flex;
++  flex-direction: column;
++  gap: 5px;
+ }
+ 
+ .title-main {
+-  font-size: 30px;
+-  display: block; /* 独占一行 */
++  font-size: clamp(20px, 4vw, 30px);
++  font-weight: 600;
+ }
+ 
+ .title-sub {
+-  font-size: 20px;
+-  font-weight: 400;
+-  color: rgba(56, 56, 56, 1);
+-  display: block; /* 独占一行 */
+-  margin-top: 5px; /* 调整与上文的间距 */
+-}
+-  .sidebar {
+-    transition: width 0.3s ease;
+-    z-index: 1000; /* 确保侧边栏在聊天容器之上 */
+-  }
+-  .main-content {
+-    position: relative;
+-    z-index: 1;
+-  }
+-  /* 小窗模式适配 */
+-@media (max-width: 768px) {
+-  .chat-container {
+-    width: 90%;
+-    left: 5%;
+-  }
++  font-size: clamp(14px, 2.5vw, 20px);
++  color: rgba(56, 56, 56, 0.9);
++}
+ 
+-  .box01, .box02 {
+-    width: 45%; /* 调整宽度 */
+-    left: 5%;
+-  }
++.vertical-buttons .el-button + .el-button {
++  margin-left: 0;
++  margin-top: 10px;
++}
++/* 功能卡片容器 */
++.boxes-container {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
++  gap: 30px;
++  padding: 0 20px;
++}
+ 
+-  .box02 {
+-    left: 55%;
+-  }
++/* 卡片样式 */
++.box {
++  background: white;
++  border-radius: 20px;
++  border: 1px solid rgba(182, 182, 250, 1);
++  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
++  padding: 25px;
++  display: flex;
++  flex-direction: column;
++  min-height: 300px;
++  transition: transform 0.2s, box-shadow 0.2s;
++  position: relative; /* 添加定位上下文 */
++}
+ 
+-  .bo01 {
+-    position: relative;
+-    top: -40%;
+-    padding: 8px 16px; /* 调整内边距 */
+-    font-size: 14px; /* 调整字体大小 */
+-  }
+- .bo04 {
+-    position: relative;
+-    top: -50%;
+-    padding: 8px 16px; /* 调整内边距 */
+-    font-size: 14px; /* 调整字体大小 */
+-  }
+-  .box01,.box02,.box03{
+-    overflow-x: auto;
+-  }
+- 
++.box:hover {
++  transform: translateY(-5px);
++  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+ }
+-@media (max-width: 1052px) {
+-  .chat-container{
+-    overflow: hidden;
+-  }
+-  .box01,.box02,.box03{
+-    overflow-y: scroll;  }
+ 
+-  .box01::-webkit-scrollbar {
+-  width: 4px;
++/* 卡片内容样式 */
++.box-header {
++  margin-bottom: 20px;
+ }
+ 
+-.box01::-webkit-scrollbar-track {
+-  background: transparent;
++.box-title {
++  font-size: clamp(18px, 3vw, 22px);
++  font-weight: 600;
++  margin: 0 0 10px 0;
+ }
+ 
+-.box01::-webkit-scrollbar-thumb {
+-  background-color: rgba(111, 58, 246, 0.5);
+-  border-radius: 4px;
+-  visibility: hidden; /* 初始隐藏滚动条 */
++.box-desc {
++  font-size: clamp(13px, 2vw, 16px);
++  color: #666;
++  margin: 0;
++  line-height: 1.5;
++  overflow-wrap: break-word;
++  word-break: break-word;
++  max-height: 4.5em; /* 约3行文字 */
++  overflow: hidden;
+ }
+-.box01:hover::-webkit-scrollbar-thumb {
+-  visibility: visible; /* 鼠标悬停时显示滚动条 */
++
++.box-actions {
++  margin-top: auto;
++  display: flex;
++  flex-direction: column;
++  gap: 15px;
++  /* 确保所有卡片的动作区域高度一致 */
++  padding-top: 15px;
+ }
+-.box02::-webkit-scrollbar {
+-  width: 4px;
++
++.action-button {
++  align-self: flex-end;
++  padding: 10px 25px;
++  border: none !important;
++  border-radius: 10px !important;
++  background: linear-gradient(
++    90deg, 
++    rgba(170, 239, 242, 1) 0%, 
++    rgba(136, 191, 242, 0.95) 33%, 
++    rgba(162, 169, 252, 0.89) 74%, 
++    rgba(151, 107, 255, 0.8) 100%
++  ) !important;
++  color: white !important;
++  font-weight: 500;
++  transition: transform 0.2s;
++  height: 40px; /* 固定高度 */
++  display: flex;
++  align-items: center;
++  justify-content: center;
+ }
+ 
+-.box02::-webkit-scrollbar-track {
+-  background: transparent;
++.action-button:hover {
++  transform: translateY(-2px);
+ }
+ 
+-.box02::-webkit-scrollbar-thumb {
+-  background-color: rgba(111, 58, 246, 0.5);
+-  border-radius: 4px;
+-  visibility: hidden; /* 初始隐藏滚动条 */
++.example-buttons {
++  display: flex;
++  flex-direction: column;
++  gap: 10px;
++  width: 100%;
++}
++
++.example-button {
++  width: 100%;
++  padding: 12px 15px;
++  border: none;
++  border-radius: 10px;
++  background-color: #f4f0ff;
++  color: black;
++  text-align: left;
++  white-space: normal; /* 允许文本换行 */
++  line-height: 1.4;
++  transition: background-color 0.2s;
++  overflow-wrap: break-word;
++  word-break: break-word;
++  font-size: clamp(12px, 1.8vw, 14px); /* 更合适的字体大小范围 */
++  min-height: 40px;
++  display: flex;
++  align-items: center;
+ }
+-.box02:hover::-webkit-scrollbar-thumb {
+-  visibility: visible; /* 鼠标悬停时显示滚动条 */
++
++.example-button:hover {
++  background-color: #eae4fa;
++}
++
++.clickable {
++  cursor: pointer;
++  color: #6f3af6;
++  transition: color 0.2s;
++}
++
++.clickable:hover {
++  text-decoration: underline;
+ }
+-.box03::-webkit-scrollbar {
++:deep(.example-button) {
++  margin-left: 0 !important;
++}
++/* 滚动条样式 */
++.box {
++  overflow-y: auto;
++  scrollbar-width: thin;
++  scrollbar-color: rgba(111, 58, 246, 0.5) transparent;
++}
++
++.box::-webkit-scrollbar {
+   width: 4px;
+ }
+ 
+-.box03::-webkit-scrollbar-track {
++.box::-webkit-scrollbar-track {
+   background: transparent;
+ }
+ 
+-.box03::-webkit-scrollbar-thumb {
++.box::-webkit-scrollbar-thumb {
+   background-color: rgba(111, 58, 246, 0.5);
+   border-radius: 4px;
+-  visibility: hidden; /* 初始隐藏滚动条 */
++  visibility: hidden;
+ }
+-.box03:hover::-webkit-scrollbar-thumb {
+-  visibility: visible; /* 鼠标悬停时显示滚动条 */
++
++.box:hover::-webkit-scrollbar-thumb {
++  visibility: visible;
+ }
+-  .box03{
+-    overflow-x: hidden;
++
++/* 媒体查询 */
++@media (max-width: 1200px) {
++  .boxes-container {
++    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
++  }
++}
++
++@media (max-width: 992px) {
++  .chat-container {
++    padding: 30px 15px;
+   }
+-  .bo02{
+-    position: relative;
+-    left: -2%;
+-    top: 10%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 38%;
+-    color: #000;
+-    border: none;
++  
++  .box {
++    min-height: 250px;
++    cursor: pointer;
+   }
+-  .bo03{
+-    position: relative;
+-    left: -2%;
+-    top: 8%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 30%;
+-    margin: 13px;
+-    color: #000;
+-    border: none;
++}
++
++@media (max-width: 768px) {
++  .container {
++    padding: 15px;
+   }
+-  .bo05{
+-    position: relative;
+-    left: -0.3%;
+-    top: 5%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 77%;
+-    margin: 7px;
+-    color: #000;
+-    border: none;
++  
++  .chat-container {
++    padding: 20px 10px;
+   }
+-  .bo08{
+-    position: relative;
+-    left: -4%;
+-    top: 6%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 36%;
+-    color: #000;
+-    margin: 19px;
+-    border: none;
++  
++  .header {
++    padding: 0 10px;
++  }
++  
++  .boxes-container {
++    gap: 20px;
++    padding: 0 10px;
++  }
++  
++  .box {
++    padding: 20px 15px;
++    /* 保持卡片最小高度一致 */
++    min-height: 250px;
++  }
++  .example-button {
++    min-height: 36px;
++    padding: 8px 12px;
+   }
+ }
+-@media (max-width: 396px) {
+-.box01,.box02,.box03{
+-  width: 80%;
+-  height: 30%;
+-  display: flex;
+-  flex-direction: column
+-}
+-.aitou{
+-  position: absolute;
+-        left: 3%;
+-        top: 3%;
+-}
+-.box01{
+-  position: relative;
+-  top: 2%;
+-  margin-left: auto;
+-  margin-right: auto;
+-  overflow-x: hidden;
+-}
+-.box02{
+-  position: relative;
+-        top: 5%;
+-        left: 5%;
+-        margin-left: auto;
+-        margin-right: auto;
+-        overflow-x: hidden;
+-
+-}
+-.box03{
+-  position: relative;
+-        top: 8%;
+-        left: 5%;
+-        margin-left: auto;
+-        margin-right: auto;
+-        overflow-x: hidden;
+-
+-}
+-.title-container{
+-  position: relative;
+-        top: 0%;
+-        left: 2%;
+-    }
+-}
+-.chat-container{
+-  overflow-x: hidden;
+-  overflow-y: auto;
++
++@media (max-width: 480px) {
++  .header {
++    flex-direction: column;
++    text-align: center;
++  }
++  
++  .boxes-container {
++    grid-template-columns: 1fr;
++  }
++  
++  .box {
++    min-height: 220px;
++  }
++  .box-desc {
++    max-height: 6em; /* 在小屏上允许更多行显示 */
++  }
++  
++  /* 确保极小屏幕上的文本大小合适 */
++  .example-button {
++    font-size: 13px;
++  }
++
+ }
+-.bo02{
+-  position: relative;
+-    left: -2%;
+-    top: 10%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 23%;
+-    color: #000;
+-    border: none;
+-}
+-.bo03{
+-  position: relative;
+-    left: -2%;
+-    top: 13%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 23%;
+-    color: #000;
+-    border: none;
+-}
+-.bo05{
+-  position: relative;
+-    left: -2%;
+-    top: 9%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 50%;
+-    color: #000;
+-    border: none;
+-}
+-.bo08{
+-  position: relative;
+-    left: -4%;
+-    top: 6%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 23%;
+-    color: #000;
+-    border: none;
+-}
+-.bo07{
+-  position: relative;
+-    left: -2%;
+-    top: 12%;
+-    opacity: 1;
+-    border-radius: 10px;
+-    background: #f4f0ff;
+-    width: 96%;
+-    height: 20%;
+-    color: #000;
+-    border: none;
+-}
+-  </style >
+\ No newline at end of file
++</style>
+\ No newline at end of file
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 31992e1..3b3772b 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -1257,6 +1257,13 @@ if (question03) {
+ inputMessage.value = question03;
+ localStorage.removeItem('bo03Question');
+ }
++
++const question05 = localStorage.getItem('bo05Question');
++if (question05) {
++  inputMessage.value = question05;
++  localStorage.removeItem('bo05Question');
++}
++
+   if (typeof existingOnMounted === 'function') {
+     existingOnMounted();
+   }
+diff --git a/frontend/src/views/point03.vue b/frontend/src/views/point03.vue
+index 9863fa6..7912999 100644
+--- a/frontend/src/views/point03.vue
++++ b/frontend/src/views/point03.vue
+@@ -1264,11 +1264,16 @@ onMounted(() => {
+   }
+   // 检查bo03Question
+ 
+-const question03 = localStorage.getItem('bo03Question');
++const question07 = localStorage.getItem('bo07Question');
++const question08 = localStorage.getItem('bo08Question');
+ 
+-if (question03) {
+-inputMessage.value = question03;
+-localStorage.removeItem('bo03Question');
++if (question07) {
++inputMessage.value = question07;
++localStorage.removeItem('bo07Question');
++}
++if (question08) {
++inputMessage.value = question08;
++localStorage.removeItem('bo08Question');
+ }
+   if (typeof existingOnMounted === 'function') {
+     existingOnMounted();
+diff --git a/frontend/src/views/question.vue b/frontend/src/views/question.vue
+index e1344ae..a0eda4b 100644
+--- a/frontend/src/views/question.vue
++++ b/frontend/src/views/question.vue
+@@ -234,12 +234,12 @@
+     
+     <div class="content" :class="{ 'content-shifted': isSidebarOpen }">
+       <list />
+-      <ai 
+-        ref="aiComponent" 
+-        :dialogs="dialogs" 
+-        @add-to-recent-dialogs="addToRecentDialogs"
+-        @update-dialog-title="updateDialogTitle"
+-      />
++        <ai 
++          ref="aiComponent" 
++          :dialogs="dialogs" 
++          @add-to-recent-dialogs="addToRecentDialogs"
++          @update-dialog-title="updateDialogTitle"
++        />
+     </div>
+   </div>
+ </template>
+-- 
+2.39.5 (Apple Git-154)
+

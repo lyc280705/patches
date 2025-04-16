@@ -1,0 +1,240 @@
+From cc63e0f849bc83a58e646ef02ed3faf23a01b9e7 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 10 Mar 2025 17:31:06 +0800
+Subject: [PATCH 59/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=87=A0=E5=A4=84?=
+ =?UTF-8?q?=E6=A0=B7=E5=BC=8F=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 72 ++++++++++++++++++++-------------
+ frontend/src/views/ai.vue       |  3 +-
+ 2 files changed, 46 insertions(+), 29 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index ab239e6..21abfa4 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -1,12 +1,13 @@
+ <template>
+   <div class="container">
+     <!-- 移动端菜单按钮 -->
+-    <div class="mobile-menu-button" v-if="!isSidebarOpen" @click="toggleSidebar">
++    <div class="mobile-menu-button" ref="mobileMenuButtonRef" v-if="!isSidebarOpen" @click="toggleSidebar">
+       <img alt="" src="@/imgs/mobile-menu-button.png" />
+     </div>
+ 
+     <!-- 边栏 -->
+     <div
++      ref="sidebarRef"
+       class="sidebar"
+       :class="{ 'sidebar-open': isSidebarOpen, 'sidebar-collapsed': !isSidebarOpen }"
+     >
+@@ -130,10 +131,9 @@
+     <el-dialog
+       v-model="showProfileDialog"
+       title="个人信息"
+-      width="90%"
+-      max-width="500px"
+       class="profile-dialog"
+       :close-on-click-modal="false"
++      :width="isMobileView() ? '95%' : '500px'"
+     >
+     <el-form 
+         ref="userFormRef"
+@@ -173,10 +173,9 @@
+     <el-dialog
+       v-model="showSearchDialog"
+       title="搜索历史对话"
+-      width="90%"
+-      max-width="500px"
+       class="search-dialog"
+       :close-on-click-modal="true"
++      :width="isMobileView() ? '95%' : '500px'"
+     >
+       <div class="search-container">
+         <el-input
+@@ -279,6 +278,8 @@ const hasSearched = ref(false);
+ const dialogs = ref([]);
+ const aiComponent = ref(null);
+ const currentDialogId = ref(null);
++const sidebarRef = ref(null);
++const mobileMenuButtonRef = ref(null);
+ // 用户表单数据
+ const userForm = reactive({
+   username: '',
+@@ -698,12 +699,15 @@ const toggleSidebar = () => {
+ };
+ // 修改移动端体验：点击内容区域关闭侧栏
+ const closeOnClickOutside = (event) => {
++  // 仅在侧边栏打开且为移动视图时处理
+   if (isSidebarOpen.value && isMobileView()) {
+-    const sidebar = document.querySelector('.sidebar');
+-    const mobileMenuButton = document.querySelector('.mobile-menu-button');
++    const sidebar = sidebarRef.value;
++    const menuButton = mobileMenuButtonRef.value;
+     
++    // 检查点击是否在侧边栏和菜单按钮之外
+     if (sidebar && !sidebar.contains(event.target) && 
+-        mobileMenuButton && !mobileMenuButton.contains(event.target)) {
++        (!menuButton || !menuButton.contains(event.target))) {
++      console.log('关闭侧边栏 - 外部点击');
+       isSidebarOpen.value = false;
+       document.body.classList.remove('sidebar-open-mobile');
+     }
+@@ -769,7 +773,7 @@ const togglePopover = () => {
+ };
+ onMounted(() => {
+   // 添加全局点击事件监听器
+-  document.addEventListener('click', closeOnClickOutside);
++  document.addEventListener('click', closeOnClickOutside ,true);
+   // 添加窗口大小变化监听器
+   window.addEventListener('resize', handleResize);
+   
+@@ -799,13 +803,25 @@ onMounted(() => {
+   onUnmounted(() => {
+     axios.interceptors.response.eject(interceptorId);
+     // 移除事件监听器
+-    document.removeEventListener('click', closeOnClickOutside);
++    document.removeEventListener('click', closeOnClickOutside ,true);
+     window.removeEventListener('resize', handleResize);
+   });
+ });
+ </script>
+ 
++
+ <style>
++/* 仅针对自动填充的元素添加全局样式 */
++input:-webkit-autofill,
++input:-webkit-autofill:hover,
++input:-webkit-autofill:focus,
++input:-webkit-autofill:active {
++  transition: background-color 5000s ease-in-out 0s !important;
++  -webkit-text-fill-color: inherit !important;
++  box-shadow: 0 0 0px 1000px transparent inset !important;
++}
++</style>
++<style scoped>
+ /* 基础样式和布局容器 */
+ body, html {
+   margin: 0;
+@@ -945,12 +961,12 @@ body.sidebar-open-mobile {
+   margin: 0.5rem auto;
+ }
+ 
+-.sidebar .el-button + .el-button,
+-.sidebar-collapsed .el-button + .el-button,
+-.sidebar-open .el-button + .el-button,
+-.collapsed-content .el-button + .el-button,
+-.expanded-content .el-button + .el-button {
+-  margin-left: auto !important;
++.sidebar .sidebar-button + .sidebar-button,
++.sidebar-collapsed .sidebar-button + .sidebar-button,
++.sidebar-open .sidebar-button + .sidebar-button,
++.collapsed-content .sidebar-button + .sidebar-button,
++.expanded-content .sidebar-button + .sidebar-button {
++  margin-left: auto;
+ }
+ /* .collapsed-content .el-button {
+   margin: 0.75rem auto !important;
+@@ -1003,13 +1019,15 @@ body.sidebar-open-mobile {
+ }
+ 
+ .math {
+-  width: 106%;
++  width: 100%; /* 改为100%，避免溢出 */
+   max-width: 200px;
+   height: auto;
+   top: 4%;
+   position: relative;
+   margin: 0 auto 1.5rem;
+   display: block;
++  transform: scale(1.06); /* 如需要略微放大，使用transform而不是宽度溢出 */
++  transform-origin: center; /* 确保从中心放大 */
+ }
+ 
+ .line {
+@@ -1093,7 +1111,9 @@ body.sidebar-open-mobile {
+   height: 100%;
+   position: relative;
+ }
+-
++.button-content span {
++  margin-right: 8px; /* 文本与箭头保持间距 */
++}
+ .button-content img {
+   width: 1.25rem;
+   height: 1.25rem;
+@@ -1104,9 +1124,9 @@ body.sidebar-open-mobile {
+ /* 箭头图标固定位置 */
+ .arrow-icon {
+   transition: transform 0.8s ease;
+-  margin-left: auto;
+-  margin-right: auto;
+-  right: -31%;
++  margin-left: auto; /* 使用auto margin定位到右侧 */
++  margin-right: 0;   /* 取消原来的auto */
++  position: relative; /* 不再依赖绝对定位 */
+ }
+ 
+ .arrow-icon.rotate {
+@@ -1127,7 +1147,7 @@ body.sidebar-open-mobile {
+   bottom: 100%;  /* 定位到按钮上方 */
+   left: 50%;     /* 水平居中对齐 */
+   transform: translateX(-50%);  /* 水平居中对齐 */
+-  width: 70%;
++  width: 80%;
+   height: 363%;
+   background: rgba(255, 255, 255, 1);
+   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+@@ -1293,7 +1313,7 @@ body.sidebar-open-mobile {
+   margin-top: 0.25rem;
+ }
+ 
+-/* 媒体查询 - 中等屏幕 */
++/* 媒体查询 - 中等屏幕
+ @media (max-width: 1024px) {
+   .content-shifted {
+     margin-left: 250px;
+@@ -1303,7 +1323,7 @@ body.sidebar-open-mobile {
+   .sidebar-open {
+     width: 250px;
+   }
+-}
++} */
+ 
+ /* 媒体查询 - 平板设备 */
+ @media (max-width: 768px) {
+@@ -1403,9 +1423,5 @@ body.sidebar-open-mobile {
+     font-size: 0.9rem;
+   }
+ 
+-  /* 对话框宽度调整 */
+-  .el-dialog {
+-    width: 95% !important;
+-  }
+ }
+ </style>
+\ No newline at end of file
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 6886c39..1af610b 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -130,11 +130,12 @@
+             <el-tooltip 
+               v-for="(source, sourceIndex) in message.sources" 
+               :key="sourceIndex" 
+-              placement="top" 
++              :placement="dynamicPlacement"
+               :effect="'light'"
+               :show-after="300"
+               :popper-class="'reference-tooltip'"
+               :popper-options="{ 
++                strategy: 'absolute',
+                 modifiers: [
+                   { name: 'computeStyles', options: { adaptive: true, gpuAcceleration: false } },
+                   { name: 'preventOverflow', options: { padding: 10 } }
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,41 @@
+From c45f0822a011054e491ce4cfbad7c397a6d319d2 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 1 Apr 2025 14:58:22 +0800
+Subject: [PATCH 77/85] =?UTF-8?q?fix-=E8=8B=A5=E5=B9=B2=E6=94=B9=E5=8A=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/point02.vue | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
+
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 838f480..aa2073e 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -188,20 +188,7 @@
+               trigger="hover"
+               content="一次1张,单张最大10MB,支持jpg、png等格式。"
+             >
+-              <template #reference>
+-                <el-icon @click="triggerImageInput" class="tool-icon">
+-                  <Picture />
+-                </el-icon>
+-              </template>
+-            </el-popover>
+-            
+-            <el-popover
+-              placement="top"
+-              title="上传文件"
+-              :width="200"
+-              trigger="hover"
+-              content="一次1份,单份最大10MB,支持word、pdf等格式。"
+-            >
++
+               <template #reference>
+                 <el-icon @click="triggerFileInput" class="tool-icon">
+                   <FolderOpened />
+-- 
+2.39.5 (Apple Git-154)
+

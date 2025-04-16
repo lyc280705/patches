@@ -1,0 +1,56 @@
+From 450579ee3935e62c1582d5c1d8eeba297bcb7c9d Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 4 Mar 2025 17:59:21 +0800
+Subject: [PATCH 31/85] Revert "Fix input multiline issue"
+
+---
+ frontend/src/views/ai.vue | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index c353390..05f0c0d 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -168,11 +168,12 @@
+     <!-- 输入和发送区域 -->
+     <div class="chat-input">
+       <div>
+-        <textarea
++        <input
+           v-model="inputMessage"
++          type="text"
+           placeholder="请输入您想要问的问题"
+           @keydown.enter="sendMessage"
+-        ></textarea>
++        />
+     </div>
+       <!-- 隐藏的图片上传输入框 -->
+       <input
+@@ -1690,7 +1691,7 @@ top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+ }
+ 
+ /* 输入框样式 */
+-textarea {
++input {
+   flex: 1;
+   padding: 8px;
+   height: 120px;
+@@ -1702,7 +1703,7 @@ textarea {
+   background: white;
+   border: 2px solid rgba(182, 182, 250, 1)
+ }
+-textarea:focus {
++input:focus {
+   outline: none; /* 去除默认的聚焦轮廓 */
+   border-color:rgba(182, 182, 250, 1);  /* 聚焦时的边框颜色，与初始颜色一致 */
+ }
+@@ -1814,4 +1815,4 @@ button:hover {
+     height: 90%;
+   }
+ }
+-</style>
++</style>
+\ No newline at end of file
+-- 
+2.39.5 (Apple Git-154)
+

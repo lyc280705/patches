@@ -1,0 +1,31 @@
+From 0ddebde9871488565be66151d38adf1d7e91bb46 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 16:44:20 +0800
+Subject: [PATCH 13/85] =?UTF-8?q?edit-=E4=BF=AE=E6=94=B9=E6=96=87=E5=AD=97?=
+ =?UTF-8?q?=E9=97=B4=E8=B7=9D?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index de8b683..8fea99f 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -132,8 +132,8 @@
+                 <div class="reference-tooltip-content">
+                   <div class="reference-header">
+                     <span class="reference-position">{{ source.position }}</span>
+-                    <span class="reference-name">{{ source.dataset_name || '知识库' }} / {{ source.document_name || '文档' }}</span>
+-                    <span class="reference-score">相关度 {{ (source.score * 100).toFixed(1) }}%</span>
++                    <span class="reference-name">. {{ source.dataset_name || '知识库' }} / {{ source.document_name || '文档' }}</span>
++                    <span class="reference-score">  相关度 {{ (source.score * 100).toFixed(1) }}%</span>
+                   </div>
+                   <div class="reference-text-full">{{ source.content }}</div>
+                 </div>
+-- 
+2.39.5 (Apple Git-154)
+

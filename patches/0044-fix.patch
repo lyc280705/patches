@@ -1,0 +1,176 @@
+From aa49c551eedec402f0d4e3a59a69c58730e6e134 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 7 Mar 2025 20:21:04 +0800
+Subject: [PATCH 44/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=8C=89=E9=92=AE?=
+ =?UTF-8?q?=E5=AF=B9=E9=BD=90=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 64 ++++++++++++++++++++++++++++-----
+ 1 file changed, 55 insertions(+), 9 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 9b464aa..bbbc2d2 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -914,6 +914,18 @@ body.sidebar-open-mobile {
+   padding-top: 1.5rem;
+   height: 100%;
+ }
++.sidebar .el-button + .el-button,
++.sidebar-collapsed .el-button + .el-button,
++.sidebar-open .el-button + .el-button,
++.collapsed-content .el-button + .el-button,
++.expanded-content .el-button + .el-button {
++  margin-left: auto !important;
++}
++/* .collapsed-content .el-button {
++  margin: 0.75rem auto !important;
++  margin-left: auto !important;
++  margin-right: auto !important;
++} */
+ 
+ .expanded-content {
+   padding: 1.5rem 1rem;
+@@ -921,6 +933,7 @@ body.sidebar-open-mobile {
+   height: calc(100% - 3rem);
+   display: flex;
+   flex-direction: column;
++  gap: 0.5rem; /* 添加统一的间距 */
+ }
+ 
+ /* 菜单图标样式 */
+@@ -981,7 +994,7 @@ body.sidebar-open-mobile {
+   display: flex;
+   align-items: center;
+   border: none;
+-  margin: 0.5rem auto;
++  margin: 0.25rem auto; /* 调整垂直间距 */
+   width: 100%;
+   max-width: 220px;
+   background: rgba(237, 230, 255, 0.81);
+@@ -992,23 +1005,25 @@ body.sidebar-open-mobile {
+   color: rgba(111, 58, 246, 1);
+ }
+ 
+-/* 收起侧栏图标尺寸控制 */
++/* 收起侧栏按钮的居中对齐 */
+ .collapsed-icon {
+   width: 1.5rem;
+   height: 1.5rem;
+   max-width: 100%;
+   object-fit: contain;
++  margin: 0 auto;
++  display: block;
+ }
+ 
+ /* 优化折叠侧栏按钮 */
+ .bo01, .bo02, .bo03, .bo04 {
+   width: 3rem;
+   height: 3rem;
+-  justify-content: center;
+-  margin: 0.75rem auto;
+   padding: 0;
+   display: flex;
+   align-items: center;
++  justify-content: center;
++  margin: 0.75rem auto;
+ }
+ 
+ /* 展开侧栏按钮样式 */
+@@ -1017,7 +1032,10 @@ body.sidebar-open-mobile {
+   color: rgba(111, 58, 246, 1);
+   justify-content: flex-start;
+   padding-left: 1rem;
++  padding-right: 1rem;
+   font-weight: 550;
++  display: flex;
++  align-items: center;
+ }
+ 
+ /* 按钮内图标 */
+@@ -1025,6 +1043,8 @@ body.sidebar-open-mobile {
+   display: flex;
+   align-items: center;
+   width: 100%;
++  height: 100%;
++  position: relative;
+ }
+ 
+ .button-content img {
+@@ -1033,21 +1053,22 @@ body.sidebar-open-mobile {
+   margin-right: 0.75rem;
+ }
+ 
+-/* 箭头图标 */
++/* 箭头图标固定位置 */
+ .arrow-icon {
+   transition: transform 0.8s ease;
+   margin-left: auto;
+-  margin-right: 1rem;
++  margin-right: auto;
+ }
+ 
+ .arrow-icon.rotate {
+   transform: rotate(180deg);
+ }
+ 
+-/* 用户配置部分 */
++/* 调整用户配置容器的间距 */
+ .user-profile-container {
+   margin-top: auto;
+   margin-bottom: 1.5rem;
++  width: 100%;
+ }
+ 
+ /* 个人信息悬浮卡片 */
+@@ -1088,9 +1109,13 @@ body.sidebar-open-mobile {
+   font-size: 0.9rem;
+ }
+ 
+-/* 近期对话列表 */
++/* 确保近期对话列表有统一的缩进 */
+ .recent-dialog-list {
+-  margin-top: 0.625rem;
++  margin-top: 0.5rem; /* 改为与其他元素一致的间距 */
++  margin-left: 0;
++  margin-right: 0;
++  padding-left: 0;
++  padding-right: 0;
+   max-height: 12.5rem;
+   overflow-y: auto;
+   overflow-x: hidden;
+@@ -1300,7 +1325,28 @@ body.sidebar-open-mobile {
+   .dialog-item {
+     padding: 0.4rem;
+   }
++
++  .collapsed-icon {
++    width: 1.25rem;
++    height: 1.25rem;
++  }
+   
++  .bo01, .bo02, .bo03, .bo04 {
++    width: 2.5rem;
++    height: 2.5rem;
++    margin: 0.5rem auto;
++  }
++
++  .button-content img {
++    width: 1.1rem;
++    height: 1.1rem;
++    margin-right: 0.5rem;
++  }
++
++  .arrow-icon {
++    font-size: 0.9rem;
++  }
++
+   /* 对话框宽度调整 */
+   .el-dialog {
+     width: 95% !important;
+-- 
+2.39.5 (Apple Git-154)
+

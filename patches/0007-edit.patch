@@ -1,0 +1,312 @@
+From ed38c5f7a172d7f307819e349b0f566f18c272f6 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 28 Feb 2025 21:39:25 +0800
+Subject: [PATCH 07/85] =?UTF-8?q?edit-=E5=88=9D=E6=AD=A5=E5=AE=9E=E7=8E=B0?=
+ =?UTF-8?q?=E6=96=87=E4=BB=B6=E5=92=8C=E5=9B=BE=E7=89=87=E4=B8=8A=E4=BC=A0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 170 +++++++++++++++++++++---------------------
+ 1 file changed, 87 insertions(+), 83 deletions(-)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index c7ca587..cc465aa 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -30,7 +30,9 @@
+         </div>
+       
+         <!-- 显示消息内容 -->
+-        <div v-if="message.content">{{ message.content }}</div>
++        <div v-if="message.content && !message.isImageOnly">
++        {{ message.content }}
++        </div>
+          <!-- 思考中状态 -->
+          <div v-if="message.type === 'thinking'" class="thinking">
+           <span>思考中...</span>
+@@ -57,16 +59,22 @@
+   </div>
+   
+         <!-- 显示图片预览 -->
+-        <img
+-          v-if="message.imageUrl"
+-          :src="message.imageUrl"
+-          alt="Uploaded Image"
+-          class="uploaded-image"
+-        />
+-        <!-- 文件上传标识 -->
+-        <div v-if="message.fileId" class="file-upload-indicator">
+-          <el-icon v-if="message.fileType === 'image'"><Picture /></el-icon>
+-          <el-icon v-else><Document /></el-icon>
++                <!-- 修改图片容器部分 -->
++        <div class="image-container" v-if="message.imageUrl || message.tempImageUrl || message.isUploading">
++          <img
++            :src="message.imageUrl || message.tempImageUrl"
++            alt="Uploaded Image"
++            class="uploaded-image"
++            @click="openImageInNewTab(message.imageUrl || message.tempImageUrl)"
++          />
++          <div v-if="message.isUploading" class="image-uploading-overlay">
++            <div class="uploading-spinner"></div>
++            <span>上传中...</span>
++          </div>
++        </div>
++        <!-- 文件上传标识 - 只在没有实际文件预览时显示 -->
++        <div v-if="message.fileId && message.fileType === 'document' && !message.files && !message.content.includes(message.fileName)" class="file-upload-indicator">
++          <el-icon><Document /></el-icon>
+           <span>{{ message.fileName || '已上传文件' }}</span>
+         </div>
+         <!-- 显示文件附件 -->
+@@ -87,16 +95,12 @@
+             </div>
+           </div>
+         </div>
+-        <div v-if="message.fileUrl && !message.imageUrl" class="file-link">
++        <div v-if="message.fileUrl && !message.imageUrl && !message.isImageOnly" class="file-link">
+           <el-icon><Document /></el-icon>
+           <a :href="message.fileUrl" target="_blank" rel="noopener noreferrer">
+             {{ message.fileName || '查看文件' }}
+           </a>
+         </div>
+-        <!-- 显示文件名称 -->
+-        <div v-if="message.fileName" class="file-name">
+-          文件: {{ message.fileName }}
+-        </div>
+       </div>
+     </div>
+     <!-- 输入和发送区域 -->
+@@ -204,7 +208,7 @@ const triggerFileInput = () => {
+   fileInput.value.click();
+ };
+ 
+-
++const imageUrlCache = ref({});
+ // 添加停止生成函数
+ const stopResponding = async () => {
+   if (currentTaskId.value) {
+@@ -442,12 +446,18 @@ const loadDialogFromLocal = async (id) => {
+           
+           // 3. 处理文件附件
+           if (msg.message_files && msg.message_files.length > 0) {
++            const processedImageIds = new Set();
+             msg.message_files.forEach(file => {
++              let fileUrl = file.url;
++              // 如果URL是相对路径（以/开头），则添加基础URL前缀
++              if (fileUrl && fileUrl.startsWith('/')) {
++                fileUrl = `http://47.99.158.58${fileUrl}`;
++              }
+               // 保存文件URL，确保能够显示
+               const fileInfo = {
+                 id: file.id,
+                 type: file.type,
+-                url: file.url,
++                url: fileUrl,
+                 belongs_to: file.belongs_to
+               };
+               
+@@ -461,19 +471,38 @@ const loadDialogFromLocal = async (id) => {
+               } else {
+                 const lastUserMsg = [...messageList.value].reverse().find(m => m.type === 'user');
+                 if (lastUserMsg) {
+-                  if (!lastUserMsg.files) lastUserMsg.files = [];
+-                  lastUserMsg.files.push(fileInfo);
+-                  
+-                  // 如果是图片，也设置imageUrl便于显示
+                   if (file.type === 'image') {
+-                    lastUserMsg.imageUrl = file.url;
++                    // 对于图片，设置imageUrl但不添加到files数组
++                    lastUserMsg.imageUrl = fileUrl;
++                    processedImageIds.add(file.id);
++                    // 缓存图片URL
++                    imageUrlCache.value[file.id] = fileUrl;
++                    // 标记为纯图片消息，如果内容为空
++                    if (!lastUserMsg.content || lastUserMsg.content.trim() === '') {
++                      lastUserMsg.isImageOnly = true;
++                    }
++                  } else {
++                    // 非图片类型的文件正常添加到files
++                    if (!lastUserMsg.files) lastUserMsg.files = [];
++                    lastUserMsg.files.push(fileInfo);
+                   }
+                 }
+               }
+             });
+           }
+         });
+-        
++        messageList.value.forEach(msg => {
++          if (msg.files && msg.files.length > 0) {
++            msg.files = msg.files.filter(file => 
++              !(file.type === 'image' && processedImageIds.has(file.id))
++            );
++            
++            // 如果过滤后files数组为空，则删除它
++            if (msg.files.length === 0) {
++              delete msg.files;
++            }
++          }
++        });
+         // 更新对话ID和状态
+         currentDialogId.value = id;
+         isFirstInput.value = false;
+@@ -739,54 +768,35 @@ const handleImageUpload = async (e) => {
+   }
+ 
+   try {
+-    // 先显示上传中状态
+-    messageList.value.push({
+-      type: 'user',
+-      content: '上传图片中...',
+-      fileName: file.name,
+-    });
+-    
+-    scrollToBottom();
++    // 显示上传中提示，但不添加到消息列表
++    ElMessage.info('图片上传中...');
+ 
+     // 上传文件到服务器
+     const result = await uploadFile(file);
+     console.log("图片上传结果:", result);
+ 
+-    // 根据API文档，上传成功后返回的是文件ID和其他元数据
+     if (!result || !result.id) {
+       throw new Error('服务器没有返回有效的文件ID');
+     }
+     
+-    // 上传成功后，更新消息内容
+-    const lastIndex = messageList.value.length - 1;
+-    messageList.value[lastIndex] = {
++    // 添加纯图片消息 - 不包含任何文本内容
++    messageList.value.push({
+       type: 'user',
+-      content: `我上传了一张图片: ${file.name}`,
++      content: '', // 完全清空内容
+       fileId: result.id,
+-      fileName: file.name,
++      fileName: '', // 不显示文件名
+       fileType: 'image',
+-      // 保存文件元数据，供历史记录恢复使用
+-      fileMetadata: {
+-        id: result.id,
+-        name: result.name,
+-        extension: result.extension,
+-        mime_type: result.mime_type
+-      }
+-    };
++      // 不手动构造URL
++      tempImageUrl: URL.createObjectURL(file),
++      isImageOnly: true // 标记这是纯图片消息
++    });
+     
+     ElMessage.success('图片上传成功');
+     
+-    // 自动在输入框中添加提示文本
+-    inputMessage.value = `我刚刚上传了一张图片(${file.name})，请分析一下`;
++    // 自动滚动到底部
++    scrollToBottom();
+   } catch (error) {
+     console.error("图片上传失败:", error);
+-    
+-    // 移除上传中状态消息或更新为错误消息
+-    const lastIndex = messageList.value.length - 1;
+-    if (lastIndex >= 0 && messageList.value[lastIndex].content === '上传图片中...') {
+-      messageList.value.splice(lastIndex, 1);
+-    }
+-    
+     ElMessage.error(`图片上传失败: ${error.message}`);
+   } finally {
+     // 清空文件输入，允许用户重新选择同一文件
+@@ -838,17 +848,14 @@ const handleFileUpload = async (e) => {
+     const lastIndex = messageList.value.length - 1;
+     messageList.value[lastIndex] = {
+       type: 'user',
+-      content: `我上传了一个文件: ${file.name}`,
++      content: ``,
+       fileId: result.id,
+       fileName: file.name,
+-      fileType: 'document'
++      fileType: 'document',
++      isFileOnly: true
+     };
+     
+     ElMessage.success('文件上传成功');
+-    
+-    // 自动在输入框中添加提示文本
+-    inputMessage.value = `我上传了一个文件（${file.name}），请分析一下内容`;
+-    // 可选：自动发送
+     // sendMessage();
+     
+   } catch (error) {
+@@ -1012,10 +1019,17 @@ right: 0px;
+ 
+ 
+ .uploaded-image {
+-  max-width: 100%;
+-  max-height: 100px;
++  max-width: 300px;
++  max-height: 200px;
+   margin-top: 10px;
+-  border-radius: 5px;
++  border-radius: 8px;
++  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
++  cursor: pointer;
++  transition: transform 0.3s ease;
++}
++
++.uploaded-image:hover {
++  transform: scale(1.03);
+ }
+ 
+ .file-name {
+@@ -1098,15 +1112,20 @@ right: 0px;
+   align-items: center;
+ }
+ 
++/* 文件预览图片样式 */
+ .file-image {
+-  max-width: 200px;
+-  max-height: 150px;
+-  border-radius: 4px;
++  max-width: 250px;
++  max-height: 180px;
++  border-radius: 8px;
+   cursor: pointer;
++  transition: transform 0.3s ease;
++  object-fit: contain; /* 保持图片比例 */
++  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+ }
+ 
+ .file-image:hover {
+-  opacity: 0.9;
++  transform: scale(1.05);
++  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+ }
+ 
+ .file-link {
+@@ -1127,21 +1146,6 @@ right: 0px;
+ .file-link a:hover {
+   text-decoration: underline;
+ }
+-/* 添加到样式部分 */
+-.file-upload-indicator {
+-  display: flex;
+-  align-items: center;
+-  padding: 8px;
+-  margin-top: 8px;
+-  background: #f0f2f5;
+-  border-radius: 4px;
+-  font-size: 14px;
+-}
+-
+-.file-upload-indicator .el-icon {
+-  margin-right: 8px;
+-  color: #909399;
+-}
+ /* 头像样式 */
+ .aitou {
+   width: 40px; /* 头像大小 */
+-- 
+2.39.5 (Apple Git-154)
+

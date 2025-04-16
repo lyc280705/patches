@@ -1,0 +1,29 @@
+From 72dcd9605e6329ef7362d3048487a942a751a345 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 10 Mar 2025 17:39:41 +0800
+Subject: [PATCH 60/85] =?UTF-8?q?style-=E5=BE=AE=E8=B0=83=E4=BA=86?=
+ =?UTF-8?q?=E5=87=A0=E4=B8=AA=E5=8F=82=E6=95=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 21abfa4..ded1802 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -1189,7 +1189,7 @@ body.sidebar-open-mobile {
+   margin-right: 0;
+   padding-left: 0;
+   padding-right: 0;
+-  max-height: 12.5rem;
++  max-height: 17.2rem;
+   overflow-y: auto;
+   overflow-x: hidden;
+   width: 85%;
+-- 
+2.39.5 (Apple Git-154)
+

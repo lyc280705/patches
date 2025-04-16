@@ -1,0 +1,26 @@
+From db36e0f74e0259861e5698de2a016b9a9f7f6eee Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Thu, 6 Mar 2025 16:26:15 +0800
+Subject: [PATCH 41/85] fix-Changing the container's overflow-y from 'hidden'
+ to 'auto'
+
+---
+ frontend/src/views/QMathify.vue | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index a9353ab..957db63 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -759,7 +759,7 @@ body, html {
+   align-items: center;
+   justify-content: center;
+   padding: 0px;
+-  overflow-y: hidden;
++  overflow-y: auto;
+   transition: margin-left 0.3s ease;
+   max-width: calc(100vw - 0px);
+ }
+-- 
+2.39.5 (Apple Git-154)
+

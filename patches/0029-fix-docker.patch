@@ -1,0 +1,116 @@
+From f42359a8549adf62c17f575743b641244121cb0d Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 4 Mar 2025 16:40:02 +0800
+Subject: [PATCH 29/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8Ddocker=E9=83=A8?=
+ =?UTF-8?q?=E7=BD=B2=E5=BC=82=E5=B8=B8=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .gitignore         | 28 ++++++++++++++++++++++++++++
+ backend/Dockerfile |  4 ++--
+ backend/app.py     | 12 +++++++++++-
+ docker-compose.yml |  1 +
+ 4 files changed, 42 insertions(+), 3 deletions(-)
+ create mode 100644 .gitignore
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..d610852
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,28 @@
++# Python 缓存文件
++__pycache__/
++*.py[cod]
++*$py.class
++
++# 虚拟环境
++venv/
++env/
++ENV/
++.venv/
++
++# 单元测试/覆盖率报告
++htmlcov/
++.coverage
++.pytest_cache/
++
++# 构建和分发
++dist/
++build/
++*.egg-info/
++
++# IDE 相关
++.idea/
++.vscode/
++*.swp
++*.swo
++
++.DS_Store
+\ No newline at end of file
+diff --git a/backend/Dockerfile b/backend/Dockerfile
+index ce7ef49..1811594 100644
+--- a/backend/Dockerfile
++++ b/backend/Dockerfile
+@@ -7,8 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ COPY . .
+ 
+-# 创建数据目录
+-RUN mkdir -p instance
++# Create instance directory and set proper permissions
++RUN mkdir -p /app/instance && chmod 777 /app/instance
+ 
+ # 使用环境变量配置
+ ENV FLASK_APP=app.py
+diff --git a/backend/app.py b/backend/app.py
+index ad619c2..66dfad3 100644
+--- a/backend/app.py
++++ b/backend/app.py
+@@ -1,6 +1,7 @@
+ from flask import Flask
+ from flask_cors import CORS
+ from extensions import db, mail, redis_client
++import os
+ 
+ def create_app():
+     app = Flask(__name__)
+@@ -25,11 +26,20 @@ def create_app():
+     
+     # 在这里注册路由
+     with app.app_context():
++        # Ensure instance directory exists
++        instance_path = os.path.join(os.getcwd(), 'instance')
++        os.makedirs(instance_path, exist_ok=True)
++        print(f"Instance directory path: {instance_path}")
++        
+         from routes.auth_routes import auth_bp
+         app.register_blueprint(auth_bp, url_prefix='/api/auth')
+         
+         # 创建所有数据库表
+-        db.create_all()
++        try:
++            db.create_all()
++            print("Database tables created successfully")
++        except Exception as e:
++            print(f"Error creating database tables: {e}")
+     
+     return app
+ 
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 67b8419..39587c6 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -20,6 +20,7 @@ services:
+     environment:
+       - FLASK_APP=app.py
+       - FLASK_ENV=production
++      - SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
+       - REDIS_URL=redis://redis:6379/0
+       - MAIL_SERVER=smtp.qq.com
+       - MAIL_PORT=587
+-- 
+2.39.5 (Apple Git-154)
+

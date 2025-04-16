@@ -1,0 +1,412 @@
+From ab22817bb71cfe55d3f25b1d575b4c82d0723136 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 00:16:18 +0800
+Subject: [PATCH 11/85] =?UTF-8?q?feat-=E5=89=8D=E7=AB=AF=E5=BC=95=E7=94=A8?=
+ =?UTF-8?q?=E5=86=85=E5=AE=B9=E7=9A=84=E5=AE=9E=E7=8E=B0=20fix-=E5=9B=BE?=
+ =?UTF-8?q?=E7=89=87=E6=97=A0=E6=B3=95=E6=98=BE=E7=A4=BA=E5=A4=9A=E5=BC=A0?=
+ =?UTF-8?q?=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/api/dify.js  |  12 +-
+ work/src/views/ai.vue | 259 ++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 246 insertions(+), 25 deletions(-)
+
+diff --git a/work/src/api/dify.js b/work/src/api/dify.js
+index cab2a7c..d81f8aa 100644
+--- a/work/src/api/dify.js
++++ b/work/src/api/dify.js
+@@ -21,7 +21,8 @@ function isValidUUID(str) {
+ }
+ 
+ // 发送对话消息 - 流式响应
+-export const sendChatMessage = async (message, conversationId = null, onMessage = null, onEnd = null, onError = null, files = null) => {
++// 修改 sendChatMessage 函数，添加元数据回调参数
++export const sendChatMessage = async (message, conversationId = null, onMessage = null, onEnd = null, onError = null, files = null, onMetadata = null) => {
+     const user = getUserId();
+     
+     try {
+@@ -98,6 +99,15 @@ export const sendChatMessage = async (message, conversationId = null, onMessage
+               messageId = data.message_id || messageId;
+               responseConversationId = data.conversation_id || responseConversationId;
+               
++              // 确保先调用元数据回调，之后再调用结束回调
++              if (data.metadata) {
++                console.log("收到元数据:", data.metadata);
++                if (data.metadata.retriever_resources) {
++                  console.log("收到参考来源:", data.metadata.retriever_resources.length);
++                }
++                if (onMetadata) onMetadata(data.metadata, messageId);
++              }
++              
+               // 确保回调参数顺序正确
+               if (onEnd) onEnd(fullAnswer, messageId, responseConversationId);
+               break;
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index 06287ab..d0edf9c 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -6,11 +6,10 @@
+     <!-- 消息显示区域 -->
+     <div class="chat-messages" ref="chatMessagesRef">
+       <!-- 循环渲染消息列表 -->
+-      <div
+-        :class="['message', message.type === 'user' ? 'user-message' : message.type === 'thinking' ? 'thinking-message' : 'ai-message']"
+-        v-for="(message, index) in messageList"
+-        :key="index"
+-      >
++      <template v-for="(message, index) in messageList" :key="index">
++        <div
++          :class="['message', message.type === 'user' ? 'user-message' : message.type === 'thinking' ? 'thinking-message' : 'ai-message']"
++        >
+         <!-- AI 消息显示头像 -->
+         <img
+           v-if="message.type === 'ai' || message.type === 'thinking'"
+@@ -39,7 +38,7 @@
+           <span></span>
+           <div class="loader"></div>
+         </div>
+-
++        
+         <!-- 将 action-icons 移出消息框，放在消息框下方的透明 margin 中 -->
+         <div v-if="message.type === 'ai' && !isGreeting(message.content)" class="action-icons-container">
+           <div class="action-icons">
+@@ -57,9 +56,20 @@
+             </el-icon>
+           </div>
+         </div>
+-  
+         <!-- 显示图片预览 -->
+-        <div class="image-container" v-if="message.imageUrl || message.tempImageUrl || message.isUploading">
++                <!-- 修改图片容器部分 -->
++        <div class="image-container" v-if="message.images && message.images.length > 0">
++          <div v-for="(img, imgIndex) in message.images" :key="img.id" class="uploaded-image-wrapper">
++            <img
++              :src="img.url"
++              alt="Uploaded Image"
++              class="uploaded-image"
++              @click="openImageInNewTab(img.url)"
++            />
++          </div>
++        </div>
++        <!-- 保留现有的单图片显示逻辑，确保兼容性 -->
++        <div class="image-container" v-else-if="message.imageUrl || message.tempImageUrl || message.isUploading">
+           <img
+             :src="message.imageUrl || message.tempImageUrl"
+             alt="Uploaded Image"
+@@ -101,6 +111,42 @@
+           </a>
+         </div>
+       </div>
++      <div 
++          v-if="message.type === 'ai' && message.sources && message.sources.length > 0" 
++          class="references-outside-container"
++        >
++          <div class="references-title">
++            <el-icon><InfoFilled /></el-icon>
++            <span>参考来源 ({{ message.sources.length }})</span>
++          </div>
++          <div class="references-list">
++            <el-tooltip 
++              v-for="(source, sourceIndex) in message.sources" 
++              :key="sourceIndex" 
++              placement="top" 
++              :effect="'light'"
++              :show-after="300"
++              :popper-class="'reference-tooltip'"
++            >
++              <template #content>
++                <div class="reference-tooltip-content">
++                  <div class="reference-header">
++                    <span class="reference-position">{{ source.position }}</span>
++                    <span class="reference-name">{{ source.dataset_name || '知识库' }} / {{ source.document_name || '文档' }}</span>
++                    <span class="reference-score">相关度 {{ (source.score * 100).toFixed(1) }}%</span>
++                  </div>
++                  <div class="reference-text-full">{{ source.content }}</div>
++                </div>
++              </template>
++              <div class="reference-item-compact">
++                <span class="reference-chip">{{ source.position }}</span>
++                <span class="reference-title">{{ source.dataset_name || '知识库' }} / {{ source.document_name || '文档' }}</span>
++                <el-icon class="reference-icon"><ArrowRight /></el-icon>
++              </div>
++            </el-tooltip>
++          </div>
++        </div>
++      </template>
+     </div>
+     <!-- 输入和发送区域 -->
+     <div class="chat-input">
+@@ -171,7 +217,7 @@
+ <script setup>
+ import { ref, onMounted, watch, nextTick } from 'vue';
+ import { ElMessage } from "element-plus";
+-import { Picture, FolderOpened, ChatDotRound,CopyDocument ,Refresh, CircleCheck,CircleClose,VideoPause } from '@element-plus/icons-vue';
++import { Picture, FolderOpened, ChatDotRound, CopyDocument, Refresh, CircleCheck, CircleClose, VideoPause, InfoFilled ,ArrowRight} from '@element-plus/icons-vue';
+ import {
+   sendChatMessage,
+   getConversationHistory,
+@@ -476,6 +522,10 @@ const loadDialogFromLocal = async (id) => {
+               content: msg.answer,
+               messageId: msg.id
+             };
++            if (msg.retriever_resources && msg.retriever_resources.length > 0) {
++              aiMessage.sources = msg.retriever_resources;
++              console.log("历史消息包含引用资源:", msg.retriever_resources.length);
++            }
+             
+             messageList.value.push(aiMessage);
+           }
+@@ -602,24 +652,29 @@ const scrollToBottom = () => {
+ const sendMessage = async () => {
+   const trimmedMessage = inputMessage.value.trim();
+   if (trimmedMessage) {
+-    // 查找最近的文件上传消息，如果存在
+-    const lastFileUpload = [...messageList.value].reverse().find(
++    // 查找所有未发送的文件上传消息
++    const fileUploads = messageList.value.filter(
+       msg => msg.type === 'user' && msg.fileId && !msg.fileSent
+     );
+     
+     let files = null;
+-    if (lastFileUpload && lastFileUpload.fileId) {
+-      // 构建正确的文件对象结构
+-      files = [{
+-        type: lastFileUpload.fileType === 'image' ? 'image' : 'document',
++    if (fileUploads.length > 0) {
++      // 构建多文件数组
++      files = fileUploads.map(upload => ({
++        type: upload.fileType === 'image' ? 'image' : 'document',
+         transfer_method: "local_file",
+-        upload_file_id: lastFileUpload.fileId
+-      }];
++        upload_file_id: upload.fileId
++      }));
+       
+       console.log("发送文件参数:", files);
+       
+-      // 标记文件已被发送
+-      lastFileUpload.fileSent = true;
++      // 标记所有文件已被发送
++      fileUploads.forEach(msg => {
++        const index = messageList.value.indexOf(msg);
++        if (index !== -1) {
++          messageList.value[index].fileSent = true;
++        }
++      });
+     }
+     
+     // 添加用户消息到列表
+@@ -755,7 +810,43 @@ const sendMessage = async () => {
+             });
+           }
+         },
+-        files // 传递文件ID数组作为第6个参数
++        files, // 传递文件ID数组作为第6个参数
++                // 在sendMessage函数中修改元数据回调
++        (metadata, msgId) => {
++          // 添加调试输出
++          console.log("处理元数据:", metadata);
++          
++          // 确保有引用资源
++          if (metadata && metadata.retriever_resources && metadata.retriever_resources.length > 0) {
++            console.log("找到参考来源:", metadata.retriever_resources.length);
++            
++            // 查找最后一条AI消息 - 使用两种策略
++            // 1. 通过ID直接找（如果提供）
++            if (msgId) {
++              const aiMsgIndex = messageList.value.findIndex(msg => 
++                msg.type === 'ai' && msg.messageId === msgId
++              );
++              if (aiMsgIndex !== -1) {
++                console.log("通过ID找到消息，添加引用来源");
++                messageList.value[aiMsgIndex].sources = metadata.retriever_resources;
++                return; // 已找到并处理，退出
++              }
++            }
++            
++            // 2. 找最后一条AI消息（备用策略）
++            for (let i = messageList.value.length - 1; i >= 0; i--) {
++              if (messageList.value[i].type === 'ai') {
++                console.log("找到最后一条AI消息，添加引用来源");
++                messageList.value[i].sources = metadata.retriever_resources;
++                // 确保如果消息没有ID但我们有ID，添加上
++                if (!messageList.value[i].messageId && msgId) {
++                  messageList.value[i].messageId = msgId;
++                }
++                break;
++              }
++            }
++          }
++        }
+       );
+     } catch (error) {
+       isGenerating.value = false;
+@@ -1122,7 +1213,16 @@ right: 0px;
+   word-wrap: break-word; /* 强制长单词或 URL 换行 */
+ }
+ 
++.image-container {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 10px;
++  margin-top: 10px;
++}
+ 
++.uploaded-image-wrapper {
++  display: inline-block;
++}
+ .uploaded-image {
+   max-width: 300px;
+   max-height: 200px;
+@@ -1187,13 +1287,15 @@ right: 0px;
+ }
+ 
+ /* 透明 margin 容器 */
++/* 更新操作按钮容器位置，避免与参考来源重叠 */
+ .action-icons-container {
+   position: absolute;
+-  bottom: -40px; /* 将 action-icons 定位到透明 margin 中 */
++  bottom: -30px; /* 保持位置不变 */
+   left: 0;
+   width: 100%;
+   display: flex;
+-  justify-content: flex-start; /* 图标靠左对齐 */
++  justify-content: flex-start;
++  z-index: 2; /* 确保按钮在参考来源上方 */
+ }
+ .ai-message::before {
+   content: '';
+@@ -1282,7 +1384,117 @@ top: 0; /* 将 top 设置为 0，使头像顶部与消息框顶部对齐 */
+   transform: translateY(0); /* 移除 translateY(-50%)，因为不再需要垂直居中 */
+   margin-left: 10px;
+ }
++/* 消息框外参考来源样式 */
++.references-outside-container {
++  margin-top: -5px; /* 减少负边距，降低与消息的贴合度 */
++  margin-bottom: 25px; /* 增加底部外边距，给按钮留出空间 */
++  margin-left: 125px; /* 向右移动，给操作按钮留出空间 */
++  padding: 4px 8px;
++  border-left: 3px solid #409EFF;
++  background-color: rgba(255, 255, 255, 0.7);
++  border-radius: 6px; /* 四周都有圆角 */
++  max-width: 70%; /* 稍微减小宽度 */
++  position: relative;
++  z-index: 1;
++}
++
++.references-title {
++  display: flex;
++  align-items: center;
++  font-size: 12px;
++  color: #57606a;
++  margin-bottom: 4px;
++}
++
++.references-title .el-icon {
++  margin-right: 4px;
++  font-size: 14px;
++  color: #409EFF;
++}
++
++.references-list {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 6px;
++}
++
++.reference-item-compact {
++  display: flex;
++  align-items: center;
++  background-color: #f6f8fa;
++  border-radius: 4px;
++  padding: 3px 8px;
++  cursor: pointer;
++  transition: all 0.3s ease;
++  max-width: 100%;
++}
++
++.reference-item-compact:hover {
++  background-color: #eef5ff;
++}
+ 
++.reference-chip {
++  background-color: #409EFF;
++  color: white;
++  font-size: 10px;
++  padding: 0px 5px;
++  border-radius: 10px;
++  margin-right: 5px;
++}
++
++.reference-title {
++  font-size: 12px;
++  color: #24292f;
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  max-width: 220px;
++}
++
++.reference-icon {
++  margin-left: 3px;
++  font-size: 11px;
++  color: #8c8c8c;
++}
++
++/* 调整action-icons-container的样式，确保与参考来源不冲突 */
++.action-icons-container {
++  position: absolute;
++  bottom: -30px; /* 调整位置，让参考来源有足够空间 */
++  left: 0;
++  width: 100%;
++  display: flex;
++  justify-content: flex-start;
++}
++
++/* 保留原来的tooltip相关样式 */
++:deep(.reference-tooltip) {
++  max-width: 500px !important;
++  padding: 10px !important;
++}
++
++.reference-tooltip-content {
++  width: 100%;
++  max-width: 480px;
++}
++
++.reference-text-full {
++  font-size: 13px;
++  color: #24292f;
++  white-space: pre-wrap;
++  max-height: 200px;
++  overflow-y: auto;
++  padding: 8px;
++  border-radius: 4px;
++  background-color: #f9f9f9;
++  margin-top: 8px;
++  border: 1px solid #eaeaea;
++}
++
++/* 调整AI消息的下边距，给参考来源腾出空间 */
++.ai-message {
++  margin-bottom: 35px; /* 增加下边距 */
++}
+ /* 输入和发送区域样式 */
+ .chat-input {
+   display: flex;
+@@ -1304,8 +1516,7 @@ input {
+ }
+ input:focus {
+   outline: none; /* 去除默认的聚焦轮廓 */
+-  border-color:rgba(182, 182, 250, 1)
+-  ;  /* 聚焦时的边框颜色，与初始颜色一致 */
++  border-color:rgba(182, 182, 250, 1);  /* 聚焦时的边框颜色，与初始颜色一致 */
+ }
+ .pic{
+   position:absolute;
+-- 
+2.39.5 (Apple Git-154)
+

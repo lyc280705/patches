@@ -1,0 +1,32 @@
+From c8a9c1292f9ef9cfe28ce2dfd3439eafca8fe99a Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Thu, 6 Mar 2025 17:06:53 +0800
+Subject: [PATCH 42/85] =?UTF-8?q?fix-=E5=BE=AE=E8=B0=83=E8=B7=9D=E7=A6=BB?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 534d3ee..2e439d8 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -1354,10 +1354,10 @@ body {
+ /* 思考中状态样式 */
+ .thinking-message {
+   align-self: flex-start;
+-background-color: #ffffff; 
++  background-color: #ffffff; 
+   width: fit-content;
+   position: relative; /* 与 ai-message 保持一致 */
+-  left: 9.9%;
++  left: 9.8%;
+   border-radius: 14px;
+   padding: 12px;
+   max-width: 77%; /* 设置消息的最大宽度 */
+-- 
+2.39.5 (Apple Git-154)
+

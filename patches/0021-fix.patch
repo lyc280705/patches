@@ -1,0 +1,135 @@
+From 08513944e27e9f8ff755e666d7d2079c9bd80e1a Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 16:18:45 +0800
+Subject: [PATCH 21/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E6=9C=AA=E7=99=BB?=
+ =?UTF-8?q?=E5=BD=95=E5=8F=AF=E7=9B=B4=E6=8E=A5=E8=AE=BF=E9=97=AE=E7=9A=84?=
+ =?UTF-8?q?=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/routes/index.ts    | 23 ++++++++++++++++++++---
+ work/src/views/QMathify.vue | 37 ++++++++++++++++++++++++++++++++++---
+ 2 files changed, 54 insertions(+), 6 deletions(-)
+
+diff --git a/work/src/routes/index.ts b/work/src/routes/index.ts
+index 2487415..e3f0833 100644
+--- a/work/src/routes/index.ts
++++ b/work/src/routes/index.ts
+@@ -45,6 +45,8 @@ import registerPage from '../views/register.vue';
+ import resetPage from '../views/reset.vue';
+ import aiPage from '../views/QMathify.vue';
+ 
++// 定义需要认证的路由路径
++const protectedRoutes = ['/QMathify'];
+ 
+ const routes = [
+   {
+@@ -80,10 +82,25 @@ const router = createRouter({
+   routes
+ });
+ 
+-// 这里可以使用 router 进行后续操作，比如添加导航守卫
++// 添加全局前置守卫
+ router.beforeEach((to, from, next) => {
+-  // 守卫逻辑
+-  next();
++  // 获取存储的token
++  const token = localStorage.getItem('token');
++  
++  // 检查是否为受保护路由
++  if (protectedRoutes.includes(to.path)) {
++    // 如果是受保护路由，检查是否有token
++    if (!token) {
++      // 没有token，重定向到登录页面
++      next('/login');
++    } else {
++      // 有token，允许访问
++      next();
++    }
++  } else {
++    // 不是受保护的路由，直接访问
++    next();
++  }
+ });
+ 
+ export default router;
+\ No newline at end of file
+diff --git a/work/src/views/QMathify.vue b/work/src/views/QMathify.vue
+index bde2c41..7826c67 100644
+--- a/work/src/views/QMathify.vue
++++ b/work/src/views/QMathify.vue
+@@ -100,7 +100,7 @@
+           <el-button type="text" class="jiao">
+             <img alt="call" src="@/imgs/call.png" class="call" />
+             联系我们</el-button>
+-          <el-button type="text" class="tui">
++          <el-button type="text" class="tui" @click="logout">
+             <img alt="loginout" src="@/imgs/loginout.png" class="loginout" />
+             退出登录</el-button>
+         </div>
+@@ -124,20 +124,43 @@ import { ref, onMounted } from 'vue';
+ import { ElMessage } from "element-plus";
+ import { Memo, Edit, Delete } from '@element-plus/icons-vue'; // 引入图标
+ import ai from './ai.vue';
++import { useRouter } from 'vue-router'; // 导入路由
++import axios from 'axios'; // 导入axios
+ import {
+   getConversations,
+   deleteConversation,
+   renameConversation,
+ } from '@/api/dify';
+ import { ArrowDown, ArrowUp } from '@element-plus/icons-vue'; // 引入 Element Plus 图标
+-
++const router = useRouter();
+ // 状态管理
+ const isSidebarOpen = ref(false); // 侧栏展开状态
+ const isDialogListVisible = ref(false); // 对话列表显示状态
+ const showPopover = ref(false); // 悬浮卡片显示状态
+ const isPopoverHovered = ref(false); // 悬浮卡片悬停状态
+ const isButtonHovered = ref(false); // 个人信息按钮悬停状态
+-
++const logout = () => {
++  try {
++    // 清除所有认证信息
++    localStorage.removeItem('token');
++    localStorage.removeItem('user');
++    localStorage.removeItem('currentDialogId');
++    
++    // 删除认证请求头
++    if (axios && axios.defaults.headers.common['Authorization']) {
++      delete axios.defaults.headers.common['Authorization'];
++    }
++    
++    // 显示成功消息
++    ElMessage.success('已成功退出登录');
++    
++    // 跳转到登录页面
++    router.push('/login');
++  } catch (error) {
++    console.error('退出登录失败:', error);
++    ElMessage.error('退出登录失败，请重试');
++  }
++};
+ // 对话管理
+ const dialogs = ref([]); // 近期对话列表
+ const aiComponent = ref(null); // ai 组件的引用
+@@ -378,6 +401,14 @@ const togglePopover = () => {
+   showPopover.value = !showPopover.value;
+ };
+ onMounted(() => {
++  // 在组件挂载时检查用户是否已登录
++  const token = localStorage.getItem('token');
++  if (!token) {
++    ElMessage.warning('您尚未登录，请先登录');
++    router.push('/login');
++    return;
++  }
++  
+   loadRecentDialogs(); // 加载近期对话列表
+ });
+ </script>
+-- 
+2.39.5 (Apple Git-154)
+

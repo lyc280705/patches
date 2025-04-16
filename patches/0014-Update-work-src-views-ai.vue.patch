@@ -1,0 +1,26 @@
+From 9daab0e8375ad5ce275a63bf39c16d06937d9fa7 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 16:46:03 +0800
+Subject: [PATCH 14/85] Update work/src/views/ai.vue
+
+Co-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>
+---
+ work/src/views/ai.vue | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index 8fea99f..cab5c30 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -502,8 +502,6 @@ const loadDialogFromLocal = async (id) => {
+         orderedMessages.forEach(msg => {
+           // 收集该消息相关的所有文件
+           const allFiles = msg.message_files || [];
+-          let userTextAdded = false;
+-          
+           // 首先处理该条消息的所有组成部分
+           const userMessages = [];
+           const aiMessages = [];
+-- 
+2.39.5 (Apple Git-154)
+

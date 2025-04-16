@@ -1,0 +1,336 @@
+From 602ac8fbf9c1e5781655a6ee0c3eed470ec14352 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Wed, 5 Mar 2025 16:08:58 +0800
+Subject: [PATCH 35/85] =?UTF-8?q?feat-=E6=B7=BB=E5=8A=A0=E6=90=9C=E7=B4=A2?=
+ =?UTF-8?q?=E5=8E=86=E5=8F=B2=E8=AE=B0=E5=BD=95=EF=BC=8C=E6=B7=BB=E5=8A=A0?=
+ =?UTF-8?q?=E5=88=A0=E9=99=A4=E5=8E=86=E5=8F=B2=E8=AE=B0=E5=BD=95=E6=8F=90?=
+ =?UTF-8?q?=E7=A4=BA?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/QMathify.vue | 257 +++++++++++++++++++++++++++++++-
+ 1 file changed, 251 insertions(+), 6 deletions(-)
+
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 0728a7e..c66568c 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -42,7 +42,7 @@
+ 
+         <img class="line" src="@/imgs/line.png" />
+ 
+-        <el-button type="primary" class="bo06">
++        <el-button type="primary" class="bo06" @click="openSearchDialog">
+           <div class="button-content">
+             <img alt="" src="@/imgs/search.png" class="search-icon" />
+             <span>搜索历史记录</span>
+@@ -134,6 +134,58 @@
+             </span>
+           </template>
+         </el-dialog>
++        <!-- 更新搜索对话框组件 -->
++        <el-dialog
++          v-model="showSearchDialog"
++          title="搜索历史记录"
++          width="30%"
++          :close-on-click-modal="true"
++        >
++          <el-input
++            v-model="searchQuery"
++            placeholder="输入关键词搜索对话..."
++            :prefix-icon="Search"
++            clearable
++            @keyup.enter="searchDialogs"
++          >
++            <template #append>
++              <el-button @click="searchDialogs" :loading="searching">
++                搜索
++              </el-button>
++            </template>
++          </el-input>
++        
++          <div class="search-tips" v-if="!hasSearched && !searchResults.length">
++            <p>搜索提示:</p>
++            <ul>
++              <li>输入完整或部分对话标题</li>
++              <li>对于中文，支持单字和连续字符匹配</li>
++              <li>系统会自动查找相似的对话记录</li>
++            </ul>
++          </div>
++        
++          <div v-if="searchResults.length > 0" class="search-results">
++            <div 
++              v-for="result in searchResults" 
++              :key="result.id"
++              class="search-result-item"
++              @click="loadDialogFromSearch(result.id)"
++            >
++              <span class="search-result-name">{{ result.name }}</span>
++            </div>
++          </div>
++          <div v-else-if="hasSearched && !searching" class="no-results">
++            未找到匹配的对话记录
++            <div class="search-suggestion">
++              建议尝试：
++              <ul>
++                <li>使用更简短的关键词</li>
++                <li>尝试使用对话中的部分关键词</li>
++                <li>检查拼写是否正确</li>
++              </ul>
++            </div>
++          </div>
++        </el-dialog>
+       </div>
+     </div>
+ 
+@@ -152,8 +204,8 @@
+ <script setup>
+ import { ref, onMounted, onUnmounted, reactive } from 'vue';
+ const API_BASE_URL = '/api/auth';
+-import { ElMessage, ElForm } from "element-plus";
+-import { Memo, Edit, Delete } from '@element-plus/icons-vue'; // 引入图标
++import { ElMessage, ElMessageBox, ElForm } from "element-plus";
++import { Memo, Edit, Delete, Search } from '@element-plus/icons-vue'; // 引入图标
+ import ai from './ai.vue';
+ import { useRouter } from 'vue-router'; // 导入路由
+ import axios from 'axios'; // 导入axios
+@@ -174,6 +226,12 @@ const currentUser = ref(null);
+ const showProfileDialog = ref(false);
+ const updating = ref(false);
+ const userFormRef = ref(null);
++// 新增状态管理变量 - 添加到现有script setup中
++const showSearchDialog = ref(false); // 控制搜索对话框的显示
++const searchQuery = ref(''); // 搜索关键词
++const searchResults = ref([]); // 搜索结果
++const searching = ref(false); // 搜索状态指示
++const hasSearched = ref(false); 
+ // 用户表单数据
+ const userForm = reactive({
+   username: '',
+@@ -427,7 +485,18 @@ const addToRecentDialogs = (dialog) => {
+ // 完善clearAllDialogs函数
+ const clearAllDialogs = async () => {
+   try {
+-    // 逐个删除所有对话
++    // 添加确认对话框
++    await ElMessageBox.confirm(
++      '确定要删除所有历史对话记录吗？此操作不可恢复。',
++      '确认删除',
++      {
++        confirmButtonText: '确定',
++        cancelButtonText: '取消',
++        type: 'warning',
++      }
++    );
++    
++    // 用户确认后，逐个删除所有对话
+     for (const dialog of dialogs.value) {
+       try {
+         await deleteConversation(dialog.id);
+@@ -445,8 +514,13 @@ const clearAllDialogs = async () => {
+       aiComponent.value.handleNewDialog();
+     }
+   } catch (error) {
+-    console.error("清空对话失败:", error);
+-    ElMessage.error("清空对话失败");
++    if (error === 'cancel') {
++      // 用户取消删除操作
++      ElMessage.info('已取消删除操作');
++    } else {
++      console.error("清空对话失败:", error);
++      ElMessage.error("清空对话失败");
++    }
+   }
+ };
+ 
+@@ -465,7 +539,104 @@ const renameDialog = async (index) => {
+     }
+   }
+ };
++// 打开搜索对话框
++const openSearchDialog = () => {
++  searchQuery.value = '';
++  searchResults.value = [];
++  hasSearched.value = false; // 重置搜索状态
++  showSearchDialog.value = true;
++};
++
++// 搜索对话历史
++// 更新的搜索对话历史功能
++// 改进的搜索对话历史功能
++const searchDialogs = async () => {
++  if (!searchQuery.value.trim()) {
++    searchResults.value = [];
++    hasSearched.value = true;
++    return;
++  }
++
++  searching.value = true;
++  hasSearched.value = true;
++  try {
++    // 对搜索关键词进行处理
++    const query = searchQuery.value.trim();
++    console.log("原始搜索关键词:", query);
++    
++    // 将中文关键词拆分成单字，以便进行更灵活的匹配
++    const queryChars = Array.from(query);
++    
++    console.log("拆分后的搜索关键词:", queryChars);
++    console.log("当前对话列表:", dialogs.value);
++    
++    // 增强的匹配逻辑
++    searchResults.value = dialogs.value.filter(dialog => {
++      // 确保dialog.name存在且是字符串
++      if (!dialog.name || typeof dialog.name !== 'string') return false;
++      
++      // 对话名称
++      const dialogName = dialog.name;
++      
++      // 1. 完整匹配检查 (不区分大小写)
++      if (dialogName.toLowerCase().includes(query.toLowerCase())) {
++        console.log(`对话 "${dialogName}" 完整匹配关键词 "${query}"`);
++        return true;
++      }
++      
++      // 2. 中文分字匹配 - 任意连续两个字符匹配
++      if (queryChars.length >= 2) {
++        for (let i = 0; i < queryChars.length - 1; i++) {
++          const twoChars = queryChars[i] + queryChars[i + 1];
++          if (dialogName.includes(twoChars)) {
++            console.log(`对话 "${dialogName}" 部分匹配关键词 "${twoChars}"`);
++            return true;
++          }
++        }
++      }
++      
++      // 3. 单字匹配率检查 - 如果超过50%的字符匹配则视为匹配成功
++      let matchedChars = 0;
++      for (const char of queryChars) {
++        if (dialogName.includes(char)) {
++          matchedChars++;
++        }
++      }
++      
++      // 计算匹配率
++      const matchRate = queryChars.length > 0 ? matchedChars / queryChars.length : 0;
++      const threshold = 0.5; // 50%的匹配率阈值
++      
++      if (matchRate >= threshold) {
++        console.log(`对话 "${dialogName}" 字符匹配率: ${(matchRate * 100).toFixed(1)}%, 超过阈值 ${threshold * 100}%`);
++        return true;
++      }
++      
++      console.log(`对话 "${dialogName}" 不匹配关键词 "${query}"`);
++      return false;
++    });
++    
++    console.log("搜索结果:", searchResults.value);
++    
++    // 添加搜索结果反馈
++    if (searchResults.value.length > 0) {
++      ElMessage.success(`找到 ${searchResults.value.length} 个匹配结果`);
++    } else {
++      ElMessage.info('未找到匹配的对话记录');
++    }
++  } catch (error) {
++    console.error("搜索对话失败:", error);
++    ElMessage.error("搜索对话失败");
++  } finally {
++    searching.value = false;
++  }
++};
+ 
++// 从搜索结果加载对话
++const loadDialogFromSearch = (id) => {
++  loadDialog(id);
++  showSearchDialog.value = false;
++};
+ // 删除所有对话记录
+ const deleteAllDialogs = () => {
+   dialogs.value = [];
+@@ -805,6 +976,80 @@ body, html {
+   z-index: 1;
+ }
+ 
++/* 搜索结果样式 */
++.search-results {
++  margin-top: 16px;
++  max-height: 300px;
++  overflow-y: auto;
++  border-radius: 8px;
++  background-color: rgba(249, 246, 255, 1);
++}
++
++.search-result-item {
++  padding: 10px;
++  cursor: pointer;
++  border-bottom: 1px solid rgba(237, 230, 255, 0.81);
++  color: rgba(111, 58, 246, 1);
++  transition: background-color 0.2s;
++}
++
++.search-result-item:hover {
++  background-color: rgba(237, 230, 255, 0.81);
++}
++
++.search-result-name {
++  font-size: 14px;
++}
++/* 在<style>标签内添加 */
++
++.search-tips {
++  color: #909399;
++  font-size: 14px;
++  margin: 16px 0;
++  padding: 10px;
++  background-color: rgba(249, 246, 255, 0.5);
++  border-radius: 8px;
++}
++
++.search-tips p {
++  margin-top: 0;
++  margin-bottom: 8px;
++  font-weight: 500;
++  color: rgba(111, 58, 246, 0.8);
++}
++
++.search-tips ul {
++  padding-left: 20px;
++  margin-top: 5px;
++  margin-bottom: 0;
++}
++
++.search-tips li {
++  margin-bottom: 5px;
++}
++
++.search-suggestion {
++  margin-top: 10px;
++  font-size: 13px;
++  color: #606266;
++}
++
++.search-suggestion ul {
++  padding-left: 20px;
++  margin-top: 5px;
++}
++
++.search-suggestion li {
++  margin-bottom: 3px;
++}
++.no-results {
++  margin-top: 16px;
++  padding: 16px;
++  text-align: center;
++  color: #999;
++  background-color: rgba(249, 246, 255, 0.5);
++  border-radius: 8px;
++}
+ /* 弹出菜单图标 */
+ .loginout, .call, .set, .delete, .pen { 
+   position: relative;
+-- 
+2.39.5 (Apple Git-154)
+

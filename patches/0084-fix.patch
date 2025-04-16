@@ -1,0 +1,44 @@
+From e7e6f2509f7f98c1c5a20c6db3861d2f1adbcbf7 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sat, 5 Apr 2025 00:09:37 +0800
+Subject: [PATCH 84/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=B0=8F=E9=94=99?=
+ =?UTF-8?q?=E8=AF=AF?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/home.vue | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/frontend/src/views/home.vue b/frontend/src/views/home.vue
+index 04967b8..319b303 100644
+--- a/frontend/src/views/home.vue
++++ b/frontend/src/views/home.vue
+@@ -588,6 +588,7 @@ export default defineComponent({
+   font-size: 2.0rem;
+   margin-bottom: 1.2rem;
+   background: linear-gradient(270deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);
++  background-clip: text;
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   font-weight: 700;
+@@ -600,6 +601,7 @@ export default defineComponent({
+   font-size: 1.2rem;
+   margin-bottom: 0.6rem; /* 从1rem减小到0.6rem，减少按钮与上方文字的距离 */
+   background: linear-gradient(90deg, rgba(170, 239, 242, 1) 0.92%, rgba(136, 191, 242, 0.95) 33.49%, rgba(162, 169, 252, 0.89) 74.36%, rgba(151, 107, 255, 0.8) 100%);
++  background-clip: text;
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   font-style: italic;
+@@ -681,6 +683,7 @@ export default defineComponent({
+   font-size: 1.8rem;
+   margin-bottom: 1rem;
+   background: linear-gradient(90deg, rgba(151, 107, 255, 1) 0%, rgba(162, 169, 252, 1) 70%);
++  background-clip: text;
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   font-weight: 700;
+-- 
+2.39.5 (Apple Git-154)
+

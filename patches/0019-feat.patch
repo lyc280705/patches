@@ -1,0 +1,31 @@
+From 2491c28b631de672a2b9ffd9ff80d536f462dc7d Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 09:09:52 +0800
+Subject: [PATCH 19/85] =?UTF-8?q?feat-=E6=B7=BB=E5=8A=A0=E6=96=87=E4=BB=B6?=
+ =?UTF-8?q?=E6=8C=89=E9=92=AE=E6=95=88=E6=9E=9C?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index 19c3dfb..80e6437 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -1535,6 +1535,10 @@ right: 0px;
+ }
+ 
+ .file-link {
++  display: flex;
++  align-items: center;
++  gap: 5px;
++  padding: 5px 10px;
+   background-color: #f0f2f5;
+   border-radius: 4px;
+   cursor: pointer;
+-- 
+2.39.5 (Apple Git-154)
+

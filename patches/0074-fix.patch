@@ -1,0 +1,33 @@
+From 58ec62a4cd53c8ecd41d736cb128c94287fe253c Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 31 Mar 2025 13:32:54 +0800
+Subject: [PATCH 74/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=9B=BE=E7=89=87?=
+ =?UTF-8?q?=E5=8F=91=E9=80=81=E6=97=B6=E6=B6=88=E6=81=AF=E5=BC=82=E5=B8=B8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/point02.vue | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 3cc030b..90f72d4 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -671,7 +671,11 @@ const scrollToBottom = () => {
+ // 添加到sendMessage函数中，在构建payload前
+ const sendMessage = async () => {
+   const trimmedMessage = inputMessage.value.trim();
+-  
++  messageList.value.forEach(msg => {
++    if (msg.type === 'ai') {
++      msg.isCurrentResponse = false;
++    }
++  });
+   // 查找所有未发送的文件上传消息
+   const fileUploads = messageList.value.filter(
+     msg => msg.type === 'user' && msg.fileId && !msg.fileSent
+-- 
+2.39.5 (Apple Git-154)
+

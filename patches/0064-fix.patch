@@ -1,0 +1,348 @@
+From 164bfcb227f22dda524912309cdc2eb7427b306c Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 25 Mar 2025 13:37:30 +0800
+Subject: [PATCH 64/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=BC=95=E5=AF=BC?=
+ =?UTF-8?q?=E5=8A=9F=E8=83=BD=E6=80=9D=E7=BB=B4=E9=93=BE=E6=98=BE=E7=A4=BA?=
+ =?UTF-8?q?=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/point02.vue | 234 ++++++++++++++-------------------
+ 1 file changed, 96 insertions(+), 138 deletions(-)
+
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 2a09118..c3375c0 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -3,7 +3,7 @@
+     <!-- 消息显示区域 -->
+     <div class="chat-messages" ref="chatMessagesRef">
+       <!-- 循环渲染消息列表 -->
+-      <template v-for="(message, index) in messageList" :key="index">
++      <template v-for="(message, index) in messageList" :key="index"  class="message" :class="[message.type + '-message']">
+         <div
+           :class="['message', 
+                   message.type === 'user' ? 'user-message' : 
+@@ -27,13 +27,6 @@
+           
+           <!-- 添加内容容器确保垂直布局 -->
+           <div class="message-content-wrapper">
+-            <!-- 显示深度思考内容 --> 
+-            <details v-if="message.thinkingContent" class="thinking-details" open>
+-              <summary class="thinking-summary">查看思考过程</summary>
+-              <div class="thinking-content">
+-                {{ message.thinkingContent }}
+-              </div>
+-            </details>
+           
+             <!-- 显示消息内容 - 修改AI消息为Markdown渲染 -->
+             <div v-if="message.content && !message.isImageOnly">
+@@ -42,7 +35,9 @@
+             </div>
+             <!-- 思考中状态 -->
+             <div v-if="message.type === 'thinking'" class="thinking">
+-              <span>思考中...</span>
++              <!-- 根据是否有思考内容显示不同状态文本 -->
++              <span v-if="message.hasThinkingContent">正在根据题目生成引导内容</span>
++              <span v-else>思考中...</span>
+               <div class="loader"></div>
+             </div>
+           </div>
+@@ -321,30 +316,18 @@ const adjustInputWidth = () => {
+ // 修改 renderMarkdown 函数，避免思考内容重复显示
+ const renderMarkdown = (text) => {
+   try {
+-    // 如果是已标记的仅思考内容消息，直接返回占位符
+-    if (text && text.includes('think-only-placeholder')) {
+-      return text; // 直接返回包含占位符的HTML
+-    }
++    if (!text) return '';
+     
+     // 检查是否包含思考内容
+-    const fullThinkMatch = /<think>([\s\S]*?)<\/think>/g.exec(text);
+-    
+-    if (fullThinkMatch) {
+-      // 只渲染非思考部分(直接移除思考内容标签及内容)
+-      const responseContent = text.replace(/<think>[\s\S]*?<\/think>/g, ''); // 使用全局标志g确保移除所有匹配
++    const hasThinkContent = /<think>[\s\S]*?<\/think>/g.test(text) || 
++                           /<think>[\s\S]*$/g.test(text);
+     
+-      return md.render(responseContent);
+-    }
+-    
+-    // // 检查是否有未闭合的思考标签
+-    // const openThinkMatch = /<think>([\s\S]*?)$/g.exec(text);
+-    // if (openThinkMatch) {
+-    //   // 有未闭合的思考标签，只返回空内容，等待完整回答
+-    //   return '';
+-    // }
++    // 移除所有思考内容标签及其内容
++    const responseContent = text.replace(/<think>[\s\S]*?<\/think>/g, '');
++    // 移除未闭合的思考标签及其后内容
++    const cleanedContent = responseContent.replace(/<think>[\s\S]*/g, '');
+     
+-    // 没有思考部分，直接渲染全部内容
+-    return md.render(text);
++    return cleanedContent ? md.render(cleanedContent) : '';
+   } catch (e) {
+     console.error('Markdown渲染错误', e);
+     return text;
+@@ -731,7 +714,8 @@ const sendMessage = async () => {
+       // 添加AI思考中状态
+       messageList.value.push({
+         type: 'thinking',
+-        content: ''
++        content: '',
++        hasThinkingContent: false
+       });
+       scrollToBottom();
+       
+@@ -747,59 +731,72 @@ const sendMessage = async () => {
+         currentDialogId.value,
+         // 流式回调处理...
+         // 其余代码保持不变
++                // 修改 sendMessage 函数中的流式回调处理逻辑
+         (text, tid, msgId) => {
+           if (tid && !currentTaskId.value) {
+             currentTaskId.value = tid;
+           }
+           
+-          // 提取思考内容
+-          let thinkingContent = null;
+-          let displayContent = text;
++          // 检查是否包含思考内容
++          const hasThinkContent = /<think>[\s\S]*?<\/think>/g.test(text) || 
++                                /<think>[\s\S]*$/g.test(text);
+           
+-          // 检测是否有完整的思考标签
+-          const fullThinkMatch = /<think>([\s\S]*?)<\/think>/g.exec(text);
+-          if (fullThinkMatch) {
+-            thinkingContent = fullThinkMatch[1];
+-            displayContent = text;  // 保持原始内容，由renderMarkdown函数处理
+-          } else {
+-            // 检测是否有未闭合的思考标签
+-            const openThinkMatch = /<think>([\s\S]*?)$/g.exec(text);
+-            if (openThinkMatch) {
+-              thinkingContent = openThinkMatch[1];
+-              // 当只有开始标签时，显示内容暂时为空，等待后续内容
+-              displayContent = '';
+-            }
+-          }
++          // 提取非思考内容
++          let displayContent = text;
++          displayContent = text.replace(/<think>[\s\S]*?<\/think>/g, '');
++          displayContent = displayContent.replace(/<think>[\s\S]*/g, '');
+           
+-          // 移除思考中状态或更新现有AI回复
++          // 查找思考中消息
+           const thinkingMsgIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          
++          // 查找当前正在更新的AI消息（上一条AI消息）
++          const currentAiMsgIndex = thinkingMsgIndex === -1 ? 
++            messageList.value.findIndex(msg => msg.type === 'ai' && msg.isCurrentResponse) :
++            -1;
++          
+           if (thinkingMsgIndex !== -1) {
+-            // 替换思考中消息为AI回复
+-            messageList.value.splice(thinkingMsgIndex, 1, {
+-              type: 'ai',
+-              content: displayContent,
+-              thinkingContent: thinkingContent,
+-              messageId: msgId
+-            });
+-          } else {
+-            // 查找并更新现有AI回复
+-            const aiMsg = messageList.value[messageList.value.length - 1];
+-            if (aiMsg && aiMsg.type === 'ai') {
+-              aiMsg.content = displayContent;
+-              aiMsg.thinkingContent = thinkingContent;
+-              if (msgId) {
+-                aiMsg.messageId = msgId;
+-              }
+-            } else {
+-              // 如果没有找到现有消息，添加新的
+-              messageList.value.push({
++            // 如果发现有思考内容标签，更新思考状态
++            if (hasThinkContent) {
++              messageList.value[thinkingMsgIndex].hasThinkingContent = true;
++            }
++            
++            // 只有当有实际显示内容时，才替换思考中消息
++            if (displayContent.trim()) {
++              messageList.value.splice(thinkingMsgIndex, 1, {
+                 type: 'ai',
+                 content: displayContent,
+-                thinkingContent: thinkingContent,
+-                messageId: msgId
++                messageId: msgId,
++                isCurrentResponse: true // 标记为当前正在更新的回复
+               });
+             }
++          } else if (currentAiMsgIndex !== -1) {
++            // 如果找到当前正在更新的AI消息，更新它的内容
++            messageList.value[currentAiMsgIndex].content = displayContent;
++            if (msgId) {
++              messageList.value[currentAiMsgIndex].messageId = msgId;
++            }
++          } else {
++            // 如果既没有思考中消息，也没有正在更新的AI消息，但有内容，添加新AI回复
++            if (displayContent.trim()) {
++              // 先检查是否已有相同ID的消息（避免重复）
++              const existingMsgIndex = msgId ? 
++                messageList.value.findIndex(msg => msg.messageId === msgId) : -1;
++              
++              if (existingMsgIndex !== -1) {
++                // 更新已存在的消息
++                messageList.value[existingMsgIndex].content = displayContent;
++              } else {
++                // 添加新消息
++                messageList.value.push({
++                  type: 'ai',
++                  content: displayContent,
++                  messageId: msgId,
++                  isCurrentResponse: true // 标记为当前正在更新的回复
++                });
++              }
++            }
+           }
++          
+           scrollToBottom();
+         },
+         // 其余回调函数保持不变...
+@@ -852,30 +849,30 @@ const sendMessage = async () => {
+             messageList.value.splice(remainingThinkingIndex, 1, {
+               type: 'ai',
+               content: fullAnswer,
+-              messageId: msgId
++              messageId: msgId,
++              isCurrentResponse: false // 重置当前响应标记
+             });
++          } else {
++            // 查找并更新当前正在响应的消息
++            const currentAiMsgIndex = messageList.value.findIndex(msg => 
++              msg.type === 'ai' && msg.isCurrentResponse
++            );
++            
++            if (currentAiMsgIndex !== -1) {
++              messageList.value[currentAiMsgIndex].content = fullAnswer;
++              messageList.value[currentAiMsgIndex].isCurrentResponse = false; // 重置标记
++              if (msgId) {
++                messageList.value[currentAiMsgIndex].messageId = msgId;
++              }
++            }
+           }
+           
+-          // 确保最终消息有正确的messageId
+-          const finalAiMsg = messageList.value.find(msg => msg.type === 'ai' && !msg.messageId);
+-          if (finalAiMsg && msgId) {
+-            finalAiMsg.messageId = msgId;
+-          }
+-        },
+-        (error) => {
+-          // 处理错误
+-          isGenerating.value = false;
+-          currentTaskId.value = null;
+-          ElMessage.error('发送消息失败：' + error.message);
+-          
+-          // 移除思考中状态
+-          const thinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
+-          if (thinkingIndex !== -1) {
+-            messageList.value.splice(thinkingIndex, 1, {
+-              type: 'ai',
+-              content: '回答生成失败，请重试。'
+-            });
+-          }
++          // 确保所有消息都重置isCurrentResponse标记
++          messageList.value.forEach(msg => {
++            if (msg.isCurrentResponse) {
++              msg.isCurrentResponse = false;
++            }
++          });
+         },
+         files,
+         (metadata, msgId) => {
+@@ -1304,22 +1301,7 @@ defineExpose({
+ .ai-message > div {
+   width: 100%;
+ }
+-/* 添加或更新样式 */
+-.thinking-content {
+-  display: block;
+-  background-color: #f5f5f5;
+-  padding: 12px;
+-  border-radius: 0 0 8px 8px; /* 只保留下方和右侧的圆角 */
+-  color: #555;
+-  font-size: 0.95em;
+-  border-left: none; /* 移除重复的左边框 */
+-  width: 100%;
+-  box-sizing: border-box;
+-  line-height: 1.5;
+-}
+-.thinking-details{
+-  display: none;
+-}
++
+ /* 确保思考内容内的代码格式也能正确显示 */
+ .thinking-content code {
+   background-color: rgba(27, 31, 35, 0.05);
+@@ -1513,9 +1495,16 @@ body {
+ /* 思考中状态的旋转动画 */
+ .thinking {
+   display: flex;
+-  flex-direction: row; /* 明确指定水平排列 */
++  flex-direction: row; 
+   align-items: center;
+   gap: 10px;
++  color: #713deb;
++  font-weight: 500;
++  padding: 10px;
++}
++
++.thinking span {
++  font-size: 14px;
+ }
+ 
+ .loader {
+@@ -1544,37 +1533,6 @@ body {
+   border-left:3px solid #fdfdfd
+ }
+ 
+-/* 思考内容折叠标题 */
+-.thinking-summary {
+-  padding: 8px 12px;
+-  color: #713deb;
+-  font-size: 14px;
+-  cursor: pointer;
+-  list-style: none;
+-  transition: background-color 0.2s;
+-}
+-
+-.thinking-summary:hover {
+-  background-color: rgba(113, 61, 235, 0.1);
+-}
+-
+-/* 移除默认的三角形图标 */
+-.thinking-summary::-webkit-details-marker {
+-  display: none;
+-}
+-
+-/* 添加自定义图标 */
+-.thinking-summary::before {
+-  content: '▶';
+-  display: inline-block;
+-  margin-right: 5px;
+-  font-size: 12px;
+-  transition: transform 0.3s;
+-}
+-
+-details[open] .thinking-summary::before {
+-  transform: rotate(90deg);
+-}
+ /* 思考中状态样式 */
+ .thinking-message {
+   background-color: #ffffff;
+-- 
+2.39.5 (Apple Git-154)
+

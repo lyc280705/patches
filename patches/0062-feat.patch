@@ -1,0 +1,100 @@
+From 92825974ce3c026c493a036a4ca347c4df9e3a1e Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 23 Mar 2025 12:55:26 +0800
+Subject: [PATCH 62/85] =?UTF-8?q?feat:=E6=B7=BB=E5=8A=A0=E6=8A=98=E5=8F=A0?=
+ =?UTF-8?q?=E5=8A=9F=E8=83=BD?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 54 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 48 insertions(+), 6 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 292279b..4a562ef 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -28,9 +28,12 @@
+           <!-- 添加内容容器确保垂直布局 -->
+           <div class="message-content-wrapper">
+             <!-- 显示深度思考内容 --> 
+-            <div v-if="message.thinkingContent" class="thinking-content">
+-              {{ message.thinkingContent }}
+-            </div>
++            <details v-if="message.thinkingContent" class="thinking-details" open>
++              <summary class="thinking-summary">查看思考过程</summary>
++              <div class="thinking-content">
++                {{ message.thinkingContent }}
++              </div>
++            </details>
+           
+             <!-- 显示消息内容 - 修改AI消息为Markdown渲染 -->
+             <div v-if="message.content && !message.isImageOnly">
+@@ -1311,13 +1314,13 @@ defineExpose({
+   display: block;
+   background-color: #f5f5f5;
+   padding: 12px;
+-  border-radius: 8px;
+-  margin-bottom: 12px;
++  border-radius: 0 0 8px 8px; /* 只保留下方和右侧的圆角 */
+   color: #555;
+   font-size: 0.95em;
+-  border-left: 3px solid #713deb;
++  border-left: none; /* 移除重复的左边框 */
+   width: 100%;
+   box-sizing: border-box;
++  line-height: 1.5;
+ }
+ 
+ /* 确保思考内容内的代码格式也能正确显示 */
+@@ -1535,7 +1538,46 @@ body {
+     transform: rotate(360deg);
+   }
+ }
++.thinking-details {
++  width: 100%;
++  margin-bottom: 12px;
++  border-radius: 8px;
++  overflow: hidden;
++  background-color: rgba(113, 61, 235, 0.05);
++  border-left: 3px solid #713deb;
++}
+ 
++/* 思考内容折叠标题 */
++.thinking-summary {
++  padding: 8px 12px;
++  color: #713deb;
++  font-size: 14px;
++  cursor: pointer;
++  list-style: none;
++  transition: background-color 0.2s;
++}
++
++.thinking-summary:hover {
++  background-color: rgba(113, 61, 235, 0.1);
++}
++
++/* 移除默认的三角形图标 */
++.thinking-summary::-webkit-details-marker {
++  display: none;
++}
++
++/* 添加自定义图标 */
++.thinking-summary::before {
++  content: '▶';
++  display: inline-block;
++  margin-right: 5px;
++  font-size: 12px;
++  transition: transform 0.3s;
++}
++
++details[open] .thinking-summary::before {
++  transform: rotate(90deg);
++}
+ /* 思考中状态样式 */
+ .thinking-message {
+   background-color: #ffffff;
+-- 
+2.39.5 (Apple Git-154)
+

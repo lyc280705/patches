@@ -1,0 +1,106 @@
+From 811ec912acbb001c39f12c5587550d429e810e2b Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sat, 5 Apr 2025 01:46:59 +0800
+Subject: [PATCH 85/85] =?UTF-8?q?style-footer=E4=BF=AE=E6=94=B9?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/home.vue | 59 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 56 insertions(+), 3 deletions(-)
+
+diff --git a/frontend/src/views/home.vue b/frontend/src/views/home.vue
+index 319b303..eb8c1f8 100644
+--- a/frontend/src/views/home.vue
++++ b/frontend/src/views/home.vue
+@@ -88,7 +88,11 @@
+         <img src="@/imgs/logo.png" alt="Logo" class="footer-logo-icon" />
+         <img src="@/imgs/qmathify.png" alt="Qmathify" class="footer-logo-text" />
+       </div>
+-      <p>© 2025 QMathify - 版权所有</p>
++      <div class="footer-copyright">
++          <p class="copyright-text">Copyright © 2025 QMathify - 版权所有</p>
++          <p class="license-text">本网站受 <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU Affero General Public License v3.0</a> 许可保护</p>
++          <p class="rights-text">未经许可，严禁复制、修改或分发本网站内容</p>
++        </div>
+     </footer>
+   </div>
+ </template>
+@@ -1019,15 +1023,55 @@ export default defineComponent({
+ }
+ 
+ .footer-logo-icon {
+-  height: 2rem;
++  height: 2.5rem;
+   width: auto;
+ }
+ 
+ .footer-logo-text {
+-  height: 1.5rem;
++  height: 2rem;
+   width: auto;
+ }
+ 
++.copyright-text {
++  font-size: 0.9rem;
++  margin-bottom: 0.5rem;
++  color: #333;
++}
++
++.license-text, .rights-text {
++  font-size: 0.6rem;
++  color: #666;
++  margin: 0px 0px;
++}
++
++.license-text a {
++  color: rgba(151, 107, 255, 0.8);
++  text-decoration: none;
++  transition: color 0.3s ease;
++}
++
++.license-text a:hover {
++  color: rgba(151, 107, 255, 1);
++  text-decoration: underline;
++}
++
++.footer-links {
++  display: flex;
++  justify-content: center;
++  gap: 1.5rem;
++}
++
++.footer-link {
++  color: #666;
++  text-decoration: none;
++  font-size: 0.9rem;
++  transition: color 0.3s ease;
++}
++
++.footer-link:hover {
++  color: rgba(151, 107, 255, 0.8);
++}
++
+ /* 3D效果相关 */
+ .card-3d-effect {
+   transform-style: preserve-3d;
+@@ -1153,6 +1197,15 @@ export default defineComponent({
+     height: 3px;
+   }
+   
++  .footer {
++    padding: 2rem 3%;
++  }
++
++  .footer-links {
++    flex-direction: column;
++    gap: 0.8rem;
++  }
++  
+   .features-section,
+   .scenarios-section,
+   .users-section,
+-- 
+2.39.5 (Apple Git-154)
+

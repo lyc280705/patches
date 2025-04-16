@@ -1,0 +1,28 @@
+From 2c61186e52f494f25336578d68a34c029103102f Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 2 Mar 2025 18:10:21 +0800
+Subject: [PATCH 16/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D9daab0e8375ad5ce275?=
+ =?UTF-8?q?a63bf39c16d06937d9fa7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/ai.vue | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/work/src/views/ai.vue b/work/src/views/ai.vue
+index a090e97..353517e 100644
+--- a/work/src/views/ai.vue
++++ b/work/src/views/ai.vue
+@@ -502,6 +502,7 @@ const loadDialogFromLocal = async (id) => {
+         orderedMessages.forEach(msg => {
+           // 收集该消息相关的所有文件
+           const allFiles = msg.message_files || [];
++          let userTextAdded = false;
+           // 首先处理该条消息的所有组成部分
+           const userMessages = [];
+           const aiMessages = [];
+-- 
+2.39.5 (Apple Git-154)
+

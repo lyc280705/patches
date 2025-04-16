@@ -1,0 +1,364 @@
+From 5505c4a5f43479301c470fce29fe957f1ba5aa20 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 20:08:49 +0800
+Subject: [PATCH 24/85] =?UTF-8?q?feat-=E6=B7=BB=E5=8A=A0docker=E9=83=A8?=
+ =?UTF-8?q?=E7=BD=B2?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ README.md                | 98 +++++++++++++++++++++++++++++++++++++++-
+ backend/.env             |  6 +++
+ backend/Dockerfile       | 23 ++++++++++
+ backend/config.py        | 26 ++++++-----
+ backend/requirements.txt |  9 ++++
+ docker-compose.yml       | 46 +++++++++++++++++++
+ frontend/Dockerfile      | 29 ++++++++++++
+ frontend/nginx.conf      | 30 ++++++++++++
+ 8 files changed, 255 insertions(+), 12 deletions(-)
+ create mode 100644 backend/.env
+ create mode 100644 backend/Dockerfile
+ create mode 100644 backend/requirements.txt
+ create mode 100644 docker-compose.yml
+ create mode 100644 frontend/Dockerfile
+ create mode 100644 frontend/nginx.conf
+
+diff --git a/README.md b/README.md
+index cdee8d9..09b6488 100644
+--- a/README.md
++++ b/README.md
+@@ -1 +1,97 @@
+-# 前端
++# 前后端分离项目
++
++这是一个基于Vue.js和Flask的前后端分离项目。
++
++## 项目结构
++
++- `/frontend` - Vue.js前端项目
++- `/backend` - Flask后端API
++- `docker-compose.yml` - Docker Compose配置文件
++
++## 技术栈
++
++### 前端
++- Vue.js 3
++- Vue Router
++- Pinia 状态管理
++- Element Plus UI库
++- Axios HTTP客户端
++
++### 后端
++- Flask
++- Flask-SQLAlchemy
++- Flask-Mail
++- Redis
++- JWT认证
++
++## Docker部署指南
++
++### 前提条件
++
++- 已安装Docker和Docker Compose
++- Git
++
++### 部署步骤
++
++1. 克隆仓库
++```bash
++git clone <repository-url>
++cd frontend2
++```
++
++2. 构建并启动容器
++```bash
++docker-compose up -d
++```
++
++3. 访问应用
++- 前端: http://localhost:80
++- 后端API: http://localhost:80/api
++
++### 配置项
++
++您可以通过修改以下文件来自定义配置：
++
++- 后端配置: `/backend/.env`
++- 前端代理配置: `/frontend/nginx.conf`
++
++### 常用操作
++
++重新构建容器:
++```bash
++docker-compose up -d --build
++```
++
++查看日志:
++```bash
++docker-compose logs -f
++```
++
++停止服务:
++```bash
++docker-compose down
++```
++
++## 开发指南
++
++### 前端开发
++
++```bash
++cd frontend
++npm install
++npm run dev
++```
++
++### 后端开发
++
++```bash
++cd backend
++pip install -r requirements.txt
++flask run
++```
++
++## 数据持久化
++
++Docker部署时，数据通过卷持久化:
++- 后端数据库: `backend_data` 卷
++- Redis数据: `redis_data` 卷
+diff --git a/backend/.env b/backend/.env
+new file mode 100644
+index 0000000..1e56793
+--- /dev/null
++++ b/backend/.env
+@@ -0,0 +1,6 @@
++FLASK_APP=app.py
++FLASK_ENV=production
++SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
++REDIS_URL=redis://redis:6379/0
++SECRET_KEY=your_secret_key_here
++JWT_SECRET_KEY=your_jwt_secret_key_here
+\ No newline at end of file
+diff --git a/backend/Dockerfile b/backend/Dockerfile
+new file mode 100644
+index 0000000..28ada5f
+--- /dev/null
++++ b/backend/Dockerfile
+@@ -0,0 +1,23 @@
++FROM python:3.11-slim
++RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
++WORKDIR /app
++
++COPY requirements.txt .
++RUN pip install --no-cache-dir -r requirements.txt
++
++COPY . .
++
++# 创建数据目录
++RUN mkdir -p instance
++
++# 使用环境变量配置
++ENV FLASK_APP=app.py
++ENV FLASK_ENV=production
++ENV SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
++ENV REDIS_URL=redis://redis:6379/0
++
++# 暴露端口
++EXPOSE 5000
++
++# 运行gunicorn服务器
++CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:create_app()"]
+\ No newline at end of file
+diff --git a/backend/config.py b/backend/config.py
+index c974054..7b2dfee 100644
+--- a/backend/config.py
++++ b/backend/config.py
+@@ -1,25 +1,29 @@
+ import os
+ from datetime import timedelta
++from dotenv import load_dotenv
++
++# 加载.env文件中的环境变量
++load_dotenv()
+ 
+ # 数据库配置
+-SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
++SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///app.db')
+ SQLALCHEMY_TRACK_MODIFICATIONS = False
+ 
+ # Redis配置
+ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+ 
+ # 邮件配置
+-MAIL_SERVER = 'smtp.qq.com'
+-MAIL_PORT = 587
+-MAIL_USE_TLS = True
+-MAIL_USERNAME = '381564291@qq.com'
+-MAIL_PASSWORD = 'fgohttmvdowgbihf'
+-MAIL_DEFAULT_SENDER = '381564291@qq.com'
++MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.qq.com')
++MAIL_PORT = int(os.getenv('MAIL_PORT', '587'))
++MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
++MAIL_USERNAME = os.getenv('MAIL_USERNAME', '381564291@qq.com')
++MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'fgohttmvdowgbihf')
++MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', '381564291@qq.com')
+ 
+ # 安全配置
+-SECRET_KEY = os.urandom(24)
+-JWT_SECRET_KEY = os.urandom(24)
+-JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
++SECRET_KEY = os.getenv('SECRET_KEY', os.urandom(24))
++JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', os.urandom(24))
++JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES_HOURS', '1')))
+ 
+ # 验证码配置
+-VERIFICATION_CODE_EXPIRES = 300  # 5分钟过期
+\ No newline at end of file
++VERIFICATION_CODE_EXPIRES = int(os.getenv('VERIFICATION_CODE_EXPIRES', '300'))  # 默认5分钟过期
+\ No newline at end of file
+diff --git a/backend/requirements.txt b/backend/requirements.txt
+new file mode 100644
+index 0000000..afe8866
+--- /dev/null
++++ b/backend/requirements.txt
+@@ -0,0 +1,9 @@
++Flask
++flask-cors
++Flask-SQLAlchemy
++Flask-Mail
++redis
++PyJWT
++Werkzeug
++python-dotenv
++gunicorn
+\ No newline at end of file
+diff --git a/docker-compose.yml b/docker-compose.yml
+new file mode 100644
+index 0000000..dc4f957
+--- /dev/null
++++ b/docker-compose.yml
+@@ -0,0 +1,46 @@
++version: '3.8'
++
++services:
++  frontend:
++    build:
++      context: ./frontend
++      dockerfile: Dockerfile
++    ports:
++      - "80:80"
++    depends_on:
++      - backend
++    networks:
++      - app-network
++    restart: unless-stopped
++
++  backend:
++    build:
++      context: ./backend
++      dockerfile: Dockerfile
++    environment:
++      - FLASK_APP=app.py
++      - FLASK_ENV=production
++      - REDIS_URL=redis://redis:6379/0
++    volumes:
++      - backend_data:/app/instance
++    depends_on:
++      - redis
++    networks:
++      - app-network
++    restart: unless-stopped
++
++  redis:
++    image: redis:7-alpine
++    volumes:
++      - redis_data:/data
++    networks:
++      - app-network
++    restart: unless-stopped
++
++networks:
++  app-network:
++    driver: bridge
++
++volumes:
++  backend_data:
++  redis_data:
+\ No newline at end of file
+diff --git a/frontend/Dockerfile b/frontend/Dockerfile
+new file mode 100644
+index 0000000..39cc48d
+--- /dev/null
++++ b/frontend/Dockerfile
+@@ -0,0 +1,29 @@
++FROM node:18-alpine as build-stage
++
++WORKDIR /app
++
++# 复制 package.json 和 package-lock.json (如果有)
++COPY package*.json ./
++
++# 安装依赖
++RUN npm install
++
++# 复制前端项目文件
++COPY . .
++
++# 构建应用 - 跳过类型检查，直接构建
++RUN npm run build-only
++
++# 生产环境阶段
++FROM nginx:stable-alpine as production-stage
++
++# 从构建阶段复制构建成果到 nginx 目录
++COPY --from=build-stage /app/dist /usr/share/nginx/html
++
++# 复制 nginx 配置
++COPY nginx.conf /etc/nginx/conf.d/default.conf
++
++# 暴露端口
++EXPOSE 80
++
++CMD ["nginx", "-g", "daemon off;"]
+\ No newline at end of file
+diff --git a/frontend/nginx.conf b/frontend/nginx.conf
+new file mode 100644
+index 0000000..f3e250a
+--- /dev/null
++++ b/frontend/nginx.conf
+@@ -0,0 +1,30 @@
++server {
++    listen 80;
++    server_name localhost;
++
++    # 前端静态文件
++    location / {
++        root   /usr/share/nginx/html;
++        index  index.html index.htm;
++        try_files $uri $uri/ /index.html;  # 支持Vue Router的history模式
++    }
++
++    # 代理API请求到后端服务
++    location /api {
++        proxy_pass http://backend:5000;
++        proxy_http_version 1.1;
++        proxy_set_header Upgrade $http_upgrade;
++        proxy_set_header Connection 'upgrade';
++        proxy_set_header Host $host;
++        proxy_set_header X-Real-IP $remote_addr;
++        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
++        proxy_set_header X-Forwarded-Proto $scheme;
++        proxy_cache_bypass $http_upgrade;
++    }
++
++    # 错误页配置
++    error_page   500 502 503 504  /50x.html;
++    location = /50x.html {
++        root   /usr/share/nginx/html;
++    }
++}
+\ No newline at end of file
+-- 
+2.39.5 (Apple Git-154)
+

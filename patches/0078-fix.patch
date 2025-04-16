@@ -1,0 +1,31 @@
+From a3b48c67f040a12b70468f1629c4d8fdfbfe20cb Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 1 Apr 2025 18:53:46 +0800
+Subject: [PATCH 78/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E4=B8=80=E5=A4=84?=
+ =?UTF-8?q?=E5=B0=8F=E9=94=99=E8=AF=AF?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/point02.vue | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index aa2073e..b470ac3 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -190,8 +190,8 @@
+             >
+ 
+               <template #reference>
+-                <el-icon @click="triggerFileInput" class="tool-icon">
+-                  <FolderOpened />
++                <el-icon @click="triggerImageInput" class="tool-icon">
++                  <Picture />
+                 </el-icon>
+               </template>
+             </el-popover>
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,41 @@
+From 8169a6dc4e3276fd73e76af89aabfb7cdbb15c2b Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Thu, 6 Mar 2025 16:18:15 +0800
+Subject: [PATCH 40/85] =?UTF-8?q?style-=E6=9B=B4=E6=94=B9=E5=9B=9B?=
+ =?UTF-8?q?=E4=B8=AA=E6=93=8D=E4=BD=9C=E6=8C=89=E9=92=AE=E9=A2=9C=E8=89=B2?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 14c554d..12443b5 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -1438,10 +1438,19 @@ background-color: #ffffff;
+ .close-icon:hover ,
+ .check-icon:hover,
+ .copy-icon:hover {
+-  color:rgba(144, 107, 232, 1); /* 复制图标悬停颜色 */
++  color: #409eff; /* 复制图标悬停颜色 */
+ }
+ 
++.check-icon:hover {
++  color: #2bde14; /* 喜欢图标悬停颜色 */
++}
++
++.close-icon:hover {
++  color: #f70606; /* 不喜欢图标悬停颜色 */}
+ 
++.stop-responding-icon:hover {
++  color:rgba(144, 107, 232, 1); /* 停止回答图标悬停颜色 */
++}
+ .four{width: 180px;
+   height: 57px;
+   position: relative;
+-- 
+2.39.5 (Apple Git-154)
+

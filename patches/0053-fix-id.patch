@@ -1,0 +1,82 @@
+From 4b6c7a5070d04be3c87b05728eddb736cf57bf5c Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sat, 8 Mar 2025 14:53:53 +0800
+Subject: [PATCH 53/85] =?UTF-8?q?fix-=E4=BD=BF=E7=94=A8=E7=94=A8=E6=88=B7?=
+ =?UTF-8?q?=E5=90=8D=E4=BD=9C=E4=B8=BAid?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/api/dify.js        | 17 ++++-------------
+ frontend/src/views/QMathify.vue |  2 --
+ frontend/src/views/login.vue    |  3 ---
+ 3 files changed, 4 insertions(+), 18 deletions(-)
+
+diff --git a/frontend/src/api/dify.js b/frontend/src/api/dify.js
+index 3a15640..17322a9 100644
+--- a/frontend/src/api/dify.js
++++ b/frontend/src/api/dify.js
+@@ -8,28 +8,19 @@ const getUserId = () => {
+   const userInfo = localStorage.getItem('user');
+   if (userInfo) {
+     try {
+-      const user = JSON.parse(userInfo);
+-      // 如果有用户ID，使用用户ID并添加前缀
+-      if (user && (user.id || user._id)) {
+-        return 'user_' + (user.id || user._id);
+-      }
+-      
++      const user = JSON.parse(userInfo);     
+       // 如果没有用户ID但有用户名，使用用户名生成固定ID（更稳定）
+       if (user && user.username) {
+         // 使用用户名创建一个固定的ID
+         return 'user_' + user.username;
+       }
++      else {
++        console.error('用户信息中没有用户名');
++      }
+     } catch (e) {
+       console.error('解析用户信息失败:', e);
+     }
+   }
+-  
+-  // 后退方案：如果没有登录信息或解析失败，使用本地存储的ID
+-  let userId = localStorage.getItem('dify_user_id');
+-  if (!userId) {
+-    userId = 'user_' + Math.random().toString(36).substring(2, 15);
+-    localStorage.setItem('dify_user_id', userId);
+-  }
+   return userId;
+ };
+ 
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index aca81f4..65433b2 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -378,8 +378,6 @@ const logout = () => {
+     localStorage.removeItem('token');
+     localStorage.removeItem('user');
+     localStorage.removeItem('currentDialogId');
+-    // 新增：删除dify用户ID，确保下次登录使用新的基于账号的ID
+-    localStorage.removeItem('dify_user_id');
+     // 删除认证请求头
+     if (axios && axios.defaults.headers.common['Authorization']) {
+       delete axios.defaults.headers.common['Authorization'];
+diff --git a/frontend/src/views/login.vue b/frontend/src/views/login.vue
+index 4bf5531..357e59a 100644
+--- a/frontend/src/views/login.vue
++++ b/frontend/src/views/login.vue
+@@ -115,9 +115,6 @@ const handleLogin = async () => {
+       localStorage.setItem('token', token);
+       localStorage.setItem('user', JSON.stringify(user));
+       
+-      // 新增：清除旧的随机用户ID，确保使用新的基于账号的ID
+-      localStorage.removeItem('dify_user_id');
+-      
+       // 设置全局请求头
+       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+       
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,84 @@
+From 0a8b6d5e65d40c5a798b8fd4b854459600601366 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Fri, 28 Feb 2025 22:20:22 +0800
+Subject: [PATCH 08/85] =?UTF-8?q?edit-=E4=BF=AE=E6=94=B9=E6=A0=B7=E5=BC=8F?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ work/src/views/QMathify.vue | 36 ++++++++----------------------------
+ 1 file changed, 8 insertions(+), 28 deletions(-)
+
+diff --git a/work/src/views/QMathify.vue b/work/src/views/QMathify.vue
+index 66bdc52..17dda49 100644
+--- a/work/src/views/QMathify.vue
++++ b/work/src/views/QMathify.vue
+@@ -357,6 +357,8 @@ onMounted(() => {
+ 
+ </script>
+ <style>
++
++
+ /* 容器样式 */
+ .container {
+   display: flex;
+@@ -499,8 +501,8 @@ onMounted(() => {
+ }
+ 
+ .bo08 {
+-  left: 50px;
+   top: 650px;
++  left: 30px;
+   width: 180px;
+   height: 50px;
+   position:absolute; /* 绝对定位 */
+@@ -518,11 +520,11 @@ onMounted(() => {
+   top: 400px;
+   left: 40px;
+   width: 140px;
+-  height: 180px;
+-  opacity: 1;
+-  border-radius: 10px;
+-  background: rgba(255, 255, 255, 1);
+-  box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
++height: 180px;
++opacity: 1;
++border-radius: 10px;
++background: rgba(255, 255, 255, 1);
++box-shadow: 0px 2px 4px  rgba(0, 0, 0, 0.25);
+   border: 1px solid #ccc;
+   padding-top: 25px;
+   padding-left: 10px;
+@@ -708,28 +710,6 @@ html {
+   -ms-overflow-style: none;
+ }
+ 
+-/* 容器样式 */
+-.container {
+-  display: flex;
+-  min-height: 100vh; /* 确保容器占满整个视口高度 */
+-  overflow: hidden; /* 隐藏滚动条 */
+-}
+-
+-/* 边栏样式 */
+-.sidebar {
+-  width: 250px; /* 展开时的宽度 */
+-  height: calc(100vh - 40px); /* 高度减去上下边距 */
+-  background-color: #ffffff;
+-  box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2);
+-  color: white;
+-  position: fixed;
+-  top: 20px; /* 上边距 */
+-  left: 20px; /* 左边距 */
+-  transition: all 0.3s ease;
+-  z-index: 1000; /* 确保边栏在最上层 */
+-  overflow-y: auto; /* 允许侧栏内部滚动 */
+-  border-radius: 8px; /* 圆角效果 */
+-}
+ 
+ /* 边栏收起时的样式 */
+ .sidebar-collapsed {
+-- 
+2.39.5 (Apple Git-154)
+

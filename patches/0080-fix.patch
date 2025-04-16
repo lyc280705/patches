@@ -1,0 +1,121 @@
+From 1c674c9e1410a058b1d6d7077c294ca1481ff02a Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Wed, 2 Apr 2025 23:27:13 +0800
+Subject: [PATCH 80/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E9=83=A8=E5=88=86?=
+ =?UTF-8?q?=E9=94=99=E8=AF=AF?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/Dockerfile         |  2 +-
+ frontend/package-lock.json  |  7 +++++++
+ frontend/package.json       |  1 +
+ frontend/src/views/home.vue | 12 ++++++------
+ 4 files changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/frontend/Dockerfile b/frontend/Dockerfile
+index 42ec3fb..2231595 100644
+--- a/frontend/Dockerfile
++++ b/frontend/Dockerfile
+@@ -37,7 +37,7 @@ COPY . .
+ 
+ # 确保安装依赖
+ RUN npm install
+-RUN npm install gsap
++# RUN npm install gsap
+ 
+ # 构建应用
+ RUN npm run build-only
+diff --git a/frontend/package-lock.json b/frontend/package-lock.json
+index 988f777..588266e 100644
+--- a/frontend/package-lock.json
++++ b/frontend/package-lock.json
+@@ -10,6 +10,7 @@
+       "dependencies": {
+         "axios": "^1.8.1",
+         "element-plus": "^2.9.4",
++        "gsap": "^3.12.7",
+         "highlight.js": "^11.11.1",
+         "katex": "^0.16.21",
+         "markdown-it": "^14.1.0",
+@@ -4734,6 +4735,12 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/gsap": {
++      "version": "3.12.7",
++      "resolved": "https://registry.npmjs.org/gsap/-/gsap-3.12.7.tgz",
++      "integrity": "sha512-V4GsyVamhmKefvcAKaoy0h6si0xX7ogwBoBSs2CTJwt7luW0oZzC0LhdkyuKV8PJAXr7Yaj8pMjCKD4GJ+eEMg==",
++      "license": "Standard 'no charge' license: https://gsap.com/standard-license. Club GSAP members get more: https://gsap.com/licensing/. Why GreenSock doesn't employ an MIT license: https://gsap.com/why-license/"
++    },
+     "node_modules/has-bigints": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/has-bigints/-/has-bigints-1.1.0.tgz",
+diff --git a/frontend/package.json b/frontend/package.json
+index 1da9c26..796af78 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -16,6 +16,7 @@
+   "dependencies": {
+     "axios": "^1.8.1",
+     "element-plus": "^2.9.4",
++    "gsap": "^3.12.7",
+     "highlight.js": "^11.11.1",
+     "katex": "^0.16.21",
+     "markdown-it": "^14.1.0",
+diff --git a/frontend/src/views/home.vue b/frontend/src/views/home.vue
+index 81d5e3b..fa7ce68 100644
+--- a/frontend/src/views/home.vue
++++ b/frontend/src/views/home.vue
+@@ -105,12 +105,12 @@ import backupImg from '@/imgs/backup.png'
+ import people1Img from '@/imgs/people1.png'
+ import people2Img from '@/imgs/people2.png'
+ import people3Img from '@/imgs/people3.png'
+-import { ChatDotRound, Sunny, Notebook } from '@element-plus/icons-vue'
++import { ChatDotRound, Opportunity, DocumentAdd } from '@element-plus/icons-vue'
+ gsap.registerPlugin(ScrollTrigger);
+ 
+ 
+ export default defineComponent({
+-  components: { ChatDotRound, Sunny, Notebook },
++  components: { ChatDotRound, Opportunity, DocumentAdd },
+   setup() {
+     const router = useRouter()
+     const hasScrolled = ref(false)
+@@ -134,12 +134,12 @@ export default defineComponent({
+         description: '快速提供准确答案与详细解析，助您轻松攻克难题。'
+       },
+       {
+-        icon: Sunny,
++        icon: Opportunity,
+         title: '思维引导',
+         description: '启发式引导，激发思考，展现多种解题思路。'
+       },
+       {
+-        icon: Notebook,
++        icon: DocumentAdd,
+         title: '生成题目',
+         description: '根据对应知识点生成相关题目，加深知识记忆，巩固解题方法。'
+       },
+@@ -377,7 +377,7 @@ export default defineComponent({
+         stagger: 0.2,
+         scrollTrigger: {
+           trigger: ctaSection.value,
+-          start: "top 75%",
++          start: "top 70%",
+           toggleActions: "play none none reverse"
+         },
+         ease: "power2.out"
+@@ -832,7 +832,7 @@ export default defineComponent({
+ 
+ .scenarios-container {
+   display: grid;
+-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
++  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+   gap: 3rem;
+   max-width: 1400px;
+   margin: 0 auto;
+-- 
+2.39.5 (Apple Git-154)
+

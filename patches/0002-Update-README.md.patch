@@ -1,0 +1,20 @@
+From 7a7e8ceec00f28bccd4ca1e8167e3386bb497e59 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 18 Feb 2025 11:52:54 +0800
+Subject: [PATCH 02/85] Update README.md
+
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index e4ac270..cdee8d9 100644
+--- a/README.md
++++ b/README.md
+@@ -1 +1 @@
+-# frontend
+\ No newline at end of file
++# 前端
+-- 
+2.39.5 (Apple Git-154)
+

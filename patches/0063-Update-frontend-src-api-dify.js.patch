@@ -1,0 +1,24 @@
+From 379995c531272cf738cc01bbc2035e5a28e3b6dd Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 23 Mar 2025 22:42:51 +0800
+Subject: [PATCH 63/85] Update frontend/src/api/dify.js
+
+Co-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>
+---
+ frontend/src/api/dify.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/frontend/src/api/dify.js b/frontend/src/api/dify.js
+index c06f622..d21897c 100644
+--- a/frontend/src/api/dify.js
++++ b/frontend/src/api/dify.js
+@@ -1,5 +1,5 @@
+ // Dify API service
+-const API_BASE_URL = ' http://120.26.63.52/v1';
++const API_BASE_URL = 'http://120.26.63.52/v1';
+ const API_KEY = 'app-IwkD0errZfVqEfI30GVcMVEz'; // Replace with your actual API key
+ 
+ // 用户ID生成或获取
+-- 
+2.39.5 (Apple Git-154)
+

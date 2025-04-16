@@ -1,0 +1,29 @@
+From f940c0930b95321abcb676cc04dea897c9d0c13a Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sat, 8 Mar 2025 15:35:49 +0800
+Subject: [PATCH 55/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=8F=82=E8=80=83?=
+ =?UTF-8?q?=E4=BF=A1=E6=81=AF=E6=98=BE=E7=A4=BA?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 3a241c4..97a794d 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -140,7 +140,7 @@
+                 <div class="reference-tooltip-content">
+                   <div class="reference-header">
+                     <span class="reference-position">{{ source.position }}</span>
+-                    <span class="reference-name">. {{ source.dataset_name || '知识库' }} / {{ source.document_name || '文档' }}</span>
++                    <span class="reference-name"> {{ source.dataset_name || '知识库' }} / {{ source.document_name || '文档' }}</span>
+                     <span class="reference-score">  相关度 {{ (source.score * 100).toFixed(1) }}%</span>
+                   </div>
+                   <div class="reference-text-full markdown-body" v-html="renderMarkdown(source.content)"></div>
+-- 
+2.39.5 (Apple Git-154)
+

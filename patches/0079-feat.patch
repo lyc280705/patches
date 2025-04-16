@@ -1,0 +1,290 @@
+From 84a74f28c2465546e840c31c0d6573275f856e71 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Wed, 2 Apr 2025 00:35:41 +0800
+Subject: [PATCH 79/85] =?UTF-8?q?feat-=E4=B8=8B=E4=B8=80=E6=AD=A5=E9=97=AE?=
+ =?UTF-8?q?=E9=A2=98=E5=BB=BA=E8=AE=AE?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 191 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 172 insertions(+), 19 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 4fe340a..4a51f3e 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -168,6 +168,26 @@
+             </el-tooltip>
+           </div>
+         </div>
++        <div 
++          v-if="message.type === 'ai' && message.suggestedQuestions && message.suggestedQuestions.length > 0" 
++          class="suggested-questions-container"
++        >
++          <div class="suggested-questions-title">
++            <el-icon><QuestionFilled /></el-icon>
++            <span>您可能想问</span>
++          </div>
++          <div class="suggested-questions-list">
++            <div 
++              v-for="(question, qIdx) in message.suggestedQuestions" 
++              :key="qIdx" 
++              class="suggested-question-item"
++              @click="handleSuggestedQuestionClick(question)"
++            >
++              <el-icon><ChatDotSquare /></el-icon>
++              <span>{{ question }}</span>
++            </div>
++          </div>
++        </div>
+       </template>
+     </div>
+     
+@@ -264,7 +284,8 @@ import {
+   renameConversation,
+   sendFeedback,
+   uploadFile,
+-  stopResponse
++  stopResponse,
++  getSuggestedQuestions
+ } from '@/api/dify'; 
+ 
+ import MarkdownIt from 'markdown-it';
+@@ -384,6 +405,13 @@ const triggerFileInput = () => {
+   fileInput.value.click();
+ };
+ 
++const handleSuggestedQuestionClick = (question) => {
++  // 将选中的问题填入输入框
++  inputMessage.value = question;
++  // 自动触发发送
++  sendMessage();
++};
++
+ const imageUrlCache = ref({});
+ // 添加停止生成函数
+ const stopResponding = async () => {
+@@ -407,8 +435,8 @@ const isValidUUID = (str) => {
+ };
+ // 判断是否为问候语
+ const isGreeting = (content) => {
+-  const greetingText = '亲爱的用户,你好!我是你的智能数学助手QMathify。<br>我可以帮助你解答数学问题,包括但不限于：<br>代数问题求解<br>概率统计计算 <br>数学知识归纳<br>请告诉我你的问题，我会为你解答。';
+-  return content === greetingText;
++  // 更改为通过属性判断，避免内容变化导致判断失败
++  return content === '亲爱的用户,你好!我是你的智能数学助手QMathify。<br>我可以帮助你解答数学问题,包括但不限于：<br>代数问题求解<br>概率统计计算 <br>数学知识归纳<br>请告诉我你的问题，我会为你解答。';
+ };
+ const copyMessage = (text) => {
+   navigator.clipboard.writeText(text)
+@@ -498,7 +526,11 @@ const loadDialogFromLocal = async (id) => {
+       messageList.value = [];
+       
+       // 首先添加欢迎消息（无论历史是否为空）
+-      messageList.value.push(welcomeMessage);
++      messageList.value.push({
++        ...welcomeMessage,
++        isGreeting: true,
++        messageId: 'greeting'
++      });
+       
+       // 处理API返回的数据
+       if (history && Array.isArray(history.data) && history.data.length > 0) {
+@@ -841,20 +873,35 @@ const sendMessage = async () => {
+               // 获取服务器返回的正确对话标题
+               setTimeout(async () => {
+                 try {
+-                  const conversations = await getConversations();
+-                  const conversation = conversations.data.find(conv => conv.id === convId);
+-                  if (conversation && conversation.name) {
+-                    console.log("更新对话标题:", conversation.name);
+-                    // 通知父组件更新对话标题
+-                    emit('update-dialog-title', {
+-                      id: convId,
+-                      name: conversation.name
+-                    });
++                  const suggestedResult = await getSuggestedQuestions(msgId);
++                  if (suggestedResult && suggestedResult.data && suggestedResult.data.length > 0) {
++                    // 查找对应的AI消息并添加建议问题，排除欢迎消息
++                    const aiMsgIndex = messageList.value.findIndex(msg => 
++                      msg.type === 'ai' && 
++                      msg.messageId === msgId && 
++                      msg.messageId !== 'greeting' && 
++                      !msg.isGreeting
++                    );
++                    
++                    if (aiMsgIndex !== -1) {
++                      console.log('添加建议问题到消息:', aiMsgIndex);
++                      messageList.value[aiMsgIndex].suggestedQuestions = suggestedResult.data;
++                    } else {
++                      console.log('未找到匹配的消息ID:', msgId);
++                      // 找最后一个非欢迎的AI消息添加
++                      for (let i = messageList.value.length - 1; i >= 0; i--) {
++                        if (messageList.value[i].type === 'ai' && !messageList.value[i].isGreeting) {
++                          console.log('添加建议问题到最后一个AI消息');
++                          messageList.value[i].suggestedQuestions = suggestedResult.data;
++                          break;
++                        }
++                      }
++                    }
+                   }
+-                } catch (err) {
+-                  console.error("获取对话标题失败:", err);
++                } catch (error) {
++                  console.error('获取建议问题失败:', error);
+                 }
+-              }, 1000); // 延迟1秒，确保服务器已处理完成
++              }, 500);
+             }
+           }
+           
+@@ -873,8 +920,24 @@ const sendMessage = async () => {
+           if (finalAiMsg && msgId) {
+             finalAiMsg.messageId = msgId;
+           }
+-        },
+-        (error) => {
++          if (msgId) {
++          // 延迟一小段时间获取建议问题，确保消息处理完成
++          setTimeout(async () => {
++            try {
++              const suggestedResult = await getSuggestedQuestions(msgId);
++              if (suggestedResult && suggestedResult.data && suggestedResult.data.length > 0) {
++                // 查找对应的AI消息并添加建议问题
++                const aiMsgIndex = messageList.value.findIndex(msg => msg.messageId === msgId);
++                if (aiMsgIndex !== -1) {
++                  messageList.value[aiMsgIndex].suggestedQuestions = suggestedResult.data;
++                }
++              }
++            } catch (error) {
++              console.error('获取建议问题失败:', error);
++            }
++          }, 500);
++        }
++      },(error) => {
+           // 处理错误
+           isGenerating.value = false;
+           currentTaskId.value = null;
+@@ -1107,7 +1170,9 @@ const handleNewDialog = () => {
+   // 添加欢迎消息
+   messageList.value.push({
+     type: 'ai',
+-    content: '亲爱的用户,你好!我是你的智能数学助手QMathify。<br>我可以帮助你解答数学问题,包括但不限于：<br>代数问题求解<br>概率统计计算 <br>数学知识归纳<br>请告诉我你的问题，我会为你解答。'
++    content: '亲爱的用户,你好!我是你的智能数学助手QMathify。<br>我可以帮助你解答数学问题,包括但不限于：<br>代数问题求解<br>概率统计计算 <br>数学知识归纳<br>请告诉我你的问题，我会为你解答。',
++    isGreeting: true,  // 添加这个标记区分欢迎消息
++    messageId: 'greeting'  // 设置一个明显的非UUID格式ID
+   });
+ };
+ 
+@@ -1856,6 +1921,73 @@ details[open] .thinking-summary::before {
+   font-size: 0.9em;
+ }
+ 
++.suggested-questions-container {
++  position: relative;
++  padding: 0;
++  max-width: 84%;
++  display: inline-flex;
++  flex-direction: column;
++  width: 100%;
++  margin-left: 3.5rem;
++  left: 5.6%;
++  box-sizing: border-box;
++  margin-top: -35px;
++  margin-bottom: 15px;
++}
++
++.suggested-questions-title {
++  display: flex;
++  align-items: center;
++  gap: 5px;
++  color: #713deb;
++  font-size: 0.8rem;
++  font-weight: 500;
++  margin-bottom: 5px;
++}
++
++.suggested-questions-list {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 8px;
++  width: 100%;
++}
++
++.suggested-question-item {
++  display: flex;
++  align-items: center;
++  background: linear-gradient(
++    90deg, 
++    rgba(170, 239, 242, 0.2) 0%, 
++    rgba(136, 191, 242, 0.2) 33%,
++    rgba(162, 169, 252, 0.2) 74%,
++    rgba(113, 61, 235, 0.2) 100%
++  );
++  border-radius: 8px;
++  padding: 6px 12px;
++  cursor: pointer;
++  transition: all 0.2s ease;
++  color: #555;
++  font-size: 0.9rem;
++}
++
++.suggested-question-item:hover {
++  background: linear-gradient(
++    90deg, 
++    rgba(170, 239, 242, 0.4) 0%, 
++    rgba(136, 191, 242, 0.4) 33%,
++    rgba(162, 169, 252, 0.4) 74%,
++    rgba(113, 61, 235, 0.4) 100%
++  );
++  transform: translateY(-2px);
++}
++
++.suggested-question-item .el-icon {
++  color: #713deb;
++  font-size: 0.9rem;
++}
++.suggested-question-item .el-icon:hover {
++  color: #555;
++}
+ /* 输入区域样式 */
+ .chat-input {
+   display: flex;
+@@ -2060,6 +2192,19 @@ textarea:focus {
+   .reference-score {
+     margin-left: 0;
+   }
++
++  .suggested-questions-container {
++    margin-left: 3rem;
++  }
++  
++  .suggested-questions-list {
++    flex-direction: column;
++    gap: 6px;
++  }
++  
++  .suggested-question-item {
++    max-width: fit-content;
++  }
+ }
+ 
+ /* 媒体查询 - 移动设备 */
+@@ -2151,6 +2296,14 @@ textarea:focus {
+     font-size: 0.9rem;
+   }
+ 
++  .suggested-questions-container {
++    margin-left: 2.5rem;
++  }
++  
++  .suggested-question-item {
++    width: 90%;
++  }
++
+   .uploaded-image {
+     max-width: 100%;
+   }
+-- 
+2.39.5 (Apple Git-154)
+

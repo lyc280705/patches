@@ -1,0 +1,362 @@
+From 1d723289c351a0cd901b7af9bac1ebbf866b2d93 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 30 Mar 2025 13:13:39 +0800
+Subject: [PATCH 67/85] =?UTF-8?q?style-=E6=A0=B7=E5=BC=8F=E4=BC=98?=
+ =?UTF-8?q?=E5=8C=96?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/point01.vue | 136 +++++++++++++++++++++++++--------
+ frontend/src/views/point02.vue |  21 ++---
+ 2 files changed, 108 insertions(+), 49 deletions(-)
+
+diff --git a/frontend/src/views/point01.vue b/frontend/src/views/point01.vue
+index b3533ee..3d46b78 100644
+--- a/frontend/src/views/point01.vue
++++ b/frontend/src/views/point01.vue
+@@ -1,7 +1,7 @@
+ <template>
+   <div class="container">
+     <div class="chat-container">
+-      <!-- 顶部标题和头像 -->
++      <!-- 顶部标题和头像部分保持不变 -->
+       <div class="header">
+         <img class="avatar" src="@/imgs/bot.png" alt="AI Avatar" />
+         <div class="title-container">
+@@ -12,17 +12,19 @@
+ 
+       <!-- 功能卡片容器 -->
+       <div class="boxes-container">
+-        <!-- 问题对话卡片 -->
++        <!-- 问题对话卡片 - 修改标题区域 -->
+         <div class="box" @click="isSmallScreen ? goToPage01() : null">
+           <div class="box-header">
+-            <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">问题对话实时解答</h3>
++            <div class="title-action-row">
++              <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">问题对话实时解答</h3>
++              <el-button type="primary" class="action-button" @click="goToPage01" v-show="!isSmallScreen">
++                开始
++              </el-button>
++            </div>
+             <p class="box-desc">小学、初中、高中所有数学问题都能详细分析、智能解答，你可以问我：</p>
+           </div>
+           
+           <div class="box-actions">
+-            <el-button type="primary" class="action-button" @click="goToPage01" v-show="!isSmallScreen">
+-              开始
+-            </el-button>
+             <div style="display: flex; flex-direction: column; gap: 10px;" class="example-buttons">
+               <el-button type="primary" class="example-button" @click="handleBo02Click">
+                 什么是全概率公式？它和贝叶斯公式有何关系？
+@@ -34,36 +36,43 @@
+           </div>
+         </div>
+ 
+-        <!-- 启发提问卡片 -->
++        <!-- 启发提问卡片 - 修改标题区域 -->
+         <div class="box" @click="isSmallScreen ? goToPage02() : null">
+           <div class="box-header">
+-            <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">启发提问引导思考</h3>
++            <div class="title-action-row">
++              <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">启发提问引导思考</h3>
++              <el-button type="primary" class="action-button" @click="goToPage02" v-show="!isSmallScreen">
++                开始
++              </el-button>
++            </div>
+             <p class="box-desc">根据你给的题目，我会递进反问你相关知识点，暂时不给出答案，引导你思考。</p>
+           </div>
+           
+           <div class="box-actions">
+-            <el-button type="primary" class="action-button" @click="goToPage02" v-show="!isSmallScreen">
+-              开始
+-            </el-button>
+             <div style="display: flex; flex-direction: column; gap: 10px;" class="example-buttons">
+               <el-button type="primary" class="example-button" @click="handleBo05Click">
+                 圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积是多少？
+               </el-button>
++              <el-button type="primary" class="example-button" @click="handleBo06Click">
++                已知复数z=(2 + i)(1 - 2i)，求z的实部与虚部之和。
++              </el-button>
+             </div>
+           </div>
+         </div>
+ 
+-        <!-- 推荐题目卡片 -->
++        <!-- 推荐题目卡片 - 修改标题区域 -->
+         <div class="box" @click="isSmallScreen ? goToPage03() : null">
+           <div class="box-header">
+-            <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">推荐题目加深思考</h3>
++            <div class="title-action-row">
++              <h3 class="box-title" :class="{ 'clickable': isSmallScreen }">推荐题目加深思考</h3>
++              <el-button type="primary" class="action-button" @click="goToPage03" v-show="!isSmallScreen">
++                开始
++              </el-button>
++            </div>
+             <p class="box-desc">根据所给知识点或问题生成相关题目，沉浸式思考，在线答题练习，你可以问我：</p>
+           </div>
+           
+           <div class="box-actions">
+-            <el-button type="primary" class="action-button" @click="goToPage03" v-show="!isSmallScreen">
+-              开始
+-            </el-button>
+             <div style="display: flex; flex-direction: column; gap: 10px;" class="example-buttons">
+               <el-button type="primary" class="example-button" @click="handleBo07Click">
+                 生成一元二次方程相关问题。
+@@ -110,11 +119,17 @@ const handleBo03Click = () => {
+ };
+ 
+ const handleBo05Click = () => {
+-  const question = "圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积？";
++  const question = "圆和扇形的半径相等,圆面积是30平方米,扇形圆心角是36度,扇形的面积是多少？";
+   localStorage.setItem('bo05Question', question);
+   window.location.href = `/Leading`;
+ };
+ 
++const handleBo06Click = () => {
++  const question = "已知复数z=(2 + i)(1 - 2i)，求z的实部与虚部之和。";
++  localStorage.setItem('bo06Question', question);
++  window.location.href = `/Leading`;
++};
++
+ const handleBo07Click = () => {
+   const question = "生成一元二次方程相关问题。";
+   localStorage.setItem('bo07Question', question);
+@@ -219,7 +234,7 @@ const checkScreenSize = () => {
+   padding: 25px;
+   display: flex;
+   flex-direction: column;
+-  min-height: 300px;
++  min-height: 280px; /* 略微减少最小高度 */
+   transition: transform 0.2s, box-shadow 0.2s;
+   position: relative; /* 添加定位上下文 */
+ }
+@@ -231,13 +246,21 @@ const checkScreenSize = () => {
+ 
+ /* 卡片内容样式 */
+ .box-header {
+-  margin-bottom: 20px;
++  margin-bottom: 15px;
++}
++
++.title-action-row {
++  display: flex;
++  justify-content: space-between;
++  align-items: center;
++  margin-bottom: 10px;
+ }
+ 
+ .box-title {
+   font-size: clamp(18px, 3vw, 22px);
+   font-weight: 600;
+-  margin: 0 0 10px 0;
++  margin: 0;
++  flex: 1;
+ }
+ 
+ .box-desc {
+@@ -252,17 +275,18 @@ const checkScreenSize = () => {
+ }
+ 
+ .box-actions {
+-  margin-top: auto;
++  margin-top: 20px; /* 改为固定间距，而非auto */
+   display: flex;
+   flex-direction: column;
+   gap: 15px;
+-  /* 确保所有卡片的动作区域高度一致 */
+-  padding-top: 15px;
++  flex-grow: 1; /* 允许增长以填充空间 */
++  display: flex;
++  flex-direction: column;
+ }
+ 
+ .action-button {
+   align-self: flex-end;
+-  padding: 10px 25px;
++  padding: 8px 20px;
+   border: none !important;
+   border-radius: 10px !important;
+   background: linear-gradient(
+@@ -275,7 +299,10 @@ const checkScreenSize = () => {
+   color: white !important;
+   font-weight: 500;
+   transition: transform 0.2s;
+-  height: 40px; /* 固定高度 */
++  height: 36px; /* 固定高度 */
++  white-space: nowrap;
++  margin-left: 10px;
++  min-width: 80px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+@@ -288,13 +315,14 @@ const checkScreenSize = () => {
+ .example-buttons {
+   display: flex;
+   flex-direction: column;
+-  gap: 10px;
+-  width: 100%;
++  justify-content: space-around; /* 均匀分布 */
++  gap: 15px; /* 增加间距 */
++  height: 100%; /* 占满全部高度 */
+ }
+ 
+ .example-button {
+   width: 100%;
+-  padding: 12px 15px;
++  padding: 15px; /* 增加内边距 */
+   border: none;
+   border-radius: 10px;
+   background-color: #f4f0ff;
+@@ -306,7 +334,7 @@ const checkScreenSize = () => {
+   overflow-wrap: break-word;
+   word-break: break-word;
+   font-size: clamp(12px, 1.8vw, 14px); /* 更合适的字体大小范围 */
+-  min-height: 40px;
++  min-height: 55px; /* 增加最小高度 */
+   display: flex;
+   align-items: center;
+ }
+@@ -352,6 +380,15 @@ const checkScreenSize = () => {
+   visibility: visible;
+ }
+ 
++/* 为不同卡片设置更合适的间距 */
++.boxes-container .box:last-child .box-header {
++  margin-bottom: 10px; /* 减少标题和内容间的间距 */
++}
++
++.boxes-container .box:last-child .example-buttons {
++  gap: 20px; /* 增加最后一个卡片中按钮之间的间距 */
++}
++
+ /* 媒体查询 */
+ @media (max-width: 1200px) {
+   .boxes-container {
+@@ -365,9 +402,18 @@ const checkScreenSize = () => {
+   }
+   
+   .box {
+-    min-height: 250px;
++    min-height: 230px; /* 中等屏幕更小的高度 */
++    padding: 20px 15px;
+     cursor: pointer;
+   }
++  
++  .box-actions {
++    margin-top: 15px;
++  }
++  
++  .example-button {
++    min-height: 50px;
++  }
+ }
+ 
+ @media (max-width: 768px) {
+@@ -382,7 +428,16 @@ const checkScreenSize = () => {
+   .header {
+     padding: 0 10px;
+   }
++
++  .title-action-row {
++    flex-wrap: wrap;
++  }
+   
++  .action-button {
++    margin-top: 10px;
++    margin-left: 0;
++  }
++
+   .boxes-container {
+     gap: 20px;
+     padding: 0 10px;
+@@ -391,10 +446,10 @@ const checkScreenSize = () => {
+   .box {
+     padding: 20px 15px;
+     /* 保持卡片最小高度一致 */
+-    min-height: 250px;
++    min-height: 230px; /* 中等屏幕更小的高度 */
+   }
+   .example-button {
+-    min-height: 36px;
++    min-height: 50px;
+     padding: 8px 12px;
+   }
+ }
+@@ -404,19 +459,34 @@ const checkScreenSize = () => {
+     flex-direction: column;
+     text-align: center;
+   }
++
++  .title-action-row {
++    flex-direction: column;
++    align-items: flex-start;
++  }
++  
++  .action-button {
++    width: 100%;
++    margin-top: 8px;
++  }
+   
+   .boxes-container {
+     grid-template-columns: 1fr;
+   }
+   
+   .box {
+-    min-height: 220px;
++    min-height: auto; /* 小屏幕完全基于内容高度 */
++    padding-bottom: 15px;
+   }
+   .box-desc {
+     max-height: 6em; /* 在小屏上允许更多行显示 */
+   }
+   
+   /* 确保极小屏幕上的文本大小合适 */
++  .example-buttons {
++    gap: 10px;
++  }
++  
+   .example-button {
+     font-size: 13px;
+   }
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 3b3772b..e3ac5ed 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -1242,27 +1242,16 @@ const existingOnMounted = onMounted;
+ onMounted(() => {
+   handleNewDialog();
+ 
+-  // 检查localStorage中是否有存储的问题内容
+-  const question = localStorage.getItem('bo02Question');
+-  if (question) {
+-    inputMessage.value = question;
+-    // 移除localStorage中的内容，避免下次重复填充
+-    localStorage.removeItem('bo02Question');
+-  }
+-  // 检查bo03Question
+-
+-const question03 = localStorage.getItem('bo03Question');
+-
+-if (question03) {
+-inputMessage.value = question03;
+-localStorage.removeItem('bo03Question');
+-}
+-
+ const question05 = localStorage.getItem('bo05Question');
++const question06 = localStorage.getItem('bo06Question');
+ if (question05) {
+   inputMessage.value = question05;
+   localStorage.removeItem('bo05Question');
+ }
++if (question06) {
++  inputMessage.value = question06;
++  localStorage.removeItem('bo06Question');
++}
+ 
+   if (typeof existingOnMounted === 'function') {
+     existingOnMounted();
+-- 
+2.39.5 (Apple Git-154)
+

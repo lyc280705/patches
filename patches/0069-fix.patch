@@ -1,0 +1,208 @@
+From 18d5abf0a2b4713cfe1b1ec02f5ca42f80fccd18 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Sun, 30 Mar 2025 20:20:08 +0800
+Subject: [PATCH 69/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=9B=BE=E7=89=87?=
+ =?UTF-8?q?=E4=B8=8A=E4=BC=A0=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue      | 10 +++----
+ frontend/src/views/point02.vue | 50 +++++++++++++++++-----------------
+ frontend/src/views/point03.vue | 10 +++----
+ 3 files changed, 35 insertions(+), 35 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 50c4173..1b87375 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -511,7 +511,7 @@ const loadDialogFromLocal = async (id) => {
+           userImages.forEach(file => {
+             let fileUrl = file.url;
+             if (fileUrl && fileUrl.startsWith('/')) {
+-              fileUrl = ` http://121.40.214.128${fileUrl}`;
++              fileUrl = `http://121.40.214.128${fileUrl}`;
+             }
+             
+             // 为每个图片创建独立的消息
+@@ -537,7 +537,7 @@ const loadDialogFromLocal = async (id) => {
+           documentFiles.forEach(file => {
+             let fileUrl = file.url;
+             if (fileUrl && fileUrl.startsWith('/')) {
+-              fileUrl = ` http://121.40.214.128${fileUrl}`;
++              fileUrl = `http://121.40.214.128${fileUrl}`;
+             }
+             
+             messageList.value.push({
+@@ -599,7 +599,7 @@ const loadDialogFromLocal = async (id) => {
+               aiMessage.files = aiFiles.map(file => {
+                 let fileUrl = file.url;
+                 if (fileUrl && fileUrl.startsWith('/')) {
+-                  fileUrl = ` http://121.40.214.128${fileUrl}`;
++                  fileUrl = `http://121.40.214.128${fileUrl}`;
+                 }
+                 return {
+                   id: file.id,
+@@ -1139,7 +1139,7 @@ const handleImageUpload = async (e) => {
+     // 构建文件URL，与历史记录处理一致
+     let fileUrl = result.url || '';
+     if (fileUrl && fileUrl.startsWith('/')) {
+-      fileUrl = ` http://121.40.214.128${fileUrl}`;
++      fileUrl = `http://121.40.214.128${fileUrl}`;
+     }
+     
+     // 添加纯图片消息 - 不包含任何文本内容，保持与历史记录的结构一致
+@@ -1213,7 +1213,7 @@ const handleFileUpload = async (e) => {
+     // 构建文件URL（与loadDialogFromLocal函数一致）
+     let fileUrl = result.url || '';
+     if (fileUrl && fileUrl.startsWith('/')) {
+-      fileUrl = ` http://121.40.214.128${fileUrl}`;
++      fileUrl = `http://121.40.214.128${fileUrl}`;
+     }
+     
+     // 上传成功后，修改消息内容，保存文件ID用于后续API调用
+diff --git a/frontend/src/views/point02.vue b/frontend/src/views/point02.vue
+index 3765564..3cc030b 100644
+--- a/frontend/src/views/point02.vue
++++ b/frontend/src/views/point02.vue
+@@ -499,7 +499,8 @@ const loadDialogFromLocal = async (id) => {
+               fileId: file.id,
+               fileType: 'image',
+               imageUrl: fileUrl,
+-              isImageOnly: true
++              isImageOnly: true,
++              fileSent: true
+             });
+             
+             // 缓存图片URL
+@@ -714,8 +715,7 @@ const sendMessage = async () => {
+       // 添加AI思考中状态
+       messageList.value.push({
+         type: 'thinking',
+-        content: '',
+-        hasThinkingContent: false
++        content: ''
+       });
+       scrollToBottom();
+       
+@@ -731,7 +731,6 @@ const sendMessage = async () => {
+         currentDialogId.value,
+         // 流式回调处理...
+         // 其余代码保持不变
+-                // 修改 sendMessage 函数中的流式回调处理逻辑
+         (text, tid, msgId) => {
+           if (tid && !currentTaskId.value) {
+             currentTaskId.value = tid;
+@@ -850,29 +849,30 @@ const sendMessage = async () => {
+               type: 'ai',
+               content: fullAnswer,
+               messageId: msgId,
+-              isCurrentResponse: false // 重置当前响应标记
++              isCurrentResponse: false
+             });
+-          } else {
+-            // 查找并更新当前正在响应的消息
+-            const currentAiMsgIndex = messageList.value.findIndex(msg => 
+-              msg.type === 'ai' && msg.isCurrentResponse
+-            );
+-            
+-            if (currentAiMsgIndex !== -1) {
+-              messageList.value[currentAiMsgIndex].content = fullAnswer;
+-              messageList.value[currentAiMsgIndex].isCurrentResponse = false; // 重置标记
+-              if (msgId) {
+-                messageList.value[currentAiMsgIndex].messageId = msgId;
+-              }
+-            }
+           }
+           
+-          // 确保所有消息都重置isCurrentResponse标记
+-          messageList.value.forEach(msg => {
+-            if (msg.isCurrentResponse) {
+-              msg.isCurrentResponse = false;
+-            }
+-          });
++          // 确保最终消息有正确的messageId
++          const finalAiMsg = messageList.value.find(msg => msg.type === 'ai' && !msg.messageId);
++          if (finalAiMsg && msgId) {
++            finalAiMsg.messageId = msgId;
++          }
++        },
++        (error) => {
++          // 处理错误
++          isGenerating.value = false;
++          currentTaskId.value = null;
++          ElMessage.error('发送消息失败：' + error.message);
++          
++          // 移除思考中状态
++          const thinkingIndex = messageList.value.findIndex(msg => msg.type === 'thinking');
++          if (thinkingIndex !== -1) {
++            messageList.value.splice(thinkingIndex, 1, {
++              type: 'ai',
++              content: '回答生成失败，请重试。'
++            });
++          }
+         },
+         files,
+         (metadata, msgId) => {
+@@ -1088,7 +1088,7 @@ const handleNewDialog = () => {
+   messageList.value = [];
+   currentDialogId.value = null; // 重要：置空ID，确保服务器生成新ID
+   isFirstInput.value = true;
+-  
++  ElMessage.success('已创建新对话');
+   // 添加欢迎消息
+   messageList.value.push({
+     type: 'ai',
+diff --git a/frontend/src/views/point03.vue b/frontend/src/views/point03.vue
+index 7912999..3a92d2c 100644
+--- a/frontend/src/views/point03.vue
++++ b/frontend/src/views/point03.vue
+@@ -516,7 +516,7 @@ const loadDialogFromLocal = async (id) => {
+           userImages.forEach(file => {
+             let fileUrl = file.url;
+             if (fileUrl && fileUrl.startsWith('/')) {
+-              fileUrl = ` http://121.40.214.128${fileUrl}`;
++              fileUrl = `http://121.40.214.128${fileUrl}`;
+             }
+             
+             // 为每个图片创建独立的消息
+@@ -542,7 +542,7 @@ const loadDialogFromLocal = async (id) => {
+           documentFiles.forEach(file => {
+             let fileUrl = file.url;
+             if (fileUrl && fileUrl.startsWith('/')) {
+-              fileUrl = ` http://121.40.214.128${fileUrl}`;
++              fileUrl = `http://121.40.214.128${fileUrl}`;
+             }
+             
+             messageList.value.push({
+@@ -604,7 +604,7 @@ const loadDialogFromLocal = async (id) => {
+               aiMessage.files = aiFiles.map(file => {
+                 let fileUrl = file.url;
+                 if (fileUrl && fileUrl.startsWith('/')) {
+-                  fileUrl = ` http://121.40.214.128${fileUrl}`;
++                  fileUrl = `http://121.40.214.128${fileUrl}`;
+                 }
+                 return {
+                   id: file.id,
+@@ -1144,7 +1144,7 @@ const handleImageUpload = async (e) => {
+     // 构建文件URL，与历史记录处理一致
+     let fileUrl = result.url || '';
+     if (fileUrl && fileUrl.startsWith('/')) {
+-      fileUrl = ` http://121.40.214.128${fileUrl}`;
++      fileUrl = `http://121.40.214.128${fileUrl}`;
+     }
+     
+     // 添加纯图片消息 - 不包含任何文本内容，保持与历史记录的结构一致
+@@ -1218,7 +1218,7 @@ const handleFileUpload = async (e) => {
+     // 构建文件URL（与loadDialogFromLocal函数一致）
+     let fileUrl = result.url || '';
+     if (fileUrl && fileUrl.startsWith('/')) {
+-      fileUrl = ` http://121.40.214.128${fileUrl}`;
++      fileUrl = `http://121.40.214.128${fileUrl}`;
+     }
+     
+     // 上传成功后，修改消息内容，保存文件ID用于后续API调用
+-- 
+2.39.5 (Apple Git-154)
+

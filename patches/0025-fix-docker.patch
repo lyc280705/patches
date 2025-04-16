@@ -1,0 +1,245 @@
+From 42664ac60da34a8698550c714107b3785eed1860 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 3 Mar 2025 23:42:26 +0800
+Subject: [PATCH 25/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8Ddocker=E9=83=A8?=
+ =?UTF-8?q?=E7=BD=B2=E5=BC=82=E5=B8=B8=E7=9A=84=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ README.md                       |   1 -
+ backend/.env                    |   4 ++--
+ backend/Dockerfile              |   8 ++++++++
+ backend/extensions.py           |   9 +++++++--
+ backend/instance/app.db         | Bin 16384 -> 0 bytes
+ docker-compose.yml              |  12 +++++++++---
+ frontend/Dockerfile             |   2 +-
+ frontend/src/views/QMathify.vue |   2 +-
+ frontend/src/views/ai.vue       |   2 +-
+ frontend/src/views/login.vue    |   2 +-
+ frontend/src/views/register.vue |   2 +-
+ frontend/src/views/reset.vue    |   2 +-
+ 12 files changed, 32 insertions(+), 14 deletions(-)
+ delete mode 100644 backend/instance/app.db
+
+diff --git a/README.md b/README.md
+index 09b6488..a07495a 100644
+--- a/README.md
++++ b/README.md
+@@ -46,7 +46,6 @@ docker-compose up -d
+ 
+ 3. 访问应用
+ - 前端: http://localhost:80
+-- 后端API: http://localhost:80/api
+ 
+ ### 配置项
+ 
+diff --git a/backend/.env b/backend/.env
+index 1e56793..cad7b5d 100644
+--- a/backend/.env
++++ b/backend/.env
+@@ -2,5 +2,5 @@ FLASK_APP=app.py
+ FLASK_ENV=production
+ SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
+ REDIS_URL=redis://redis:6379/0
+-SECRET_KEY=your_secret_key_here
+-JWT_SECRET_KEY=your_jwt_secret_key_here
+\ No newline at end of file
++SECRET_KEY=
++JWT_SECRET_KEY=
+\ No newline at end of file
+diff --git a/backend/Dockerfile b/backend/Dockerfile
+index 28ada5f..ce7ef49 100644
+--- a/backend/Dockerfile
++++ b/backend/Dockerfile
+@@ -16,6 +16,14 @@ ENV FLASK_ENV=production
+ ENV SQLALCHEMY_DATABASE_URI=sqlite:///instance/app.db
+ ENV REDIS_URL=redis://redis:6379/0
+ 
++# 邮件服务配置
++ENV MAIL_SERVER=smtp.qq.com
++ENV MAIL_PORT=587
++ENV MAIL_USE_TLS=True
++ENV MAIL_USERNAME=381564291@qq.com
++ENV MAIL_PASSWORD=fgohttmvdowgbihf
++ENV MAIL_DEFAULT_SENDER=381564291@qq.com
++
+ # 暴露端口
+ EXPOSE 5000
+ 
+diff --git a/backend/extensions.py b/backend/extensions.py
+index f03d873..ca881c6 100644
+--- a/backend/extensions.py
++++ b/backend/extensions.py
+@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
+ from flask_mail import Mail
+ import redis
+ import time
++import os
+ 
+ # 初始化扩展，但不绑定到具体应用
+ db = SQLAlchemy()
+@@ -10,11 +11,15 @@ mail = Mail()
+ # 添加错误处理，使用内存字典作为备选
+ memory_storage = {}
+ 
++# 获取环境变量中的Redis URL
++redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
++
+ try:
+-    redis_client = redis.Redis(host='localhost', port=6379, db=0)
++    # 使用环境变量中的Redis URL
++    redis_client = redis.from_url(redis_url)
+     # 测试连接
+     redis_client.ping()
+-    print("成功连接到Redis服务器")
++    print(f"成功连接到Redis服务器: {redis_url}")
+     use_redis = True
+ except Exception as e:
+     print(f"无法连接Redis: {str(e)}，将使用内存存储")
+diff --git a/backend/instance/app.db b/backend/instance/app.db
+deleted file mode 100644
+index 2b2dec8db6a2b51588a116a7c9d6ca799fb842f9..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 16384
+zcmeI&&raJg90%}(BC1vzox~wmACN|*!D8p1(-Rp)TeY@~P|(m0$cYm*f&y*I#!eI4
+zanHB6*b8u*8`g<#5)S}h%ZX$8=U<#pPL6W0-z}yY$uA}&F(tP4T+?-Jn-ERY>grfl
+z$Gp_k#r?iMA9$dxYg?awJW~O+)oZO~uKrXF3Irek0SG_<0uX=z1Rwwb2s|NykF^!!
+zm7#wv&SiF8T%TN(*`%z_=VFvqz2%)a3I`E6?05DLBhu;bMjyz3p=7U5s&KL~Yi6^}
+zcxlBj4ZU1Uo{dCtR)y9c%v{CYOI!8Ln}J?83`753pNiz{ZiQ8{r9a6A;p=WRUrMu4
+zNVVcY^d^c)e{Vqghu!W=(rnDvNRGmI=WQ5oc#gRcaCi6lC}q~-@TDlr&leMUG8E<T
+zZxYJ*VpuxK#59v9YEQqb3<sTFG`suzxYG;cWAZLKCL4t`o91k9uD4!js-i#u0uX=z
+z1Rwwb2tWV=5P$##p1Q!zkzUu<HoxtMl-V|?uII3TZjZ-X>BXo_Ctoh7ZJYTXZ}T=?
+z569=d)86>1I5<v&?r^y7xYDvxi~G4q7?*w`Qs1MLGHK-jPlWBcQl>d~y_}}0pghlW
+z#|vmKe1{1ZcvL0GM3Oj}<q0mOCv2ZlpE{n$I2GJV+<@9L<qqdmS~L+%O&4C^<gR1c
+z%wq1QWvfaow@rgKbGLkpdOT>VH><aPX{w??00Izz00bZa0SG_<0uX=z1R(GT1lDSs
+wjeoyg-0lBwwbtz;ctAV?1Rwwb2tWV=5P$##AOHafKmY=Z0xPw(hWeM`H>!Tb&j0`b
+
+diff --git a/docker-compose.yml b/docker-compose.yml
+index dc4f957..67b8419 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -11,7 +11,7 @@ services:
+       - backend
+     networks:
+       - app-network
+-    restart: unless-stopped
++    restart: always
+ 
+   backend:
+     build:
+@@ -21,13 +21,19 @@ services:
+       - FLASK_APP=app.py
+       - FLASK_ENV=production
+       - REDIS_URL=redis://redis:6379/0
++      - MAIL_SERVER=smtp.qq.com
++      - MAIL_PORT=587
++      - MAIL_USE_TLS=True
++      - MAIL_USERNAME=381564291@qq.com
++      - MAIL_PASSWORD=fgohttmvdowgbihf
++      - MAIL_DEFAULT_SENDER=381564291@qq.com
+     volumes:
+       - backend_data:/app/instance
+     depends_on:
+       - redis
+     networks:
+       - app-network
+-    restart: unless-stopped
++    restart: always
+ 
+   redis:
+     image: redis:7-alpine
+@@ -35,7 +41,7 @@ services:
+       - redis_data:/data
+     networks:
+       - app-network
+-    restart: unless-stopped
++    restart: always
+ 
+ networks:
+   app-network:
+diff --git a/frontend/Dockerfile b/frontend/Dockerfile
+index 39cc48d..60c00e8 100644
+--- a/frontend/Dockerfile
++++ b/frontend/Dockerfile
+@@ -11,7 +11,7 @@ RUN npm install
+ # 复制前端项目文件
+ COPY . .
+ 
+-# 构建应用 - 跳过类型检查，直接构建
++# 构建应用
+ RUN npm run build-only
+ 
+ # 生产环境阶段
+diff --git a/frontend/src/views/QMathify.vue b/frontend/src/views/QMathify.vue
+index 9c544e8..e960630 100644
+--- a/frontend/src/views/QMathify.vue
++++ b/frontend/src/views/QMathify.vue
+@@ -151,7 +151,7 @@
+ 
+ <script setup>
+ import { ref, onMounted, onUnmounted, reactive } from 'vue';
+-const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++const API_BASE_URL = '/api/auth';
+ import { ElMessage, ElForm } from "element-plus";
+ import { Memo, Edit, Delete } from '@element-plus/icons-vue'; // 引入图标
+ import ai from './ai.vue';
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index 6db5959..f4bb77f 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -257,7 +257,7 @@ const md = new MarkdownIt({
+   }
+ }).use(texmath, {
+   engine: katex,
+-  delimiters: 'dollars', // 使用 $...$ 和 $$...$$ 语法
++  delimiters: ["dollars", "brackets"],
+   katexOptions: {
+     macros: {},
+     throwOnError: false,
+diff --git a/frontend/src/views/login.vue b/frontend/src/views/login.vue
+index 121e530..5b2267d 100644
+--- a/frontend/src/views/login.vue
++++ b/frontend/src/views/login.vue
+@@ -54,7 +54,7 @@ const rememberMe = ref(false);
+ const loading = ref(false);
+ 
+ const router = useRouter();
+-const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++const API_BASE_URL = '/api/auth';
+ 
+ // 在组件加载时检查是否有保存的凭证
+ onMounted(() => {
+diff --git a/frontend/src/views/register.vue b/frontend/src/views/register.vue
+index 91f5bf9..b538947 100644
+--- a/frontend/src/views/register.vue
++++ b/frontend/src/views/register.vue
+@@ -74,7 +74,7 @@ const verificationCode = ref('');
+ const password = ref('');
+ const confirmPassword = ref('');
+ const loading = ref(false);
+-const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++const API_BASE_URL = '/api/auth';
+ // 验证码按钮状态管理
+ const countdown = ref(0);
+ const codeButtonText = computed(() => {
+diff --git a/frontend/src/views/reset.vue b/frontend/src/views/reset.vue
+index 29c350c..820a05e 100644
+--- a/frontend/src/views/reset.vue
++++ b/frontend/src/views/reset.vue
+@@ -73,7 +73,7 @@ const newPassword = ref('');
+ const confirmPassword = ref('');
+ const loading = ref(false);
+ 
+-const API_BASE_URL = 'http://127.0.0.1:5000/api/auth';
++const API_BASE_URL = '/api/auth';
+ 
+ // 验证码按钮状态管理
+ const countdown = ref(0);
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,235 @@
+From 5407bc4441cd77369c412dafa33343b761d8c720 Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Tue, 4 Mar 2025 00:24:30 +0800
+Subject: [PATCH 26/85] =?UTF-8?q?revert-=E5=88=A0=E9=99=A4=E5=8F=AF?=
+ =?UTF-8?q?=E8=83=BD=E5=AF=BC=E8=87=B4=E5=BC=82=E5=B8=B8=E7=9A=84=E6=9B=B4?=
+ =?UTF-8?q?=E6=94=B9?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/ai.vue | 132 +++++++++++---------------------------
+ 1 file changed, 36 insertions(+), 96 deletions(-)
+
+diff --git a/frontend/src/views/ai.vue b/frontend/src/views/ai.vue
+index c871377..9fd6ea8 100644
+--- a/frontend/src/views/ai.vue
++++ b/frontend/src/views/ai.vue
+@@ -67,9 +67,20 @@
+             </el-icon>
+           </div>
+         </div>
+-       
+         <!-- 显示图片预览 -->
+-        <div class="image-container" v-if="message.imageUrl || message.tempImageUrl || message.isUploading">
++                <!-- 修改图片容器部分 -->
++        <div class="image-container" v-if="message.images && message.images.length > 0">
++          <div v-for="(img, imgIndex) in message.images" :key="img.id" class="uploaded-image-wrapper">
++            <img
++              :src="img.url"
++              alt="Uploaded Image"
++              class="uploaded-image"
++              @click="openImageInNewTab(img.url)"
++            />
++          </div>
++        </div>
++        <!-- 保留现有的单图片显示逻辑，确保兼容性 -->
++        <div class="image-container" v-else-if="message.imageUrl || message.tempImageUrl || message.isUploading">
+           <img
+             :src="message.imageUrl || message.tempImageUrl"
+             alt="Uploaded Image"
+@@ -163,21 +174,6 @@
+           placeholder="请输入您想要问的问题"
+           @keydown.enter="sendMessage"
+         />
+-      </div>
+-       <!-- 添加待发送文件预览 -->
+-    <div class="pending-files-preview">
+-      <div v-for="(file, index) in pendingFiles" :key="index" class="pending-file">
+-        <img
+-          v-if="file.type === 'image'"
+-          :src="file.tempUrl"
+-          class="pending-image"
+-          alt="待发送图片"
+-        />
+-        <span class="file-name">{{ file.fileName }}</span>
+-        <el-icon class="remove-file" @click="removePendingFile(index)">
+-          <Close />
+-        </el-icon>
+-      </div>
+     </div>
+       <!-- 隐藏的图片上传输入框 -->
+       <input
+@@ -233,7 +229,6 @@
+       </button>
+     </div>
+   </div>
+- 
+ </template>
+ 
+ <script setup>
+@@ -302,8 +297,6 @@ const isFirstInput = ref(true);
+ const currentDialogId = ref(null);
+ const isGenerating = ref(false);
+ const currentTaskId = ref(null);
+-const pendingFiles = ref([]);
+-
+ // 添加文件和图片上传触发函数
+ const triggerImageInput = () => {
+   imageInput.value.click();
+@@ -480,7 +473,7 @@ const loadDialogFromLocal = async (id) => {
+     
+     // 检查是否是有效ID
+     if (!id) {
+-      console.log("无ID.创建新对话");
++      console.log("无ID，创建新对话");
+       handleNewDialog();
+       return true;
+     }
+@@ -1063,7 +1056,6 @@ const handleNewDialog = () => {
+ };
+ 
+ // 修复图片上传函数
+-
+ // 修复图片上传函数
+ const handleImageUpload = async (e) => {
+   const file = e.target.files[0];
+@@ -1084,7 +1076,16 @@ const handleImageUpload = async (e) => {
+   }
+ 
+   try {
++    // 显示上传中提示，但不添加到消息列表
++    ElMessage.info('图片上传中...');
++
++    // 上传文件到服务器
+     const result = await uploadFile(file);
++    console.log("图片上传结果:", result);
++
++    if (!result || !result.id) {
++      throw new Error('服务器没有返回有效的文件ID');
++    }
+     
+     // 构建文件URL，与历史记录处理一致
+     let fileUrl = result.url || '';
+@@ -1120,13 +1121,6 @@ const handleImageUpload = async (e) => {
+   }
+ };
+ 
+-// 新增删除待发送文件方法
+-const removePendingFile = (index) => {
+-  pendingFiles.value.splice(index, 1);
+-};
+-
+-
+-
+ // 修复文件上传函数
+ const handleFileUpload = async (e) => {
+   const file = e.target.files[0];
+@@ -1364,13 +1358,21 @@ defineExpose({
+   font-size: 20px;
+  
+ }
+-.stop-responding-icon:hover ,
+-.close-icon:hover,
+-.check-icon:hover,
++
+ .copy-icon:hover {
+-  color: rgba(144, 107, 232, 1); /* 复制图标悬停颜色 */
++  color: #409eff; /* 复制图标悬停颜色 */
++}
++
++.check-icon:hover {
++  color: #f56c6c; /* 喜欢图标悬停颜色 */
+ }
+ 
++.close-icon:hover {
++  color: #909399; /* 不喜欢图标悬停颜色 */}
++
++.stop-responding-icon:hover {
++  color: #e63c3c; /* 停止回答图标悬停颜色 */
++}
+ .four{width: 180px;
+   height: 57px;
+ position: absolute;
+@@ -1406,67 +1408,6 @@ right: 15%;
+   max-width: 78%; /* 设置消息的最大宽度 */
+   word-wrap: break-word; /* 强制长单词或 URL 换行 */
+ }
+-.chat-container {
+-  position: relative; /* 改为relative作为定位基准 */
+-  top: 45px;
+-  width: 1000px;
+-  height: 650px;
+-  /* 其他样式保持不变 */
+-}
+-
+-/* 新增头部容器样式 */
+-.chat-header {
+-  position: absolute;
+-  top: 0px;
+-  right: 10px;
+-  display: flex;
+-  flex-direction: column;
+-  align-items: flex-end;
+-}
+-
+-/* 调整four图片样式 */
+-.four {
+-  width: 180px;
+-  height: 57px;
+-  position: relative;
+-  top: 5%;
+-  right: 35%;
+-}
+-
+-/* 重构图标容器样式 */
+-.icons {
+-  display: flex;
+-  gap: 15px;
+-  background: rgba(255, 255, 255, 0.9);
+-  padding: 8px 12px;
+-  border-radius: 30px;
+-  position: relative;
+-  height: 20px;
+-  z-index: 1000;
+-
+-}
+-
+-/* 统一图标样式 */
+-.bell-icon,
+-.moon-icon,
+-.info-icon,
+-.user-icon {
+-  font-size: 20px;
+-  color: rgba(113, 128, 150, 1);
+-  transition: all 0.3s ease;
+-  cursor: pointer;
+-  height: 105px;
+-position: relative;
+-right: 75px;}
+-
+-/* 悬停效果 */
+-.bell-icon:hover,
+-.moon-icon:hover,
+-.info-icon:hover,
+-.user-icon:hover {
+-  color: rgba(144, 107, 232, 1);
+-  transform: scale(1.1);
+-}
+ 
+ /* 修改图片容器样式，使图片居中显示 */
+ .image-container {
+@@ -1611,8 +1552,7 @@ right: 75px;}
+   align-items: center;
+   gap: 5px;
+   padding: 5px 10px;
+-  background-color: #ffffff;
+-  color:rgba(144, 107, 232, 1);
++  background-color: #f0f2f5;
+   border-radius: 4px;
+   cursor: pointer;
+ }
+-- 
+2.39.5 (Apple Git-154)
+

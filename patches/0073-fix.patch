@@ -1,0 +1,57 @@
+From b8fad406a9d81a8a89a2da523e684f67e4fe05aa Mon Sep 17 00:00:00 2001
+From: Yuchen Lin <381564291@qq.com>
+Date: Mon, 31 Mar 2025 13:08:31 +0800
+Subject: [PATCH 73/85] =?UTF-8?q?fix-=E4=BF=AE=E5=A4=8D=E5=B0=8F=E5=B1=8F?=
+ =?UTF-8?q?=E5=B9=95=E4=B8=BB=E9=A1=B5=E6=98=BE=E7=A4=BA=E9=97=AE=E9=A2=98?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ frontend/src/views/home.vue | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
+
+diff --git a/frontend/src/views/home.vue b/frontend/src/views/home.vue
+index acda655..5150b8a 100644
+--- a/frontend/src/views/home.vue
++++ b/frontend/src/views/home.vue
+@@ -1086,9 +1086,33 @@ export default defineComponent({
+   }
+   
+   .hero-section {
+-    padding-top: 8rem;
+-    padding-left: 3%;
+-    padding-right: 3%;
++    padding-top: 6rem;
++    padding-bottom: 2rem;
++    min-height: auto;
++  }
++  
++  .hero-title-image {
++    max-width: 180px;
++  }
++  
++  .hero-message-title {
++    font-size: 1.3rem;
++    margin-bottom: 0.6rem;
++  }
++  
++  .hero-message-subtitle {
++    font-size: 0.9rem;
++  }
++  
++  .cta-button-large {
++    font-size: 1rem;
++    padding: 0.7rem 2.5rem;
++    min-width: 180px;
++  }
++  
++  .hero-message-desc {
++    font-size: 0.9rem;
++    margin-top: 0.7rem;
+   }
+   
+   .section-title::after {
+-- 
+2.39.5 (Apple Git-154)
+
